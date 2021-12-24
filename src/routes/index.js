@@ -5,7 +5,7 @@ const articleController = require('../controllers/article')
 
 router.get(
   "/get-latest-releases/:q",
-  wrapAsync(articleController.getArticles)
+  wrapAsync(articleController.getLatestReleases)
 )
 
 module.exports = router;
