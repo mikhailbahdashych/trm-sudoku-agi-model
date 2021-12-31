@@ -1,8 +1,8 @@
 const knex = require('../knex/knex')
-const tableName = 'tips'
+const tableName = 'writeups'
 
 module.exports = {
-  async getTipById(id) {
+  async getWriteUpById(id) {
     return knex(tableName)
       .first('*').where('id', id)
   }
