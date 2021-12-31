@@ -1,7 +1,7 @@
 const articleService = require('./../services/articleService')
 
-exports.getLatestReleases = async (req, res) => {
-  const { q } = req.params
-  const result = await articleService.getArticles(q)
-  res.json(result)
+exports.getArticleById = async (req, res) => {
+  const { id } = req.params
+  const data = await articleService.getArticleById(id)
+  res.json(data)
 }

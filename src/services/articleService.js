@@ -6,5 +6,9 @@ module.exports = {
       .select('*')
       .orderBy('created_at', 'desc')
       .limit(q)
+  },
+  async getArticleById(id) {
+    return knex('articles')
+      .first('*').where('id', id)
   }
 }
