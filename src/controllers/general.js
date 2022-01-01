@@ -1,5 +1,4 @@
 const articleService = require('./../services/articleService')
-const tipService = require('./../services/tipService')
 const writeUpService = require('./../services/writeUpService')
 const ctfService = require('./../services/ctfService')
 

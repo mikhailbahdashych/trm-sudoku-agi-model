@@ -13,6 +13,13 @@ module.exports = {
       port: process.env.DB_PORT
     },
     debug: false,
+    migrations: {
+      tableName: "knex_migrations",
+      directory: __dirname + "/src/knex/migrations",
+    },
+    seeds: {
+      directory: __dirname + "/src/knex/seeds",
+    },
   }
 
 };
