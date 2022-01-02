@@ -9,6 +9,7 @@ module.exports = {
       .join('posts_types', 'posts_types.id', 'posts.type_id')
       .where('posts_types.type', '!=', 'tip')
       .limit(q).orderBy('created_at')
+
   },
   async getPostById(id) {
     return knex(tableName)
