@@ -14,5 +14,11 @@ module.exports = {
   async getPostById(id) {
     return knex(tableName)
       .first('*').where('id', id)
+  },
+  async getPostsByCategory(category) {
+    return knex(tableName)
+      .select('posts.id', 'posts.title', 'posts.plot', 'posts.text', 'posts.created_at', 'posts.updated_at', 'posts_types.type')
+      .join('posts_types', 'posts_types.id', 'posts.type_id')
+      .where('posts_types.type', category)
   }
 }

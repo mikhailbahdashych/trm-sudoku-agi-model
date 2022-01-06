@@ -13,4 +13,9 @@ router.get(
   wrapAsync(generalController.getPostById)
 )
 
+router.get(
+  "/get-posts-by-category/:category",
+  wrapAsync(generalController.getPostsByCategory)
+)
+
 module.exports = router;
