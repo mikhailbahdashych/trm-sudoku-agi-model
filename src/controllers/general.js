@@ -11,6 +11,7 @@ exports.getPostById = async (req, res) => {
 }
 
 exports.getPostsByCategory = async (req, res) => {
-  const result = await generalService.getPostsByCategory(req.params.category)
+  const { category, from, to } = req.params
+  const result = await generalService.getPostsByCategory(category, from, to)
   res.json(result)
 }

@@ -14,7 +14,7 @@ router.get(
 )
 
 router.get(
-  "/get-posts-by-category/:category",
+  "/get-posts-by-category/:category/:from/:to",
   wrapAsync(generalController.getPostsByCategory)
 )
 

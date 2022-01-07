@@ -15,10 +15,14 @@ module.exports = {
     return knex(tableName)
       .first('*').where('id', id)
   },
-  async getPostsByCategory(category) {
+  async getPostsByCategory(category, from, to) {
     return knex(tableName)
       .select('posts.id', 'posts.title', 'posts.plot', 'posts.text', 'posts.created_at', 'posts.updated_at', 'posts_types.type')
       .join('posts_types', 'posts_types.id', 'posts.type_id')
       .where('posts_types.type', category)
+      .modify((qb) => {
+        if (from) qb.where('posts.created_at', '>=', `${from} 00:00:00`)
+        else if (to) qb.where('posts.created_at', '<=', `${to} 23:59:59`)
+      })
   }
 }
