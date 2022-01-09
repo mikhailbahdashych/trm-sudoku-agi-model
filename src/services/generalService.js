@@ -8,7 +8,7 @@ module.exports = {
       .select('posts.id', 'posts.title', 'posts.plot', 'posts.text', 'posts.created_at', 'posts.updated_at', 'posts_types.type')
       .join('posts_types', 'posts_types.id', 'posts.type_id')
       .where('posts_types.type', '!=', 'tip')
-      .limit(q).orderBy('created_at')
+      .limit(q).orderBy('created_at', 'desc')
 
   },
   async getPostById(id) {
