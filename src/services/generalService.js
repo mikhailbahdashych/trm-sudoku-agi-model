@@ -1,5 +1,4 @@
 const knex = require('../knex/knex')
-const uuid = require('uuid');
 const tableName = 'posts'
 
 module.exports = {
