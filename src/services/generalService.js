@@ -28,7 +28,9 @@ module.exports = {
   },
   async search(input) {
     return knex(tableName)
-      .select('*')
+      .select('posts.*', 'posts_types.type')
       .where('title', 'like', `%${input}%`)
+      .join('posts_types', 'posts_types.id', 'posts.type_id')
+      .limit(5)
   }
 }
