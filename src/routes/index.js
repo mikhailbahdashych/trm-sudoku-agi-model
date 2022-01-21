@@ -18,4 +18,9 @@ router.get(
   wrapAsync(generalController.getPostsByCategory)
 )
 
+router.post(
+  "/search",
+  wrapAsync(generalController.search)
+)
+
 module.exports = router;
