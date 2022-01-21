@@ -3,7 +3,7 @@ const tableName = 'posts'
 
 module.exports = {
   async getLatestReleases(q) {
-    return knex('posts')
+    return knex(tableName)
       .select('posts.id', 'posts.title', 'posts.plot', 'posts.text', 'posts.created_at', 'posts.updated_at', 'posts_types.type', 'posts.cover')
       .join('posts_types', 'posts_types.id', 'posts.type_id')
       .where('posts_types.type', '!=', 'tip')
@@ -25,5 +25,10 @@ module.exports = {
           qb.where('posts.created_at', '<=', `${to} 23:59:59`)
         }
       })
+  },
+  async search(input) {
+    return knex(tableName)
+      .select('*')
+      .where('title', 'like', `%${input}%`)
   }
 }

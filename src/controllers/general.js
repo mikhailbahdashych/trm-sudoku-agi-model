@@ -17,5 +17,7 @@ exports.getPostsByCategory = async (req, res) => {
 }
 
 exports.search = async (req, res) => {
-
+  const { input } = req.body
+  const result = await generalService.search(input)
+  res.json(result)
 }
