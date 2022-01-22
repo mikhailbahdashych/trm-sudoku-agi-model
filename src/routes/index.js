@@ -5,6 +5,11 @@ const generalController = require('../controllers/general')
 const emailController = require('../controllers/email')
 
 router.get(
+  "/get-selected-releases/:q",
+  wrapAsync(generalController.getSelectedReleases)
+)
+
+router.get(
   "/get-latest-releases/:q",
   wrapAsync(generalController.getLatestReleases)
 )

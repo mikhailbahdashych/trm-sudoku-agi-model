@@ -1,5 +1,10 @@
 const generalService = require('../services/generalService')
 
+exports.getSelectedReleases = async (req, res) => {
+  const data = await generalService.getSelectedReleases(req.params.q)
+  res.json(data)
+}
+
 exports.getLatestReleases = async (req, res) => {
   const data = await generalService.getLatestReleases(req.params.q)
   res.json(data)

@@ -2,6 +2,14 @@ const knex = require('../knex/knex')
 const tableName = 'posts'
 
 module.exports = {
+  async getSelectedReleases(q) {
+    return knex(tableName)
+      .select('posts.id', 'posts.title', 'posts.plot', 'posts.text', 'posts.created_at', 'posts.updated_at', 'posts_types.type', 'posts.cover')
+      .join('posts_types', 'posts_types.id', 'posts.type_id')
+      .where('posts_types.type', '!=', 'tip')
+      .where('posts.selected', 1)
+      .limit(q).orderBy('created_at', 'desc')
+  },
   async getLatestReleases(q) {
     return knex(tableName)
       .select('posts.id', 'posts.title', 'posts.plot', 'posts.text', 'posts.created_at', 'posts.updated_at', 'posts_types.type', 'posts.cover')
