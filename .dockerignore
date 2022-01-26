@@ -1,6 +1,9 @@
 node_modules
-.DS_Store
+Dockerfile
 scripts
+
+.DS_Store
 .drone*
 .git
 .cache
+.idea
