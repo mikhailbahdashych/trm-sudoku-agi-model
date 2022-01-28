@@ -1,0 +1,14 @@
+version: '3.1'
+services:
+  api:
+    build: ./
+    container_name: pnbapi
+    ports:
+      - "3001:3001"
+  front:
+    build: ./../pnb_front/
+    container_name: pnbfront
+    ports:
+      - "8010:8010"
+    depends_on:
+      - api
