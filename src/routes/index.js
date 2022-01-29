@@ -34,4 +34,9 @@ router.post(
   wrapAsync(emailController.sendEmail)
 )
 
+router.get(
+  "/test",
+  wrapAsync(generalController.someTestEndpoint)
+)
+
 module.exports = router;

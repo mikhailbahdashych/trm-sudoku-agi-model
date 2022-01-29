@@ -5,6 +5,8 @@ services:
     container_name: pnbapi
     ports:
       - "3001:3001"
+    depends_on:
+      - db
   front:
     build: ./../pnb_front/
     container_name: pnbfront
@@ -12,3 +14,4 @@ services:
       - "8010:8010"
     depends_on:
       - api
+

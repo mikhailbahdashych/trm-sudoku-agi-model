@@ -26,3 +26,10 @@ exports.search = async (req, res) => {
   const result = await generalService.search(input)
   res.json(result)
 }
+
+exports.someTestEndpoint = async (req, res) => {
+  res.json({
+    data: 'Some test JSON data',
+    status: 200
+  })
+}
