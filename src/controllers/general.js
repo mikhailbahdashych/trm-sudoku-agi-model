@@ -27,3 +27,9 @@ exports.search = async (req, res) => {
   res.json(result)
 }
 
+exports.getTestData = async (req, res) => {
+  res.json({
+    data: 'Some test JSON data',
+    status: 1
+  })
+}

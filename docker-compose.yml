@@ -6,13 +6,14 @@ services:
     ports:
       - "3306:3306"
     environment:
-      - DB_NAME=pnb
-      - DB_USER=root
-      - DB_PASS=password
-      - MYSQL_ROOT_PASSWORD=
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: pnb
   api:
     build: ./
     container_name: pnbapi
+    environment:
+      NODE_ENV: development
     ports:
       - "3001:3001"
     depends_on:
@@ -20,6 +21,8 @@ services:
   front:
     build: ./../pnb_front/
     container_name: pnbfront
+    environment:
+      NODE_ENV: development
     ports:
       - "8010:8010"
     depends_on:
