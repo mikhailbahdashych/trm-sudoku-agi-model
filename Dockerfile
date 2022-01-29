@@ -8,5 +8,7 @@ RUN npm install
 
 EXPOSE 3001
 
-CMD [ "npm", "start" ]
+VOLUME [ "/pnbapi/node_modules" ]
+
+CMD [ "npm", "run", "dev" ]
 

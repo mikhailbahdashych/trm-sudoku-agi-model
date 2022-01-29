@@ -1,5 +1,15 @@
 version: '3.1'
 services:
+  db:
+    image: mysql
+    container_name: pnbdb
+    ports:
+      - "3306:3306"
+    environment:
+      - DB_NAME=pnb
+      - DB_USER=root
+      - DB_PASS=password
+      - MYSQL_ROOT_PASSWORD=
   api:
     build: ./
     container_name: pnbapi
@@ -14,4 +24,3 @@ services:
       - "8010:8010"
     depends_on:
       - api
-
