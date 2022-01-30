@@ -14,8 +14,6 @@ services:
     container_name: pnbapi
     restart: on-failure
     command: bash -c "npm run knex && npm run seeds && npm run start"
-    environment:
-      NODE_ENV: development
     ports:
       - "3001:3001"
     depends_on:
@@ -23,8 +21,6 @@ services:
   front:
     build: ./../pnb_front/
     container_name: pnbfront
-    environment:
-      NODE_ENV: development
     ports:
       - "8010:8010"
     depends_on:

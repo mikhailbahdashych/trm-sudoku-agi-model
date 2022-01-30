@@ -1,5 +1,10 @@
-.idea
-node_modules/
-.env
-.DS_Store
+node_modules
+Dockerfile
+scripts
 package-lock.json
+
+.DS_Store
+.drone*
+.git
+.cache
+.idea
