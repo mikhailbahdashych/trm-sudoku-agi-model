@@ -2,7 +2,7 @@ FROM node
 
 WORKDIR /pnbapi
 
-COPY package*.json ./
+COPY package.json ./
 
 RUN npm install
 
