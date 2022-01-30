@@ -13,7 +13,7 @@ services:
     build: ./
     container_name: pnbapi
     restart: on-failure
-    command: bash -c "npm run knex && npm run start"
+    command: bash -c "npm run knex && npm run seeds && npm run start"
     environment:
       NODE_ENV: development
     ports:

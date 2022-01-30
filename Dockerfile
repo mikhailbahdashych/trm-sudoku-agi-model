@@ -2,12 +2,11 @@ FROM node
 
 WORKDIR /pnbapi
 
-COPY . .
+COPY package*.json ./
 
 RUN npm install
 
+COPY . .
+
 EXPOSE 3001
 
-VOLUME [ "/pnbapi/node_modules" ]
-
-CMD [ "npm", "start" ]

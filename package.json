@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.js",
     "start": "cross-env NODE_ENV=production node server.js",
-    "knex": "cross-env NODE_ENV=production knex migrate:latest"
+    "knex": "cross-env NODE_ENV=production knex migrate:latest",
+    "seeds": "cross-env NODE_ENV=production knex seed:run"
   },
   "author": "",
   "license": "ISC",
