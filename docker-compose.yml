@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3.8'
 services:
   db:
     image: mysql
@@ -12,6 +12,8 @@ services:
   api:
     build: ./
     container_name: pnbapi
+    restart: on-failure
+    command: npm run knex
     environment:
       NODE_ENV: development
     ports:
