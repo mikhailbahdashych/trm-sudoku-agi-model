@@ -21,6 +21,7 @@ services:
   front:
     build: ./../pnb_front/
     container_name: pnbfront
+    command: bash -c "npm start"
     ports:
       - "8010:8010"
     depends_on:
