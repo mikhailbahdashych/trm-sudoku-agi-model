@@ -1,5 +1,6 @@
 const uuidv4 = require('uuid')
-exports.seed = function(knex) {
+exports.seed = async function(knex) {
+  await knex('posts').del()
   return knex('posts_types').del()
     .then(function () {
       return knex('posts_types').insert([
