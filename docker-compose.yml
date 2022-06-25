@@ -9,31 +9,3 @@ services:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_PASSWORD: password
       MYSQL_DATABASE: pnb
-    networks:
-      - pnbnetwork
-#  api:
-#    build: ./
-#    container_name: pnbapi
-#    restart: on-failure
-#    command: bash -c "npm run knex && npm run seeds && npm run start"
-#    ports:
-#      - "3001:3001"
-#    depends_on:
-#      - db
-#    networks:
-#      - pnbnetwork
-#  front:
-#    build: ./../pnb_front/
-#    container_name: pnbfront
-#    command: bash -c "npm start"
-#    ports:
-#      - "8010:8010"
-#    depends_on:
-#      - api
-#    networks:
-#      - pnbnetwork
-
-networks:
-  pnbnetwork:
-    driver: bridge
-    name: pnbnetwork
