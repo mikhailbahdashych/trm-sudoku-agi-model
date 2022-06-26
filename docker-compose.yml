@@ -1,11 +1,10 @@
 version: '3.8'
 services:
   db:
-    image: mysql
+    image: postgres
     container_name: pnbdb
+    restart: always
     ports:
-      - "3306:3306"
+      - "5432:5432"
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_PASSWORD: password
-      MYSQL_DATABASE: pnb
+      POSTGRES_PASSWORD: mysecretpassword

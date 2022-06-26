@@ -15,7 +15,7 @@ const myFormat = printf(({ level, message, stack, label, timestamp }) => {
   return errorString;
 });
 
-export default (data) => {
+module.exports = (data) => {
   const transportsConfig = !data.notSplit ? [
     data.path ? new DailyRotateFile({
       filename: '%DATE%.log',
