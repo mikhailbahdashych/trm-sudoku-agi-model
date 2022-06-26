@@ -10,7 +10,7 @@ router.post(
 
 router.post(
   "/sign-up",
-  wrapAsync(userController.signUn)
+  wrapAsync(userController.signUp)
 );
 
 module.exports = router;
