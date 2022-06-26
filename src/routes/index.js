@@ -3,6 +3,17 @@ const wrapAsync = require('./../middlewares/async')
 
 const generalController = require('../controllers/general')
 const emailController = require('../controllers/email')
+const userController = require('../controllers/userController');
+
+router.post(
+  "/sign-in",
+  wrapAsync(userController.signIn)
+);
+
+router.post(
+  "/sign-up",
+  wrapAsync(userController.signUn)
+)
 
 router.get(
   "/get-selected-releases/:q",
