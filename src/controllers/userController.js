@@ -4,8 +4,7 @@ const logger = loggerInstance({ label: 'client-controller', path: 'client' })
 
 exports.signIn = async (req, res) => {
   try {
-    const data = await userService.signIn(req.body)
-    res.json(data)
+
   } catch (e) {
     logger.error(`Something went wrong while sign in => ${e}`)
     return res.status(500).json({
@@ -17,12 +16,27 @@ exports.signIn = async (req, res) => {
 
 exports.signUp = async (req, res) => {
   try {
-    const { email, password } = req.body
+    let { email, password } = req.body
 
-    // if (!email || !password)
+    if (!email || !password) {
+      return res.status(400).json({
+        message: 'bad-request',
+        status: 400
+      })
+    }
 
-    const data = await userService.signUp(req.body)
-    return res.json(data)
+    const user = await userService.getUserByEmail(email)
+    logger.info(`Registration client with email: ${email}`)
+
+    if (user) {
+      logger.warning(`Client with email ${email} already exists`)
+      return res.status(409).json({
+        message: 'conflict',
+        status: 409
+      })
+    }
+
+    // password =
   } catch (e) {
     logger.error(`Something went wrong while sign up => ${e}`)
     return res.status(500).json({

@@ -2,10 +2,9 @@ const knex = require('../knex/knex');
 const tableName = 'users'
 
 module.exports = {
-  async signIn(data) {
+  async getUserByEmail(email) {
     return knex(tableName)
-  },
-  async signUp(data) {
-    return knex(tableName)
+      .where('email', email)
+      .first()
   }
 }
