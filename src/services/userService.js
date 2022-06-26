@@ -14,6 +14,10 @@ module.exports = {
       .first()
   },
   async createUser(data) {
-    return knex(tableName).insert(data)
+    return knex(tableName).insert({
+      email: data.email,
+      password: data.password,
+      personal_id: data.personalId
+    })
   }
 }
