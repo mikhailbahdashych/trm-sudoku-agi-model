@@ -6,5 +6,8 @@ module.exports = {
     return knex(tableName)
       .where('email', email)
       .first()
+  },
+  async createUser(data) {
+    return knex(tableName).insert(data)
   }
 }
