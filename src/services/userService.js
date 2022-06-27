@@ -4,7 +4,12 @@ const tableName = 'users'
 exports.getUserById = async ({ id }) => {
   return knex(tableName)
     .where('id', id)
-    .first()
+    .first(
+      'personal_id as personalId',
+      'two_fa as twoFa',
+      'nickname',
+      'id'
+    )
 }
 
 exports.getUserByEmail = async ({ email }) => {
@@ -30,4 +35,10 @@ exports.createUser = async (data) => {
     password: data.password,
     personal_id: data.personalId
   })
+}
+
+exports.getUserByPersonalId = async (personalId) => {
+  return knex(tableName)
+    .where('personal_id', personalId)
+    .first()
 }

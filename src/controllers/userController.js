@@ -77,11 +77,30 @@ exports.getUserByToken = async (req, res) => {
     const client = await getClientByJwtToken(req.headers.ato)
 
     if (!client)
-      res.status(403).json({ error: "not-found", status: 403 });
+      return res.status(403).json({ error: "not-found", status: 403 });
 
     return res.status(200).json(client)
   } catch (e) {
     logger.error(`Something went wrong while getting user by token => ${e}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
+exports.getUserByPersonalId = async (req, res) => {
+  try {
+    const { personalId } = req.params.personalId
+
+    if (!personalId)
+      return res.status(400).json({ message: 'bad-request', status: 400 })
+
+    const client = await userService.getUserByPersonalId(personalId)
+
+    if (!client)
+      return res.status(403).json({ error: "not-found", status: 403 });
+
+    return res.status(200).json(client)
+  } catch (e) {
+    logger.error(`Something went wrong while getting user by personal Id => ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
