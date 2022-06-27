@@ -70,3 +70,20 @@ exports.signUp = async (req, res) => {
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
+
+exports.getUserByToken = async (req, res) => {
+  try {
+    const { ato } = req.headers;
+
+    const userInfo = await jwtService.getUser(ato);
+    const client = await userService.getUserByEmail(userInfo.email);
+
+    if (!client)
+      res.status(403).json({ error: "not-found", status: 403 });
+
+    return res.status(200).json(client)
+  } catch (e) {
+    logger.error(`Something went wrong while getting user by token => ${e}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}

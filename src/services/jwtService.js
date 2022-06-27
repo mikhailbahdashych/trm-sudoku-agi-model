@@ -21,7 +21,7 @@ exports.sign = payload => {
   )
 }
 
-exports.getClient = token => {
+exports.getUser = token => {
   return jwt.verify(token, publicKey)
 }
 
