@@ -31,8 +31,8 @@ exports.signIn = async (req, res) => {
       if (!twoFa) return res.status(200).json({ twoFa: true })
 
       const result2Fa = twoFactorService.verifyToken(client.twoFa, twoFa)
-      if (!result2Fa) return res.status(403).json({ status: 403, message: 'access-forbidden' })
-      if (result2Fa.delta !== 0) return res.status(403).json({ status: 403, message: 'access-forbidden' })
+      if (!result2Fa) return res.status(403).json({ status: -2, message: 'access-forbidden' })
+      if (result2Fa.delta !== 0) return res.status(403).json({ status: -2, message: 'access-forbidden' })
     }
 
     const uxd = cryptoService.encrypt(client.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
@@ -57,14 +57,14 @@ exports.signUp = async (req, res) => {
 
     if (user) {
       logger.warning(`Client with email ${email} already exists`)
-      return res.status(409).json({ message: 'conflict', status: 409 })
+      return res.status(409).json({ message: 'conflict', status: -1 })
     }
 
     const pickedNickname = await userService.getUserByNickname(nickname)
 
     if (pickedNickname) {
       logger.warning(`Client with nickname - ${nickname} - already exists`)
-      return res.status(409).json({ message: 'conflict', status: 409 })
+      return res.status(409).json({ message: 'conflict', status: -2 })
     }
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
