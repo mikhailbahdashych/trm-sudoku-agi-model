@@ -8,11 +8,12 @@ const cryptoService = require('../services/cryptoService');
 const jwtService = require('../services/jwtService');
 
 const loggerInstance = require('../common/logger');
+const { getClientByJwtToken } = require('../common/getClientByJwtToken')
 const logger = loggerInstance({ label: 'client-controller', path: 'client' });
 
 exports.signIn = async (req, res) => {
   try {
-    let { email, password, twofa } = req.body
+    let { email, password, twoFa } = req.body
 
     if (!email || !password)
       return res.status(400).json({ message: 'bad-request', status: 400 })
@@ -26,10 +27,10 @@ exports.signIn = async (req, res) => {
       return res.status(401).json({ message: 'unauthorized', status: 401 })
     }
 
-    if (client.twofa) {
-      if (!twofa) return res.status(200).json({ twofa: true })
+    if (client.twoFa) {
+      if (!twoFa) return res.status(200).json({ twoFa: true })
 
-      const result2Fa = twoFactorService.verifyToken(client.twofa, twofa)
+      const result2Fa = twoFactorService.verifyToken(client.twoFa, twoFa)
       if (!result2Fa) return res.status(403).json({ status: 403, message: 'access-forbidden' })
       if (result2Fa.delta !== 0) return res.status(403).json({ status: 403, message: 'access-forbidden' })
     }
@@ -73,10 +74,7 @@ exports.signUp = async (req, res) => {
 
 exports.getUserByToken = async (req, res) => {
   try {
-    const { ato } = req.headers;
-
-    const userInfo = await jwtService.getUser(ato);
-    const client = await userService.getUserByEmail(userInfo.email);
+    const client = await getClientByJwtToken(req.headers.ato)
 
     if (!client)
       res.status(403).json({ error: "not-found", status: 403 });

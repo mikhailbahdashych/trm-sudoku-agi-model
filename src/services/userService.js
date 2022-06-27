@@ -1,7 +1,13 @@
 const knex = require('../knex/knex');
 const tableName = 'users'
 
-exports.getUserByEmail = async (email) => {
+exports.getUserById = async ({ id }) => {
+  return knex(tableName)
+    .where('id', id)
+    .first()
+}
+
+exports.getUserByEmail = async ({ email }) => {
   return knex(tableName)
     .where('email', email)
     .first()
@@ -11,7 +17,11 @@ exports.getClientToSignIn = async (data) => {
   return knex(tableName)
     .where('email', data.email)
     .andWhere('password', data.password)
-    .first()
+    .first(
+      'personal_id as personalId',
+      'two_fa as twoFa',
+      'id',
+    )
 }
 
 exports.createUser = async (data) => {
