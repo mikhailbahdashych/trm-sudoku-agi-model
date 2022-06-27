@@ -18,6 +18,20 @@ exports.getUserByEmail = async ({ email }) => {
     .first()
 }
 
+exports.getUserByNickname = async (nickname) => {
+  return knex(tableName)
+    .where('nickname', nickname)
+    .first()
+}
+
+exports.getUserByPersonalId = async (personalId) => {
+  return knex(tableName)
+    .where('personal_id', personalId)
+    .first(
+      'nickname'
+    )
+}
+
 exports.getClientToSignIn = async (data) => {
   return knex(tableName)
     .where('email', data.email)
@@ -35,10 +49,4 @@ exports.createUser = async (data) => {
     password: data.password,
     personal_id: data.personalId
   })
-}
-
-exports.getUserByPersonalId = async (personalId) => {
-  return knex(tableName)
-    .where('personal_id', personalId)
-    .first()
 }

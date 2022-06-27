@@ -24,7 +24,7 @@ exports.signIn = async (req, res) => {
 
     if (!client) {
       logger.info(`Wrong data while sign in for client with email: ${email}`)
-      return res.status(401).json({ message: 'unauthorized', status: 401 })
+      return res.status(401).json({ message: 'unauthorized', status: -1 })
     }
 
     if (client.twoFa) {
@@ -47,9 +47,9 @@ exports.signIn = async (req, res) => {
 
 exports.signUp = async (req, res) => {
   try {
-    let { email, password } = req.body
+    let { email, password, nickname } = req.body
 
-    if (!email || !password)
+    if (!email || !password || !nickname)
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
     const user = await userService.getUserByEmail(email)
@@ -57,6 +57,13 @@ exports.signUp = async (req, res) => {
 
     if (user) {
       logger.warning(`Client with email ${email} already exists`)
+      return res.status(409).json({ message: 'conflict', status: 409 })
+    }
+
+    const pickedNickname = await userService.getUserByNickname(nickname)
+
+    if (pickedNickname) {
+      logger.warning(`Client with nickname - ${nickname} - already exists`)
       return res.status(409).json({ message: 'conflict', status: 409 })
     }
 
