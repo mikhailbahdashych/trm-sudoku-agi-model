@@ -3,7 +3,6 @@ exports.up = function(knex) {
     table.uuid('id').notNullable().defaultTo(knex.raw('gen_random_uuid ()')).primary()
     table.text('email').notNullable()
     table.text('password').notNullable()
-    table.text('username').notNullable()
     table.text('personal_id').notNullable()
     table.text('two_fa').nullable()
 
