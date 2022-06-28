@@ -7,7 +7,7 @@ exports.getUserById = async ({ id }) => {
     .first(
       'personal_id as personalId',
       'two_fa as twoFa',
-      'nickname',
+      'username',
       'id'
     )
 }
@@ -18,9 +18,9 @@ exports.getUserByEmail = async ({ email }) => {
     .first()
 }
 
-exports.getUserByNickname = async (nickname) => {
+exports.getUserByUsername = async (username) => {
   return knex(tableName)
-    .where('nickname', nickname)
+    .where('username', username)
     .first()
 }
 
@@ -28,7 +28,7 @@ exports.getUserByPersonalId = async (personalId) => {
   return knex(tableName)
     .where('personal_id', personalId)
     .first(
-      'nickname'
+      'username'
     )
 }
 
@@ -47,6 +47,7 @@ exports.createUser = async (data) => {
   return knex(tableName).insert({
     email: data.email,
     password: data.password,
-    personal_id: data.personalId
+    personal_id: data.personalId,
+    username: data.username
   })
 }

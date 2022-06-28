@@ -47,12 +47,12 @@ exports.signIn = async (req, res) => {
 
 exports.signUp = async (req, res) => {
   try {
-    let { email, password, nickname } = req.body
+    let { email, password, username } = req.body
 
-    if (!email || !password || !nickname)
+    if (!email || !password || !username)
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
-    const user = await userService.getUserByEmail(email)
+    const user = await userService.getUserByEmail({ email })
     logger.info(`Registration client with email: ${email}`)
 
     if (user) {
@@ -60,16 +60,16 @@ exports.signUp = async (req, res) => {
       return res.status(409).json({ message: 'conflict', status: -1 })
     }
 
-    const pickedNickname = await userService.getUserByNickname(nickname)
+    const pickedUsername = await userService.getUserByUsername(username)
 
-    if (pickedNickname) {
-      logger.warning(`Client with nickname - ${nickname} - already exists`)
+    if (pickedUsername) {
+      logger.warning(`Client with nickname - ${username} - already exists`)
       return res.status(409).json({ message: 'conflict', status: -2 })
     }
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
     const personalId = (seedrandom(email).quick() * 1e10).toFixed(0)
-    await userService.createUser({ email, password, personalId })
+    await userService.createUser({ email, password, personalId, username })
     logger.info(`Client with email ${email} was created`)
 
     return res.status(200).json({ message: 'success', status: 200 })
