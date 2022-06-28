@@ -10,4 +10,6 @@ router.get("/get-user-by-token", wrapAsync(userController.getUserByToken));
 router.get("/get-user-by-personal-id/:personalId", wrapAsync(userController.getUserByPersonalId));
 router.get("/get-user-settings", wrapAsync(userController.getUserSettings));
 
+router.patch("/update-user-personal-information", wrapAsync(userController.updateUserPersonalInformation));
+
 module.exports = router;

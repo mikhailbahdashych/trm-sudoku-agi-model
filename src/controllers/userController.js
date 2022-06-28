@@ -133,3 +133,13 @@ exports.getUserByToken = async (req, res) => {
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
+
+exports.updateUserPersonalInformation = async (req, res) => {
+  try {
+
+  } catch (e) {
+    logger.error(`Something went wrong while updating user personal information => ${e}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+
+  }
+}
