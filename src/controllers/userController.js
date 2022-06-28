@@ -140,6 +140,14 @@ exports.updateUserPersonalInformation = async (req, res) => {
   } catch (e) {
     logger.error(`Something went wrong while updating user personal information => ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
 
+exports.updateUserSecuritySettings = async (req, res) => {
+  try {
+
+  } catch (e) {
+    logger.error(`Something went wrong while updating user security settings => ${e}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
