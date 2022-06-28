@@ -81,10 +81,10 @@ exports.signUp = async (req, res) => {
 
 exports.getUserByToken = async (req, res) => {
   try {
-    const client = await getClientByJwtToken(req.headers.ato)
+    if (!req.headers.ato || req.headers.ato === 'null')
+      return res.status(200).json({ status: -1 });
 
-    if (!client)
-      return res.status(403).json({ error: "not-found", status: 403 });
+    const client = await getClientByJwtToken(req.headers.ato)
 
     return res.status(200).json(client)
   } catch (e) {
