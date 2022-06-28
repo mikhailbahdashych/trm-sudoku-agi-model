@@ -5,7 +5,9 @@ const userController = require('../controllers/userController');
 
 router.post("/sign-in", wrapAsync(userController.signIn));
 router.post("/sign-up", wrapAsync(userController.signUp));
+
 router.get("/get-user-by-token", wrapAsync(userController.getUserByToken));
 router.get("/get-user-by-personal-id/:personalId", wrapAsync(userController.getUserByPersonalId));
+router.get("/get-user-settings", wrapAsync(userController.getUserSettings));
 
 module.exports = router;
