@@ -51,3 +51,7 @@ exports.createUser = async (data) => {
     username: data.username
   })
 }
+
+exports.getUserSettings = async (id) => {
+  return knex(tableName)
+}
