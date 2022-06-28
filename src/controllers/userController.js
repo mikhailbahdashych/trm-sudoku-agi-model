@@ -136,7 +136,8 @@ exports.getUserByToken = async (req, res) => {
 
 exports.updateUserPersonalInformation = async (req, res) => {
   try {
-
+    if (!req.headers.ato || req.headers.ato === 'null')
+      return res.status(200).json({ status: -1 });
   } catch (e) {
     logger.error(`Something went wrong while updating user personal information => ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
@@ -145,7 +146,8 @@ exports.updateUserPersonalInformation = async (req, res) => {
 
 exports.updateUserSecuritySettings = async (req, res) => {
   try {
-
+    if (!req.headers.ato || req.headers.ato === 'null')
+      return res.status(200).json({ status: -1 });
   } catch (e) {
     logger.error(`Something went wrong while updating user security settings => ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
