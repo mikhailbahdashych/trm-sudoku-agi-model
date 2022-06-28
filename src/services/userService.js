@@ -4,10 +4,11 @@ const tableName = 'users'
 exports.getUserById = async ({ id }) => {
   return knex(tableName)
     .where('id', id)
+    .leftJoin('users_info', 'users_info.user_id', 'users.id')
     .first(
       'personal_id as personalId',
       'two_fa as twoFa',
-      'username',
+      'users_info.username as username',
       'id'
     )
 }
@@ -19,16 +20,17 @@ exports.getUserByEmail = async ({ email }) => {
 }
 
 exports.getUserByUsername = async (username) => {
-  return knex(tableName)
+  return knex('users_info')
     .where('username', username)
     .first()
 }
 
 exports.getUserByPersonalId = async (personalId) => {
   return knex(tableName)
-    .where('personal_id', personalId)
+    .leftJoin('users_info', 'users_info.user_id', 'users.id')
+    .where('users.personal_id', personalId)
     .first(
-      'username'
+      'users_info.username as username'
     )
 }
 

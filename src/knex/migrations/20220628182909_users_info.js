@@ -1,7 +1,7 @@
 exports.up = function(knex) {
   return knex.schema.createTable('users_info', table => {
     table.uuid('id').notNullable().defaultTo(knex.raw('gen_random_uuid ()')).primary()
-    table.uuid('client_id')
+    table.uuid('user_id')
       .references('id')
       .inTable('users')
       .notNullable()
