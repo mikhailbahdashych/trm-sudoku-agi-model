@@ -4,6 +4,8 @@ const wrapAsync = require('./../middlewares/async');
 const userController = require('../controllers/userController');
 const twoFaController = require('../controllers/twoFaController');
 
+const { v } = require('../middlewares/validator');
+
 router.post("/sign-in", wrapAsync(userController.signIn));
 router.post("/sign-up", wrapAsync(userController.signUp));
 
