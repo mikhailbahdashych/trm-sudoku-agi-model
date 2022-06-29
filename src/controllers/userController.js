@@ -153,3 +153,13 @@ exports.updateUserSecuritySettings = async (req, res) => {
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
+
+exports.changePassword = async (req, res) => {
+  try {
+    if (!req.headers.ato || req.headers.ato === 'null')
+      return res.status(200).json({ status: -1 });
+  } catch (e) {
+    logger.error(`Something went wrong while changing password => ${e}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}

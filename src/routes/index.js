@@ -13,6 +13,7 @@ router.get("/get-user-settings", wrapAsync(userController.getUserSettings));
 
 router.patch("/update-user-personal-information", wrapAsync(userController.updateUserPersonalInformation));
 router.patch("/update-user-security-settings", wrapAsync(userController.updateUserSecuritySettings));
+router.post("/change-password", wrapAsync(userController.changePassword));
 
 router.post("/set-2fa", wrapAsync(twoFaController.setTwoFa));
 router.post("/disable-2fa", wrapAsync(twoFaController.disableTwoFa));
