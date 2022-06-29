@@ -81,7 +81,7 @@ exports.signUp = async (req, res) => {
 
 exports.getUserByPersonalId = async (req, res) => {
   try {
-    const { personalId } = req.params.personalId
+    const { personalId } = req.params
 
     if (!personalId)
       return res.status(400).json({ message: 'bad-request', status: 400 })
@@ -124,6 +124,8 @@ exports.getUserByToken = async (req, res) => {
 
     const client = await getClientByJwtToken(req.headers.ato)
 
+
+    // @TODO Fix here with not message but something else ("invalid signature") and check for join error
     if (client.message)
       return res.status(200).json({ status: -1 });
 

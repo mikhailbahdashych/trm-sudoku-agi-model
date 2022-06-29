@@ -3,7 +3,7 @@ const tableName = 'users'
 
 exports.getUserById = async ({ id }) => {
   return knex(tableName)
-    .where('id', id)
+    .where('users.id', id)
     .leftJoin('users_info', 'users_info.user_id', 'users.id')
     .first(
       'personal_id as personalId',
@@ -46,12 +46,12 @@ exports.getClientToSignIn = async (data) => {
 }
 
 exports.createUser = async (data) => {
-  return knex(tableName).insert({
+  const createUser = await knex(tableName).insert({
     email: data.email,
     password: data.password,
     personal_id: data.personalId,
-    username: data.username
-  })
+  }).returning('id')
+  return knex('users_info').insert({ user_id: createUser[0].id, username: data.username })
 }
 
 exports.getUserSettings = async (id) => {
