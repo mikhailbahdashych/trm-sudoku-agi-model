@@ -9,7 +9,7 @@ exports.getUserById = async ({ id }) => {
       'personal_id as personalId',
       'two_fa as twoFa',
       'users_info.username as username',
-      'id'
+      'users.id as id'
     )
 }
 

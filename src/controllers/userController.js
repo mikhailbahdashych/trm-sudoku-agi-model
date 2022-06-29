@@ -124,8 +124,6 @@ exports.getUserByToken = async (req, res) => {
 
     const client = await getClientByJwtToken(req.headers.ato)
 
-
-    // @TODO Fix here with not message but something else ("invalid signature") and check for join error
     if (client.message)
       return res.status(200).json({ status: -1 });
 
