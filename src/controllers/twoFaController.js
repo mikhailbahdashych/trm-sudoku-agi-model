@@ -22,7 +22,7 @@ exports.setTwoFa = async (req, res) => {
     if (!resultTwoFa) return res.status(403).json({ status: -1, message: 'access-forbidden' })
     if (resultTwoFa.delta !== 0) return res.status(403).json({ status: -1, message: 'access-forbidden' })
 
-    await twoFaService.setTwoFa(twoFaToken, twoFaCode)
+    await twoFaService.setTwoFa(twoFaToken, client.id)
     logger.info(`2FA was successfully created for client with id: ${ client.id }`)
 
     return res.status(200).json({ status: 1 })
