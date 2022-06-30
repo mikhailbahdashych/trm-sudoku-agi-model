@@ -42,7 +42,7 @@ exports.disableTwoFa = async (req, res) => {
 
     const { twoFaCode } = req.body
 
-    const result2Fa = twoFactorService.verifyToken(client.twofa, twoFaCode)
+    const result2Fa = twoFactorService.verifyToken(client.twoFa, twoFaCode)
 
     if (!result2Fa) return res.status(403).json({ status: -1, message: 'access-forbidden' })
     if (result2Fa.delta !== 0) return res.status(403).json({ status: -1, message: 'access-forbidden' })
