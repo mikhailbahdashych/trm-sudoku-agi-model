@@ -36,6 +36,21 @@ exports.disableTwoFa = async (req, res) => {
   try {
     if (!req.headers.ato || req.headers.ato === 'null')
       return res.status(200).json({ status: -1 });
+
+    const client = await getClientByJwtToken(req.headers.ato)
+    if (client === 'invalid signature') return res.status(200).json({ status: -1 });
+
+    const { twoFaCode } = req.body
+
+    const result2Fa = twoFactorService.verifyToken(client.twofa, twoFaCode)
+
+    if (!result2Fa) return res.status(403).json({ status: -1, message: 'access-forbidden' })
+    if (result2Fa.delta !== 0) return res.status(403).json({ status: -1, message: 'access-forbidden' })
+
+    await twoFaService.disableTwoFa(client.id)
+    logger.info(`2FA was successfully disabled for client with id: ${client.id}`)
+
+    return res.status(200).json({ status: 1 })
   } catch (e) {
     logger.error(`Something went wrong while disabling 2FA => ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
