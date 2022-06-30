@@ -11,6 +11,6 @@ exports.getClientByJwtToken = async (jwt) => {
     const clientId = cryptoService.decrypt(userJwt.uxd, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
     return await userService.getUserById({ id: clientId })
   } catch (e) {
-    return e
+    return e.message
   }
 }

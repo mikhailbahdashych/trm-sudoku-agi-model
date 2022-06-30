@@ -104,9 +104,7 @@ exports.getUserSettings = async (req, res) => {
       return res.status(200).json({ status: -1 });
 
     const client = await getClientByJwtToken(req.headers.ato)
-
-    if (client.message)
-      return res.status(200).json({ status: -1 });
+    if (client === 'invalid signature') return res.status(200).json({ status: -1 });
 
     const settings = await userService.getUserSettings(client.id)
 
@@ -123,9 +121,7 @@ exports.getUserByToken = async (req, res) => {
       return res.status(200).json({ status: -1 });
 
     const client = await getClientByJwtToken(req.headers.ato)
-
-    if (client.message)
-      return res.status(200).json({ status: -1 });
+    if (client === 'invalid signature') return res.status(200).json({ status: -1 });
 
     return res.status(200).json(client)
   } catch (e) {
