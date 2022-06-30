@@ -12,6 +12,7 @@ router.post("/sign-up", wrapAsync(userController.signUp));
 router.get("/get-user-by-token", wrapAsync(userController.getUserByToken));
 router.get("/get-user-by-personal-id/:personalId", wrapAsync(userController.getUserByPersonalId));
 router.get("/get-user-settings", wrapAsync(userController.getUserSettings));
+router.get("/g-u-l-a/:personalId", wrapAsync(userController.getLastActivity));
 
 router.patch("/update-user-personal-information", wrapAsync(userController.updateUserPersonalInformation));
 router.patch("/update-user-security-settings", wrapAsync(userController.updateUserSecuritySettings));

@@ -134,6 +134,19 @@ exports.getUserByToken = async (req, res) => {
   }
 }
 
+exports.getLastActivity = async (req, res) => {
+    try {
+      const { personalId } = req.params
+
+      if (!personalId)
+        return res.status(400).json({ message: 'bad-request', status: 400 })
+
+    } catch (e) {
+      logger.error(`Something went wrong while getting last activity => ${e}`)
+      return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    }
+}
+
 exports.updateUserPersonalInformation = async (req, res) => {
   try {
     if (!req.headers.ato || req.headers.ato === 'null')
