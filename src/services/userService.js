@@ -54,6 +54,6 @@ exports.createUser = async (data) => {
   return knex('users_info').insert({ user_id: createUser[0].id, username: data.username })
 }
 
-exports.getUserPersonalInformation = async (id) => {
-  return knex(tableName)
+exports.getUserSettings = async (userId) => {
+  return knex()
 }
