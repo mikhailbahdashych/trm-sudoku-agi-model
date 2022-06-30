@@ -79,38 +79,12 @@ exports.signUp = async (req, res) => {
   }
 }
 
-exports.getUserByPersonalId = async (req, res) => {
-  try {
-    const { personalId } = req.params
-
-    if (!personalId)
-      return res.status(400).json({ message: 'bad-request', status: 400 })
-
-    const client = await userService.getUserByPersonalId(personalId)
-
-    if (!client)
-      return res.status(403).json({ error: "not-found", status: 403 });
-
-    return res.status(200).json(client)
-  } catch (e) {
-    logger.error(`Something went wrong while getting user by personal Id => ${e}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
-  }
-}
-
-exports.getUserSettings = async (req, res) => {
+exports.changePassword = async (req, res) => {
   try {
     if (!req.headers.ato || req.headers.ato === 'null')
       return res.status(200).json({ status: -1 });
-
-    const client = await getClientByJwtToken(req.headers.ato)
-    if (client === 'invalid signature') return res.status(200).json({ status: -1 });
-
-    const settings = await userService.getUserSettings(client.id)
-
-    return res.status(200).json(settings)
   } catch (e) {
-    logger.error(`Something went wrong while getting user settings => ${e}`)
+    logger.error(`Something went wrong while changing password => ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -130,17 +104,53 @@ exports.getUserByToken = async (req, res) => {
   }
 }
 
+exports.getUserByPersonalId = async (req, res) => {
+  try {
+    const { personalId } = req.params
+
+    if (!personalId)
+      return res.status(400).json({ message: 'bad-request', status: 400 })
+
+    const client = await userService.getUserByPersonalId(personalId)
+
+    if (!client)
+      return res.status(403).json({ error: "not-found", status: 403 });
+
+    return res.status(200).json(client)
+  } catch (e) {
+    logger.error(`Something went wrong while getting user by personal Id => ${e}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
 exports.getLastActivity = async (req, res) => {
-    try {
-      const { personalId } = req.params
+  try {
+    const { personalId } = req.params
 
-      if (!personalId)
-        return res.status(400).json({ message: 'bad-request', status: 400 })
+    if (!personalId)
+      return res.status(400).json({ message: 'bad-request', status: 400 })
 
-    } catch (e) {
-      logger.error(`Something went wrong while getting last activity => ${e}`)
-      return res.status(500).json({ message: 'something-went-wrong', status: 500 })
-    }
+  } catch (e) {
+    logger.error(`Something went wrong while getting last activity => ${e}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
+exports.getUserPersonalInformation = async (req, res) => {
+  try {
+    if (!req.headers.ato || req.headers.ato === 'null')
+      return res.status(200).json({ status: -1 });
+
+    const client = await getClientByJwtToken(req.headers.ato)
+    if (client === 'invalid signature') return res.status(200).json({ status: -1 });
+
+    const settings = await userService.getUserPersonalInformation(client.id)
+
+    return res.status(200).json(settings)
+  } catch (e) {
+    logger.error(`Something went wrong while getting user settings => ${e}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
 }
 
 exports.updateUserPersonalInformation = async (req, res) => {
@@ -153,22 +163,22 @@ exports.updateUserPersonalInformation = async (req, res) => {
   }
 }
 
+exports.getUserSecuritySettings = async (req, res) => {
+  try {
+    if (!req.headers.ato || req.headers.ato === 'null')
+      return res.status(200).json({ status: -1 });
+  } catch (e) {
+    logger.error(`Something went wrong while getting user security settings => ${e}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
 exports.updateUserSecuritySettings = async (req, res) => {
   try {
     if (!req.headers.ato || req.headers.ato === 'null')
       return res.status(200).json({ status: -1 });
   } catch (e) {
     logger.error(`Something went wrong while updating user security settings => ${e}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
-  }
-}
-
-exports.changePassword = async (req, res) => {
-  try {
-    if (!req.headers.ato || req.headers.ato === 'null')
-      return res.status(200).json({ status: -1 });
-  } catch (e) {
-    logger.error(`Something went wrong while changing password => ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }

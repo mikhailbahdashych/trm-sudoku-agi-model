@@ -8,15 +8,16 @@ const { v } = require('../middlewares/validator');
 
 router.post("/sign-in", wrapAsync(userController.signIn));
 router.post("/sign-up", wrapAsync(userController.signUp));
+router.post("/change-password", wrapAsync(userController.changePassword));
 
 router.get("/get-user-by-token", wrapAsync(userController.getUserByToken));
 router.get("/get-user-by-personal-id/:personalId", wrapAsync(userController.getUserByPersonalId));
-router.get("/get-user-settings", wrapAsync(userController.getUserSettings));
-router.get("/g-u-l-a/:personalId", wrapAsync(userController.getLastActivity));
+router.get("/get-user-last-activity/:personalId", wrapAsync(userController.getLastActivity));
 
+router.get("/get-user-personal-information", wrapAsync(userController.getUserPersonalInformation));
 router.patch("/update-user-personal-information", wrapAsync(userController.updateUserPersonalInformation));
+router.get("/get-user-security-settings", wrapAsync(userController.getUserSecuritySettings));
 router.patch("/update-user-security-settings", wrapAsync(userController.updateUserSecuritySettings));
-router.post("/change-password", wrapAsync(userController.changePassword));
 
 router.post("/set-2fa", wrapAsync(twoFaController.setTwoFa));
 router.post("/disable-2fa", wrapAsync(twoFaController.disableTwoFa));
