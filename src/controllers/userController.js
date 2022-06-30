@@ -149,6 +149,8 @@ exports.getUserSettings = async (req, res) => {
 
     const settings = await userService.getUserSettings(client.id);
 
+    settings.twoFa = settings.twoFa !== null
+
     return res.status(200).json(settings);
   } catch (e) {
     logger.error(`Something went wrong while getting user settings => ${e}`)

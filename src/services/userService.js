@@ -55,5 +55,7 @@ exports.createUser = async (data) => {
 }
 
 exports.getUserSettings = async (userId) => {
-  return knex()
+  return knex(tableName)
+    .where('id', userId)
+    .first('two_fa as twoFa')
 }
