@@ -9,6 +9,7 @@ const { v } = require('../middlewares/validator');
 router.post("/sign-in", wrapAsync(userController.signIn));
 router.post("/sign-up", wrapAsync(userController.signUp));
 router.post("/change-password", wrapAsync(userController.changePassword));
+router.post("/change-email", wrapAsync(userController.changeEmail));
 router.post("/close-account", wrapAsync(userController.closeAccount));
 
 router.get("/get-user-by-token", wrapAsync(userController.getUserByToken));

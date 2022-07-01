@@ -89,6 +89,16 @@ exports.changePassword = async (req, res) => {
   }
 }
 
+exports.changeEmail = async (req, res) => {
+  try {
+
+    return res.status(200).json({ status: 1 });
+  } catch (e) {
+    logger.error(`Something went wrong while changing email => ${e}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
 exports.closeAccount = async (req, res) => {
   try {
 
