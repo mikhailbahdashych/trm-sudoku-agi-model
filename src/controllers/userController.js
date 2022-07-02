@@ -44,7 +44,7 @@ exports.signIn = async (req, res) => {
     const uxd = cryptoService.encrypt(client.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
     const token = jwtService.sign({ uxd });
 
-    return res.status(200).json({ token, userId: client.personalId, reopening: reopening ? client.username : null })
+    return res.status(200).json({ token, personalId: client.personalId, username: reopening ? client.username : null })
   } catch (e) {
     logger.error(`Something went wrong while sign in => ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
