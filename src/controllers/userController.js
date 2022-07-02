@@ -1,4 +1,3 @@
-const twoFactorService = require('node-2fa');
 const dotenv = require('dotenv');
 const seedrandom = require('seedrandom');
 dotenv.config();
@@ -9,6 +8,7 @@ const jwtService = require('../services/jwtService');
 
 const loggerInstance = require('../common/logger');
 const { getClientByJwtToken } = require('../common/getClientByJwtToken')
+const { verifyTwoFa } = require('../common/verifyTwoFa')
 const logger = loggerInstance({ label: 'client-controller', path: 'client' });
 
 exports.signIn = async (req, res) => {
@@ -30,9 +30,8 @@ exports.signIn = async (req, res) => {
     if (client.twoFa) {
       if (!twoFa) return res.status(200).json({ twoFa: true })
 
-      const result2Fa = twoFactorService.verifyToken(client.twoFa, twoFa)
-      if (!result2Fa) return res.status(403).json({ status: -2, message: 'access-forbidden' })
-      if (result2Fa.delta !== 0) return res.status(403).json({ status: -2, message: 'access-forbidden' })
+      const twoFaResult = verifyTwoFa(client.twoFa, twoFa)
+      if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
     }
 
     const uxd = cryptoService.encrypt(client.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
@@ -93,6 +92,13 @@ exports.changePassword = async (req, res) => {
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
     if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(401).json({ error: "unauthorized", status: 401 });
+
+    if (client.twoFa) {
+      if (!twoFa) return res.status(200).json({ twoFa: true })
+
+      const twoFaResult = verifyTwoFa(client.twoFa, twoFa)
+      if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
+    }
 
     await userService.changePassword(client.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
 
