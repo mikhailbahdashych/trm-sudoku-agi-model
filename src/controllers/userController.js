@@ -81,6 +81,20 @@ exports.signUp = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
   try {
+    if (!req.headers.ato || req.headers.ato === 'null')
+      return res.status(200).json({ status: -1 });
+
+    const client = await getClientByJwtToken(req.headers.ato)
+    if (client === 'invalid signature') return res.status(200).json({ status: -1 });
+
+    const { currentPassword, newPassword, twoFa } = req.body
+
+    if (!currentPassword || !newPassword)
+      return res.status(400).json({ message: 'bad-request', status: 400 })
+
+    if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(401).json({ error: "unauthorized", status: 401 });
+
+    await userService.changePassword(client.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
 
     return res.status(200).json({ status: 1 });
   } catch (e) {
