@@ -9,7 +9,7 @@ const logger = loggerInstance({ label: 'client-controller', path: 'client' });
 exports.setTwoFa = async (req, res) => {
   try {
     const client = await getClientByJwtToken(req.body.token)
-    if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
+    if (typeof client === 'string' || !client) return res.status(200).json({ status: -1 });
 
     const { twoFaCode, twoFaToken } = req.body
 
@@ -32,7 +32,7 @@ exports.setTwoFa = async (req, res) => {
 exports.disableTwoFa = async (req, res) => {
   try {
     const client = await getClientByJwtToken(req.body.token)
-    if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
+    if (typeof client === 'string' || !client) return res.status(200).json({ status: -1 });
 
     const { twoFaCode } = req.body
 

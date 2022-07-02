@@ -81,7 +81,7 @@ exports.signUp = async (req, res) => {
 exports.changePassword = async (req, res) => {
   try {
     const client = await getClientByJwtToken(req.body.token)
-    if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
+    if (typeof client === 'string' || !client) return res.status(200).json({ status: -1 });
 
     const { currentPassword, newPassword, twoFa } = req.body
 
@@ -120,7 +120,7 @@ exports.changeEmail = async (req, res) => {
 exports.closeAccount = async (req, res) => {
   try {
     const client = await getClientByJwtToken(req.body.token)
-    if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
+    if (typeof client === 'string' || !client) return res.status(200).json({ status: -1 });
 
     const { password, twoFa } = req.body
 
@@ -144,7 +144,7 @@ exports.closeAccount = async (req, res) => {
 exports.getUserByToken = async (req, res) => {
   try {
     const client = await getClientByJwtToken(req.headers.ato)
-    if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
+    if (typeof client === 'string' || !client) return res.status(200).json({ status: -1 });
 
     return res.status(200).json({ personalId: client.personalId })
   } catch (e) {
@@ -189,7 +189,7 @@ exports.getLastActivity = async (req, res) => {
 exports.getUserSettings = async (req, res) => {
   try {
     const client = await getClientByJwtToken(req.headers.ato)
-    if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
+    if (typeof client === 'string' || !client) return res.status(200).json({ status: -1 });
 
     const settings = await userService.getUserSettings(client.id);
 
