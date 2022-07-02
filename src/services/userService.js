@@ -10,7 +10,8 @@ exports.getUserById = async ({ id }) => {
       'two_fa as twoFa',
       'users_info.username as username',
       'users.id as id',
-      'users.password as password'
+      'users.password as password',
+      'email'
     )
 }
 
@@ -39,10 +40,16 @@ exports.getClientToSignIn = async (data) => {
   return knex(tableName)
     .where('email', data.email)
     .andWhere('password', data.password)
+    .orWhere('email', data.email + '_del')
+    .andWhere('password', data.password + '_del')
+    .leftJoin('users_info', 'users_info.user_id', 'users.id')
     .first(
       'personal_id as personalId',
       'two_fa as twoFa',
-      'id',
+      'password',
+      'username',
+      'email',
+      'users.id as id',
     )
 }
 
@@ -74,4 +81,10 @@ exports.closeAccount = async (userId, email, password) => {
       email: `${email}_del`,
       password: `${password}_del`
     })
+}
+
+exports.reopenAccount = async (userId, email, password) => {
+  return knex(tableName)
+    .where('id', userId)
+    .update({ email, password })
 }

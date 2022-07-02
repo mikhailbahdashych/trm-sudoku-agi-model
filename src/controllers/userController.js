@@ -14,6 +14,7 @@ const logger = loggerInstance({ label: 'client-controller', path: 'client' });
 exports.signIn = async (req, res) => {
   try {
     let { email, password, twoFa } = req.body
+    let reopening = false
 
     if (!email || !password)
       return res.status(400).json({ message: 'bad-request', status: 400 })
@@ -27,6 +28,12 @@ exports.signIn = async (req, res) => {
       return res.status(401).json({ message: 'unauthorized', status: -1 })
     }
 
+    if (client.email.slice(-4) === '_del') {
+      logger.info(`User has closed account, reopening...`)
+      await userService.reopenAccount(client.id, client.email.split('_del')[0], client.password.split('_del')[0])
+      reopening = true
+    }
+
     if (client.twoFa) {
       if (!twoFa) return res.status(200).json({ twoFa: true })
 
@@ -37,7 +44,7 @@ exports.signIn = async (req, res) => {
     const uxd = cryptoService.encrypt(client.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
     const token = jwtService.sign({ uxd });
 
-    return res.status(200).json({ token, userId: client.personalId })
+    return res.status(200).json({ token, userId: client.personalId, reopening: reopening ? client.username : null })
   } catch (e) {
     logger.error(`Something went wrong while sign in => ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
