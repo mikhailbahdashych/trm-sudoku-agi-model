@@ -80,11 +80,8 @@ exports.signUp = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
   try {
-    if (!req.headers.ato || req.headers.ato === 'null')
-      return res.status(200).json({ status: -1 });
-
     const client = await getClientByJwtToken(req.headers.ato)
-    if (client === 'invalid signature') return res.status(200).json({ status: -1 });
+    if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
 
     const { currentPassword, newPassword, twoFa } = req.body
 
@@ -121,7 +118,11 @@ exports.changeEmail = async (req, res) => {
 
 exports.closeAccount = async (req, res) => {
   try {
+    const client = await getClientByJwtToken(req.headers.ato)
+    if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
 
+    const { password, twoFa } = req.body
+    
     return res.status(200).json({ status: 1 });
   } catch (e) {
     logger.error(`Something went wrong while closing account => ${e}`)
@@ -131,11 +132,8 @@ exports.closeAccount = async (req, res) => {
 
 exports.getUserByToken = async (req, res) => {
   try {
-    if (!req.headers.ato || req.headers.ato === 'null')
-      return res.status(200).json({ status: -1 });
-
     const client = await getClientByJwtToken(req.headers.ato)
-    if (client === 'invalid signature') return res.status(200).json({ status: -1 });
+    if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
 
     return res.status(200).json(client)
   } catch (e) {
@@ -179,11 +177,8 @@ exports.getLastActivity = async (req, res) => {
 
 exports.getUserSettings = async (req, res) => {
   try {
-    if (!req.headers.ato || req.headers.ato === 'null')
-      return res.status(200).json({ status: -1 });
-
     const client = await getClientByJwtToken(req.headers.ato)
-    if (client === 'invalid signature') return res.status(200).json({ status: -1 });
+    if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
 
     const settings = await userService.getUserSettings(client.id);
 
@@ -198,9 +193,6 @@ exports.getUserSettings = async (req, res) => {
 
 exports.updateUserPersonalInformation = async (req, res) => {
   try {
-    if (!req.headers.ato || req.headers.ato === 'null')
-      return res.status(200).json({ status: -1 });
-
     return res.status(200).json({ status: 1 });
   } catch (e) {
     logger.error(`Something went wrong while updating user personal information => ${e}`)
@@ -210,9 +202,6 @@ exports.updateUserPersonalInformation = async (req, res) => {
 
 exports.updateUserSecuritySettings = async (req, res) => {
   try {
-    if (!req.headers.ato || req.headers.ato === 'null')
-      return res.status(200).json({ status: -1 });
-
     return res.status(200).json({ status: 1 });
   } catch (e) {
     logger.error(`Something went wrong while updating user security settings => ${e}`)
