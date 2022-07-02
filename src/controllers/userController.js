@@ -80,7 +80,7 @@ exports.signUp = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
   try {
-    const client = await getClientByJwtToken(req.headers.ato)
+    const client = await getClientByJwtToken(req.body.token)
     if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
 
     const { currentPassword, newPassword, twoFa } = req.body
@@ -88,7 +88,8 @@ exports.changePassword = async (req, res) => {
     if (!currentPassword || !newPassword)
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
-    if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(401).json({ error: "unauthorized", status: 401 });
+    if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString()))
+      return res.status(401).json({ error: "unauthorized", status: 401 });
 
     if (client.twoFa) {
       if (!twoFa) return res.status(200).json({ twoFa: true })
@@ -118,11 +119,21 @@ exports.changeEmail = async (req, res) => {
 
 exports.closeAccount = async (req, res) => {
   try {
-    const client = await getClientByJwtToken(req.headers.ato)
+    const client = await getClientByJwtToken(req.body.token)
     if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
 
     const { password, twoFa } = req.body
-    
+
+    if (client.twoFa) {
+      const twoFaResult = verifyTwoFa(client.twoFa, twoFa)
+      if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
+    }
+
+    if (client.password !== cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString()))
+      return res.status(401).json({ error: "unauthorized", status: -3 });
+
+    await userService.closeAccount(client.id, client.email, client.password)
+
     return res.status(200).json({ status: 1 });
   } catch (e) {
     logger.error(`Something went wrong while closing account => ${e}`)
@@ -135,7 +146,7 @@ exports.getUserByToken = async (req, res) => {
     const client = await getClientByJwtToken(req.headers.ato)
     if (client === 'invalid signature' || !client) return res.status(200).json({ status: -1 });
 
-    return res.status(200).json(client)
+    return res.status(200).json({ personalId: client.personalId })
   } catch (e) {
     logger.error(`Something went wrong while getting user by token => ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })

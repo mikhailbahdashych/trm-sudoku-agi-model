@@ -9,7 +9,8 @@ exports.getUserById = async ({ id }) => {
       'personal_id as personalId',
       'two_fa as twoFa',
       'users_info.username as username',
-      'users.id as id'
+      'users.id as id',
+      'users.password as password'
     )
 }
 
@@ -64,4 +65,13 @@ exports.changePassword = async (userId, newPassword) => {
   return knex(tableName)
     .where('id', userId)
     .update({ password: newPassword })
+}
+
+exports.closeAccount = async (userId, email, password) => {
+  return knex(tableName)
+    .where('id', userId)
+    .update({
+      email: `${email}_del`,
+      password: `${password}_del`
+    })
 }

@@ -7,8 +7,11 @@ dotenv.config();
 exports.getClientByJwtToken = async (jwt) => {
   try {
     const userJwt = await jwtService.getUser(jwt)
+
     if (!userJwt) return false
+
     const clientId = cryptoService.decrypt(userJwt.uxd, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
+
     return await userService.getUserById({ id: clientId })
   } catch (e) {
     return e.message
