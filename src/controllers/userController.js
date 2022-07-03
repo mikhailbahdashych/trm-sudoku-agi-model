@@ -153,7 +153,7 @@ exports.getUserByToken = async (req, res) => {
     const client = await getClientByJwtToken(req.headers.ato)
     if (typeof client === 'string' || !client) return res.status(200).json({ status: -1 });
 
-    return res.status(200).json({ personalId: client.personalId })
+    return res.status(200).json({ personalId: client.personalId, username: client.username })
   } catch (e) {
     logger.error(`Something went wrong while getting user by token => ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
