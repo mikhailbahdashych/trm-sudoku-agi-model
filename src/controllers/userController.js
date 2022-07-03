@@ -134,6 +134,8 @@ exports.closeAccount = async (req, res) => {
     const { password, twoFa } = req.body
 
     if (client.twoFa) {
+      if (!twoFa) return res.status(400).json({ message: 'bad-request', status: 400 })
+
       const twoFaResult = verifyTwoFa(client.twoFa, twoFa)
       if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
     }
