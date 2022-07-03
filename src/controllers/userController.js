@@ -11,7 +11,7 @@ const { getClientByJwtToken } = require('../common/getClientByJwtToken')
 const { verifyTwoFa } = require('../common/verifyTwoFa')
 const logger = loggerInstance({ label: 'client-controller', path: 'client' });
 
-// @TODO Validate data on back-end (password rules etc.)
+// @TODO Validate data on back-end (password rules etc.) + more logger staff
 
 exports.signIn = async (req, res) => {
   try {
@@ -101,7 +101,7 @@ exports.changePassword = async (req, res) => {
       return res.status(401).json({ error: "unauthorized", status: -2 });
 
     if (client.twoFa) {
-      if (!twoFa) return res.status(200).json({ twoFa: true })
+      if (!twoFa) return res.status(400).json({ message: 'bad-request', status: 400 })
 
       const twoFaResult = verifyTwoFa(client.twoFa, twoFa)
       if (!twoFaResult) return res.status(403).json({ status: -3, message: 'access-forbidden' })
