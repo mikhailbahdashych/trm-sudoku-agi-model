@@ -11,6 +11,8 @@ const { getClientByJwtToken } = require('../common/getClientByJwtToken')
 const { verifyTwoFa } = require('../common/verifyTwoFa')
 const logger = loggerInstance({ label: 'client-controller', path: 'client' });
 
+// @TODO Validate data on back-end (password rules etc.)
+
 exports.signIn = async (req, res) => {
   try {
     let { email, password, twoFa } = req.body
@@ -96,13 +98,13 @@ exports.changePassword = async (req, res) => {
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
     if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString()))
-      return res.status(401).json({ error: "unauthorized", status: 401 });
+      return res.status(401).json({ error: "unauthorized", status: -2 });
 
     if (client.twoFa) {
       if (!twoFa) return res.status(200).json({ twoFa: true })
 
       const twoFaResult = verifyTwoFa(client.twoFa, twoFa)
-      if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
+      if (!twoFaResult) return res.status(403).json({ status: -3, message: 'access-forbidden' })
     }
 
     await userService.changePassword(client.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
