@@ -5,6 +5,7 @@ dotenv.config();
 const userService = require("../services/userService");
 const cryptoService = require("../services/cryptoService");
 const jwtService = require("../services/jwtService");
+const { validatePassword, validateEmail, validateUserPersonalId } = require("../common/validators");
 
 const loggerInstance = require("../common/logger");
 const { getClientByJwtToken } = require("../common/getClientByJwtToken")
@@ -18,7 +19,7 @@ exports.signIn = async (req, res) => {
     let { email, password, twoFa } = req.body
     let reopening = false
 
-    if (!email || !password)
+    if (!email || !password || !validateEmail(email) || !validatePassword(password))
       return res.status(400).json({ message: "bad-request", status: 400 })
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
@@ -57,7 +58,7 @@ exports.signUp = async (req, res) => {
   try {
     let { email, password, username } = req.body
 
-    if (!email || !password || !username)
+    if (!email || !password || !username || !validateEmail(email) || !validatePassword(password))
       return res.status(400).json({ message: "bad-request", status: 400 })
 
     const user = await userService.getUserByEmail({ email })
@@ -92,9 +93,15 @@ exports.changePassword = async (req, res) => {
     const client = await getClientByJwtToken(req.body.token)
     if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
 
-    const { currentPassword, newPassword, twoFa } = req.body
+    const { currentPassword, newPassword, newPasswordRepeat, twoFa } = req.body
 
-    if (!currentPassword || !newPassword)
+    if (
+      !currentPassword ||
+      !newPassword ||
+      !newPasswordRepeat ||
+      newPasswordRepeat !== newPassword ||
+      !validatePassword(currentPassword) || !validatePassword(newPassword) || !validatePassword(newPasswordRepeat)
+    )
       return res.status(400).json({ message: "bad-request", status: 400 })
 
     if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString()))
@@ -171,7 +178,7 @@ exports.getUserByPersonalId = async (req, res) => {
   try {
     const { personalId } = req.params
 
-    if (!personalId)
+    if (!personalId || !validateUserPersonalId(personalId))
       return res.status(400).json({ message: "bad-request", status: 400 })
 
     const client = await userService.getUserByPersonalId(personalId)
@@ -190,7 +197,7 @@ exports.getLastActivity = async (req, res) => {
   try {
     const { personalId } = req.params
 
-    if (!personalId)
+    if (!personalId || !validateUserPersonalId(personalId))
       return res.status(400).json({ message: "bad-request", status: 400 })
 
     return res.status(200).json({ status: 1 });
