@@ -224,18 +224,37 @@ exports.getLastActivity = async (req, res) => {
 }
 
 exports.getUserSettings = async (req, res) => {
-  try {
-    const client = await getClientByJwtToken(req.headers.ato)
-    if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
+  switch (req.params.t) {
+    case 's':
+      try {
+        const client = await getClientByJwtToken(req.headers.ato)
+        if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
 
-    const settings = await userService.getUserSettings(client.id);
+        const settings = await userService.getUserSettings(client.id);
 
-    settings.twoFa = settings.twoFa !== null
+        settings.twoFa = settings.twoFa !== null
 
-    return res.status(200).json(settings);
-  } catch (e) {
-    logger.error(`Something went wrong while getting user settings => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+        return res.status(200).json(settings);
+      } catch (e) {
+        logger.error(`Something went wrong while getting user security settings => ${e}`)
+        return res.status(500).json({ message: "something-went-wrong", status: 500 })
+      }
+    case 'p':
+      try {
+        return res.status(200).json({});
+      } catch (e) {
+        logger.error(`Something went wrong while getting user personal settings => ${e}`)
+        return res.status(500).json({ message: "something-went-wrong", status: 500 })
+      }
+    case 'ss':
+      try {
+        return res.status(200).json({});
+      } catch (e) {
+        logger.error(`Something went wrong while getting user site settings => ${e}`)
+        return res.status(500).json({ message: "something-went-wrong", status: 500 })
+      }
+    default:
+      return res.status(500).json({ message: "something-went-wrong", status: 500 })
   }
 }
 
