@@ -12,8 +12,6 @@ const { getClientByJwtToken } = require("../common/getClientByJwtToken")
 const { verifyTwoFa } = require("../common/verifyTwoFa")
 const logger = loggerInstance({ label: "client-controller", path: "client" });
 
-// @TODO Validate data on back-end (password rules etc.) + more logger staff
-
 exports.signIn = async (req, res) => {
   try {
     let { email, password, twoFa } = req.body
@@ -46,6 +44,7 @@ exports.signIn = async (req, res) => {
 
     const uxd = cryptoService.encrypt(client.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
     const token = jwtService.sign({ uxd });
+    logger.info(`Client ${client.email} has been successfully signed in!`)
 
     return res.status(200).json({ token, personalId: client.personalId, username: reopening ? client.username : null })
   } catch (e) {
@@ -79,7 +78,7 @@ exports.signUp = async (req, res) => {
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
     const personalId = (seedrandom(email).quick() * 1e10).toFixed(0)
     await userService.createUser({ email, password, personalId, username })
-    logger.info(`Client with email ${email} was created`)
+    logger.info(`Client with email ${email} has been successfully created!`)
 
     return res.status(200).json({ message: "success", status: 200 })
   } catch (e) {
@@ -118,6 +117,7 @@ exports.changePassword = async (req, res) => {
       return res.status(409).json({ message: "conflict", status: -4 })
 
     await userService.changePassword(client.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
+    logger.info(`Password has been successfully changed for user with email ${client.email}`)
 
     return res.status(200).json({ status: 1 });
   } catch (e) {
@@ -129,6 +129,7 @@ exports.changePassword = async (req, res) => {
 exports.changeEmail = async (req, res) => {
   try {
 
+    logger.info(`Email has been successfully changed for user with email`)
     return res.status(200).json({ status: 1 });
   } catch (e) {
     logger.error(`Something went wrong while changing email => ${e}`)
@@ -154,6 +155,7 @@ exports.closeAccount = async (req, res) => {
       return res.status(401).json({ error: "unauthorized", status: -3 });
 
     await userService.closeAccount(client.id, client.email, client.password)
+    logger.info(`Email has been successfully changed for user with email`)
 
     return res.status(200).json({ status: 1 });
   } catch (e) {
@@ -225,6 +227,7 @@ exports.getUserSettings = async (req, res) => {
 
 exports.updateUserPersonalInformation = async (req, res) => {
   try {
+    logger.info(`Personal settings has been successfully updated for user`)
     return res.status(200).json({ status: 1 });
   } catch (e) {
     logger.error(`Something went wrong while updating user personal information => ${e}`)
@@ -234,6 +237,7 @@ exports.updateUserPersonalInformation = async (req, res) => {
 
 exports.updateUserSecuritySettings = async (req, res) => {
   try {
+    logger.info(`Security settings has been successfully updated for user`)
     return res.status(200).json({ status: 1 });
   } catch (e) {
     logger.error(`Something went wrong while updating user security settings => ${e}`)
