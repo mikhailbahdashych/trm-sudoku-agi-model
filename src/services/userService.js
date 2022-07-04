@@ -68,6 +68,10 @@ exports.getUserSettings = async (userId) => {
     .first('two_fa as twoFa')
 }
 
+exports.getUserPersonalSettings = async (userId) => {
+  return knex(tableName)
+}
+
 exports.changePassword = async (userId, newPassword) => {
   return knex(tableName)
     .where('id', userId)

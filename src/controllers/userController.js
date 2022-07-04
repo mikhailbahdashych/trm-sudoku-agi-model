@@ -224,37 +224,41 @@ exports.getLastActivity = async (req, res) => {
 }
 
 exports.getUserSettings = async (req, res) => {
-  switch (req.params.t) {
-    case 's':
-      try {
-        const client = await getClientByJwtToken(req.headers.ato)
-        if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
+  try {
+    if (!req.params.t || !['s', 'p', 'ss'].includes(req.params.t))
+      return res.status(400).json({ message: "bad-request", status: 400 })
 
-        const settings = await userService.getUserSettings(client.id);
+    const client = await getClientByJwtToken(req.headers.ato)
+    if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
 
-        settings.twoFa = settings.twoFa !== null
-
-        return res.status(200).json(settings);
-      } catch (e) {
-        logger.error(`Something went wrong while getting user security settings => ${e}`)
-        return res.status(500).json({ message: "something-went-wrong", status: 500 })
-      }
-    case 'p':
-      try {
-        return res.status(200).json({});
-      } catch (e) {
-        logger.error(`Something went wrong while getting user personal settings => ${e}`)
-        return res.status(500).json({ message: "something-went-wrong", status: 500 })
-      }
-    case 'ss':
-      try {
-        return res.status(200).json({});
-      } catch (e) {
-        logger.error(`Something went wrong while getting user site settings => ${e}`)
-        return res.status(500).json({ message: "something-went-wrong", status: 500 })
-      }
-    default:
-      return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    switch (req.params.t) {
+      case 's':
+        try {
+          const settings = await userService.getUserSettings(client.id);
+          settings.twoFa = settings.twoFa !== null
+          return res.status(200).json(settings);
+        } catch (e) {
+          logger.error(`Something went wrong while getting user security settings => ${e}`)
+          return res.status(500).json({ message: "something-went-wrong", status: 500 })
+        }
+      case 'p':
+        try {
+          const personalInformation = await userService.getUserPersonalSettings(client.id)
+          return res.status(200).json(personalInformation);
+        } catch (e) {
+          logger.error(`Something went wrong while getting user personal settings => ${e}`)
+          return res.status(500).json({ message: "something-went-wrong", status: 500 })
+        }
+      case 'ss':
+        try {
+          return res.status(200).json({});
+        } catch (e) {
+          logger.error(`Something went wrong while getting user site settings => ${e}`)
+          return res.status(500).json({ message: "something-went-wrong", status: 500 })
+        }
+    }
+  } catch (e) {
+    return res.status(500).json({ message: "something-went-wrong", status: 500 })
   }
 }
 
