@@ -128,6 +128,20 @@ exports.changePassword = async (req, res) => {
 
 exports.changeEmail = async (req, res) => {
   try {
+    const client = await getClientByJwtToken(req.body.token)
+    if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
+
+    const { newEmail, twoFa } = req.body
+
+    if (!newEmail || !validateEmail(newEmail))
+      return res.status(400).json({ message: "bad-request", status: 400 })
+
+    if (client.twoFa) {
+      if (!twoFa) return res.status(400).json({ message: "bad-request", status: 400 })
+
+      const twoFaResult = verifyTwoFa(client.twoFa, twoFa)
+      if (!twoFaResult) return res.status(403).json({ status: -2, message: "access-forbidden" })
+    }
 
     logger.info(`Email has been successfully changed for user with email`)
     return res.status(200).json({ status: 1 });
