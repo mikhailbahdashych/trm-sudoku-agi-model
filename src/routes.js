@@ -1,18 +1,29 @@
 const router = require('express').Router();
-const wrapAsync = require('./../middlewares/async');
+const wrapAsync = require('./middlewares/async');
 
-const userController = require('../controllers/userController');
-const twoFaController = require('../controllers/twoFaController');
+const userController = require('./controllers/userController');
+const twoFaController = require('./controllers/twoFaController');
 
-const { v } = require('../middlewares/validator');
+const { v } = require('./middlewares/validator');
 
 /**
  * @swagger
  * /sign-in:
  *  post:
- *    description: Used to sign in user
- **/
+ *    summary: Used to sign in user
+ *    description:
+ *      This resource allows an individual user to sign in the system.
+ */
 router.post("/sign-in", wrapAsync(userController.signIn));
+
+/**
+ * @swagger
+ * /sign-up:
+ *  post:
+ *    summary: Used to sign up user
+ *    description:
+ *      This resource allows an individual user to sign up in the system.
+ */
 router.post("/sign-up", wrapAsync(userController.signUp));
 router.post("/change-password", wrapAsync(userController.changePassword));
 router.post("/change-email", wrapAsync(userController.changeEmail));
