@@ -155,7 +155,7 @@ exports.closeAccount = async (req, res) => {
       return res.status(401).json({ error: "unauthorized", status: -3 });
 
     await userService.closeAccount(client.id, client.email, client.password)
-    logger.info(`Email has been successfully changed for user with email`)
+    logger.info(`Account has been successfully close for user with email ${client.email}`)
 
     return res.status(200).json({ status: 1 });
   } catch (e) {
