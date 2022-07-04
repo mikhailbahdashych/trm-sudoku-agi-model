@@ -80,7 +80,7 @@ exports.signUp = async (req, res) => {
     await userService.createUser({ email, password, personalId, username })
     logger.info(`Client with email ${email} has been successfully created!`)
 
-    return res.status(200).json({ message: "success", status: 200 })
+    return res.status(200).json({ message: "success", status: 1 })
   } catch (e) {
     logger.error(`Something went wrong while sign up => ${e}`)
     return res.status(500).json({ message: "something-went-wrong", status: 500 })
