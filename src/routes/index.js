@@ -6,6 +6,12 @@ const twoFaController = require('../controllers/twoFaController');
 
 const { v } = require('../middlewares/validator');
 
+/**
+ * @swagger
+ * /sign-in:
+ *  post:
+ *    description: Used to sign in user
+ **/
 router.post("/sign-in", wrapAsync(userController.signIn));
 router.post("/sign-up", wrapAsync(userController.signUp));
 router.post("/change-password", wrapAsync(userController.changePassword));
