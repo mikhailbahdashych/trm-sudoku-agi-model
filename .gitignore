@@ -10,3 +10,5 @@ package-lock.json
 logs/
 node_modules/
 keys/
+
+test.js
