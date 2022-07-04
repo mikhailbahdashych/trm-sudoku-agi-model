@@ -70,6 +70,17 @@ exports.getUserSettings = async (userId) => {
 
 exports.getUserPersonalSettings = async (userId) => {
   return knex(tableName)
+    .where('users.id', userId)
+    .leftJoin('users_info', 'users_info.user_id', 'users.id')
+    .first(
+      'users_info.username as username',
+      'users_info.title as title',
+      'users_info.location as location',
+      'users_info.about_me as aboutMe',
+      'users_info.website_link as websiteLink',
+      'users_info.twitter as twitter',
+      'users_info.github as github'
+    )
 }
 
 exports.changePassword = async (userId, newPassword) => {

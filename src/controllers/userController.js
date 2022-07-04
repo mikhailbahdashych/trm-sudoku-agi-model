@@ -272,12 +272,3 @@ exports.updateUserPersonalInformation = async (req, res) => {
   }
 }
 
-exports.updateUserSecuritySettings = async (req, res) => {
-  try {
-    logger.info(`Security settings has been successfully updated for user`)
-    return res.status(200).json({ status: 1 });
-  } catch (e) {
-    logger.error(`Something went wrong while updating user security settings => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
-  }
-}

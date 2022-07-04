@@ -18,7 +18,6 @@ router.get("/get-user-last-activity/:personalId", wrapAsync(userController.getLa
 
 router.get("/get-user-settings/:t", wrapAsync(userController.getUserSettings))
 router.patch("/update-user-personal-information", wrapAsync(userController.updateUserPersonalInformation));
-router.patch("/update-user-security-settings", wrapAsync(userController.updateUserSecuritySettings));
 
 router.post("/set-2fa", wrapAsync(twoFaController.setTwoFa));
 router.post("/disable-2fa", wrapAsync(twoFaController.disableTwoFa));
