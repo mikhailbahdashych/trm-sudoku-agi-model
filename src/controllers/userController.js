@@ -1,5 +1,6 @@
-const dotenv = require("dotenv");
 const seedrandom = require("seedrandom");
+const knex = require('../knex/knex');
+const dotenv = require("dotenv");
 dotenv.config();
 
 const userService = require("../services/userService");
@@ -13,6 +14,7 @@ const { verifyTwoFa } = require("../common/verifyTwoFa")
 const logger = loggerInstance({ label: "client-controller", path: "client" });
 
 exports.signIn = async (req, res) => {
+  const transaction = knex.transaction()
   try {
     let { email, password, twoFa } = req.body
     let reopening = false
@@ -21,7 +23,7 @@ exports.signIn = async (req, res) => {
       return res.status(400).json({ message: "bad-request", status: 400 })
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
-    const client = await userService.getClientToSignIn({email, password})
+    const client = await userService.getClientToSignIn({email, password}, { transaction })
     logger.info(`Sign in client with email: ${email}`)
 
     if (!client) {
@@ -31,7 +33,7 @@ exports.signIn = async (req, res) => {
 
     if (client.email.slice(-4) === "_del") {
       logger.info(`User has closed account, reopening...`)
-      await userService.reopenAccount(client.id, client.email.split("_del")[0], client.password.split("_del")[0])
+      await userService.reopenAccount(client.id, client.email.split("_del")[0], client.password.split("_del")[0], { transaction })
       reopening = true
     }
 
@@ -54,6 +56,7 @@ exports.signIn = async (req, res) => {
 }
 
 exports.signUp = async (req, res) => {
+  const transaction = knex.transaction()
   try {
     let { email, password, username } = req.body
 
@@ -68,7 +71,7 @@ exports.signUp = async (req, res) => {
       return res.status(409).json({ message: "conflict", status: -1 })
     }
 
-    const pickedUsername = await userService.getUserByUsername(username)
+    const pickedUsername = await userService.getUserByUsername(username, { transaction })
 
     if (pickedUsername) {
       logger.warning(`Client with nickname - ${username} - already exists`)
@@ -77,7 +80,7 @@ exports.signUp = async (req, res) => {
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
     const personalId = (seedrandom(email).quick() * 1e10).toFixed(0)
-    await userService.createUser({ email, password, personalId, username })
+    await userService.createUser({ email, password, personalId, username }, { transaction })
     logger.info(`Client with email ${email} has been successfully created!`)
 
     return res.status(200).json({ message: "success", status: 1 })
@@ -88,6 +91,7 @@ exports.signUp = async (req, res) => {
 }
 
 exports.changePassword = async (req, res) => {
+  const transaction = knex.transaction()
   try {
     const client = await getClientByJwtToken(req.body.token)
     if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
@@ -116,7 +120,7 @@ exports.changePassword = async (req, res) => {
     if (currentPassword === newPassword)
       return res.status(409).json({ message: "conflict", status: -4 })
 
-    await userService.changePassword(client.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
+    await userService.changePassword(client.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()), { transaction })
     logger.info(`Password has been successfully changed for user with email ${client.email}`)
 
     return res.status(200).json({ status: 1 });
@@ -127,6 +131,7 @@ exports.changePassword = async (req, res) => {
 }
 
 exports.changeEmail = async (req, res) => {
+  const transaction = knex.transaction()
   try {
     const client = await getClientByJwtToken(req.body.token)
     if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
@@ -152,6 +157,7 @@ exports.changeEmail = async (req, res) => {
 }
 
 exports.closeAccount = async (req, res) => {
+  const transaction = knex.transaction()
   try {
     const client = await getClientByJwtToken(req.body.token)
     if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
@@ -168,7 +174,7 @@ exports.closeAccount = async (req, res) => {
     if (client.password !== cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString()))
       return res.status(401).json({ error: "unauthorized", status: -3 });
 
-    await userService.closeAccount(client.id, client.email, client.password)
+    await userService.closeAccount(client.id, client.email, client.password, { transaction })
     logger.info(`Account has been successfully close for user with email ${client.email}`)
 
     return res.status(200).json({ status: 1 });
@@ -191,13 +197,14 @@ exports.getUserByToken = async (req, res) => {
 }
 
 exports.getUserByPersonalId = async (req, res) => {
+  const transaction = knex.transaction()
   try {
     const { personalId } = req.params
 
     if (!personalId || !validateUserPersonalId(personalId))
       return res.status(400).json({ message: "bad-request", status: 400 })
 
-    const client = await userService.getUserByPersonalId(personalId)
+    const client = await userService.getUserByPersonalId(personalId, { transaction })
 
     if (!client)
       return res.status(403).json({ error: "not-found", status: 403 });
@@ -224,6 +231,7 @@ exports.getLastActivity = async (req, res) => {
 }
 
 exports.getUserSettings = async (req, res) => {
+  const transaction = knex.transaction()
   try {
     if (!req.params.t || !['s', 'p', 'ss'].includes(req.params.t))
       return res.status(400).json({ message: "bad-request", status: 400 })
@@ -234,7 +242,7 @@ exports.getUserSettings = async (req, res) => {
     switch (req.params.t) {
       case 's':
         try {
-          const settings = await userService.getUserSettings(client.id);
+          const settings = await userService.getUserSettings(client.id, { transaction });
           settings.twoFa = settings.twoFa !== null
           return res.status(200).json(settings);
         } catch (e) {
@@ -243,7 +251,7 @@ exports.getUserSettings = async (req, res) => {
         }
       case 'p':
         try {
-          const personalInformation = await userService.getUserPersonalSettings(client.id)
+          const personalInformation = await userService.getUserPersonalSettings(client.id, { transaction })
           return res.status(200).json(personalInformation);
         } catch (e) {
           logger.error(`Something went wrong while getting user personal settings => ${e}`)
