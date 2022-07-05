@@ -80,7 +80,7 @@ exports.getClientToSignIn = async (data, { transaction = null } = {}) => {
 
 exports.createUser = async (data, { transaction = null } = {}) => {
   try {
-    // @TODO Fix here by making 2 requests
+    // @TODO Fix here by making 2 requests + fix transactions
     const createUser = await knex(tableName).insert({
       email: data.email,
       password: data.password,
