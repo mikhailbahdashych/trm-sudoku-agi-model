@@ -10,8 +10,9 @@ const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Hello World',
-      version: '1.0.0',
+      title: 'PNB API',
+      version: '0.0.1',
+      description: 'PNB - Pentester\'s notes blog RESTful API documentation.'
     },
   },
   apis: ["./src/routes.js"]
