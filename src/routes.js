@@ -140,10 +140,10 @@ router.get("/get-user-settings/:t", wrapAsync(userController.getUserSettings));
 /**
  * @swagger
  * /update-user-personal-information:
- *  get:
+ *  patch:
  *    summary: Used to update user's personal information
  *    tags:
- *      - patch
+ *      - PATCH
  *    description:
  *      This resource allows an individual user update user's personal information.
  */
