@@ -2,7 +2,6 @@ const router = require('express').Router();
 const wrapAsync = require('./middlewares/async');
 
 const userController = require('./controllers/userController');
-const twoFaController = require('./controllers/twoFaController');
 
 const { v } = require('./middlewares/validator');
 
@@ -159,7 +158,7 @@ router.patch("/update-user-personal-information", wrapAsync(userController.updat
  *    description:
  *      This resource allows an individual user to set up 2FA for account.
  */
-router.post("/set-2fa", wrapAsync(twoFaController.setTwoFa));
+router.post("/set-2fa", wrapAsync(userController.setTwoFa));
 
 /**
  * @swagger
@@ -171,6 +170,6 @@ router.post("/set-2fa", wrapAsync(twoFaController.setTwoFa));
  *    description:
  *      This resource allows an individual user to disable 2FA for account.
  */
-router.post("/disable-2fa", wrapAsync(twoFaController.disableTwoFa));
+router.post("/disable-2fa", wrapAsync(userController.disableTwoFa));
 
 module.exports = router;
