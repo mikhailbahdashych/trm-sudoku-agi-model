@@ -1,6 +1,6 @@
 const twoFactorService = require('node-2fa');
 
-const twoFaService = require('../services/twoFaService');
+const twoFaService = require('../repositories/twoFaRepository');
 
 const loggerInstance = require('../common/logger');
 const { getClientByJwtToken } = require('../common/getClientByJwtToken')

@@ -1,6 +1,6 @@
 const jwtService = require('../services/jwtService');
 const cryptoService = require('../services/cryptoService');
-const userService = require('../services/userService');
+const userService = require('../repositories/userRepository');
 const dotenv = require('dotenv');
 dotenv.config();
 

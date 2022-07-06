@@ -3,7 +3,7 @@ const knex = require('../knex/knex');
 const dotenv = require("dotenv");
 dotenv.config();
 
-const userService = require("../services/userService");
+const userService = require("../repositories/userRepository");
 const cryptoService = require("../services/cryptoService");
 const jwtService = require("../services/jwtService");
 const { validatePassword, validateEmail, validateUserPersonalId } = require("../common/validators");
