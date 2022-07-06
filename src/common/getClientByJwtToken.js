@@ -4,7 +4,7 @@ const userService = require('../repositories/userRepository');
 const dotenv = require('dotenv');
 dotenv.config();
 
-exports.getClientByJwtToken = async (jwt) => {
+exports.getClientByJwtToken = async (jwt, { transaction } = { transaction: null }) => {
   try {
     const userJwt = await jwtService.getUser(jwt)
 
@@ -12,7 +12,7 @@ exports.getClientByJwtToken = async (jwt) => {
 
     const clientId = cryptoService.decrypt(userJwt.uxd, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
 
-    return await userService.getUserById({ id: clientId })
+    return await userService.getUserById({ id: clientId }, { transaction })
   } catch (e) {
     return e.message
   }

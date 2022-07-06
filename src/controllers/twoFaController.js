@@ -1,12 +1,13 @@
 const twoFactorService = require('node-2fa');
-
-const twoFaService = require('../repositories/twoFaRepository');
+const userService = require('../services/userService');
+const knex = require('../knex/knex');
 
 const loggerInstance = require('../common/logger');
 const { getClientByJwtToken } = require('../common/getClientByJwtToken')
 const logger = loggerInstance({ label: 'client-controller', path: 'client' });
 
 exports.setTwoFa = async (req, res) => {
+  const transaction = await knex.transaction()
   try {
     const client = await getClientByJwtToken(req.body.token)
     if (typeof client === 'string' || !client) return res.status(200).json({ status: -1 });
@@ -19,7 +20,7 @@ exports.setTwoFa = async (req, res) => {
     if (!resultTwoFa) return res.status(403).json({ status: -1, message: 'access-forbidden' })
     if (resultTwoFa.delta !== 0) return res.status(403).json({ status: -1, message: 'access-forbidden' })
 
-    await twoFaService.setTwoFa(twoFaToken, client.id)
+    await userService.setTwoFa({ twoFaToken, id: client.id }, { transaction })
     logger.info(`2FA was successfully created for client with id: ${ client.id }`)
 
     return res.status(200).json({ status: 1 })
@@ -30,6 +31,7 @@ exports.setTwoFa = async (req, res) => {
 }
 
 exports.disableTwoFa = async (req, res) => {
+  const transaction = await knex.transaction()
   try {
     const client = await getClientByJwtToken(req.body.token)
     if (typeof client === 'string' || !client) return res.status(200).json({ status: -1 });
@@ -41,7 +43,7 @@ exports.disableTwoFa = async (req, res) => {
     if (!result2Fa) return res.status(403).json({ status: -1, message: 'access-forbidden' })
     if (result2Fa.delta !== 0) return res.status(403).json({ status: -1, message: 'access-forbidden' })
 
-    await twoFaService.disableTwoFa(client.id)
+    await userService.disableTwoFa({ id: client.id }, { transaction })
     logger.info(`2FA was successfully disabled for client with id: ${client.id}`)
 
     return res.status(200).json({ status: 1 })
