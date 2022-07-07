@@ -57,7 +57,7 @@ module.exports = {
       const createdUser = await userRepository.createUser({ email, password, personalId }, { transaction })
       return await userRepository.createUserInfo({
         user_id: createdUser[0].id, username
-      })
+      }, { transaction })
     } catch (e) {
       logger.error(`Error while creating user: ${e.message}`)
       throw Error("error-while-creating-user")

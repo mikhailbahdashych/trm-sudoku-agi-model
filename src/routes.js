@@ -2,6 +2,7 @@ const router = require('express').Router();
 const wrapAsync = require('./middlewares/async');
 
 const userController = require('./controllers/userController');
+const blogController = require('./controllers/blogController');
 
 const { v } = require('./middlewares/validator');
 
@@ -54,6 +55,30 @@ router.post("/change-password", wrapAsync(userController.changePassword));
  *      Operation is available only one time per individual user.
  */
 router.post("/change-email", wrapAsync(userController.changeEmail));
+
+/**
+ * @swagger
+ * /set-2fa:
+ *  post:
+ *    summary: Used to set two-factor authentication
+ *    tags:
+ *      - POST
+ *    description:
+ *      This resource allows an individual user to set up 2FA for account.
+ */
+router.post("/set-2fa", wrapAsync(userController.setTwoFa));
+
+/**
+ * @swagger
+ * /disable-2fa:
+ *  post:
+ *    summary: Used to set two-factor authentication
+ *    tags:
+ *      - POST
+ *    description:
+ *      This resource allows an individual user to disable 2FA for account.
+ */
+router.post("/disable-2fa", wrapAsync(userController.disableTwoFa));
 
 /**
  * @swagger
@@ -123,7 +148,7 @@ router.get("/get-user-last-activity/:personalId", wrapAsync(userController.getLa
  * @swagger
  * /get-user-settings/{t}:
  *  get:
- *    summary: Used to get user's last activity
+ *    summary: Used to get user's settings to edit
  *    tags:
  *      - GET
  *    description:
@@ -148,28 +173,7 @@ router.get("/get-user-settings/:t", wrapAsync(userController.getUserSettings));
  */
 router.patch("/update-user-personal-information", wrapAsync(userController.updateUserPersonalInformation));
 
-/**
- * @swagger
- * /set-2fa:
- *  post:
- *    summary: Used to set two-factor authentication
- *    tags:
- *      - POST
- *    description:
- *      This resource allows an individual user to set up 2FA for account.
- */
-router.post("/set-2fa", wrapAsync(userController.setTwoFa));
 
-/**
- * @swagger
- * /disable-2fa:
- *  post:
- *    summary: Used to set two-factor authentication
- *    tags:
- *      - POST
- *    description:
- *      This resource allows an individual user to disable 2FA for account.
- */
-router.post("/disable-2fa", wrapAsync(userController.disableTwoFa));
 
+router.get("/get-post/:postId", wrapAsync())
 module.exports = router;

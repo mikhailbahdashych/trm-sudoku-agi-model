@@ -74,14 +74,14 @@ exports.signUp = async (req, res) => {
     logger.info(`Registration client with email: ${email}`)
 
     if (user) {
-      logger.warning(`Client with email ${email} already exists`)
+      logger.warn(`Client with email ${email} already exists`)
       return res.status(409).json({ message: "conflict", status: -1 })
     }
 
     const pickedUsername = await userService.getUserByUsername({ username }, { transaction })
 
     if (pickedUsername) {
-      logger.warning(`Client with nickname - ${username} - already exists`)
+      logger.warn(`Client with nickname - ${username} - already exists`)
       return res.status(409).json({ message: "conflict", status: -2 })
     }
 

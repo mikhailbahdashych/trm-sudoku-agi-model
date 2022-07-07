@@ -55,7 +55,7 @@ module.exports = {
     return transaction ? result.transacting(transaction) : result
   },
   createUser: async ({ email, password, personalId }, { transaction } = { transaction: null }) => {
-    const result = await knex(tableName).insert({
+    const result = knex(tableName).insert({
       email: email,
       password: password,
       personal_id: personalId,
@@ -63,7 +63,7 @@ module.exports = {
     return transaction ? result.transacting(transaction) : result
   },
   createUserInfo: async ({ user_id, username }, { transaction } = { transaction: null }) => {
-    const result = await knex('users_info').insert({ user_id, username })
+    const result = knex('users_info').insert({ user_id, username })
     return transaction ? result.transacting(transaction) : result
   },
   getUserSettings: async ({ id }, { transaction } = { transaction: null }) => {
