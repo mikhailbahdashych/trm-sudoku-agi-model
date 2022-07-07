@@ -53,6 +53,7 @@ exports.signIn = async (req, res) => {
     const token = jwtService.sign({ uxd })
     logger.info(`Client ${client.email} has been successfully signed in!`)
 
+    await transaction.commit()
     return res.status(200).json({ token, personalId: client.personalId, username: reopening ? client.username : null })
   } catch (e) {
     await transaction.rollback()
@@ -89,6 +90,7 @@ exports.signUp = async (req, res) => {
     await userService.createUser({ email, password, personalId, username }, { transaction })
     logger.info(`Client with email ${email} has been successfully created!`)
 
+    await transaction.commit()
     return res.status(200).json({ message: "success", status: 1 })
   } catch (e) {
     await transaction.rollback()
@@ -133,6 +135,7 @@ exports.changePassword = async (req, res) => {
     }, { transaction })
     logger.info(`Password has been successfully changed for user with email ${client.email}`)
 
+    await transaction.commit()
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
@@ -160,6 +163,8 @@ exports.changeEmail = async (req, res) => {
     }
 
     logger.info(`Email has been successfully changed for user with email`)
+
+    await transaction.commit()
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
@@ -193,6 +198,7 @@ exports.closeAccount = async (req, res) => {
     }, { transaction })
     logger.info(`Account has been successfully close for user with email ${client.email}`)
 
+    await transaction.commit()
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
@@ -207,6 +213,7 @@ exports.getUserByToken = async (req, res) => {
     const client = await getClientByJwtToken(req.headers.ato, { transaction })
     if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
 
+    await transaction.commit()
     return res.status(200).json({ personalId: client.personalId, username: client.username })
   } catch (e) {
     await transaction.rollback()
@@ -228,6 +235,7 @@ exports.getUserByPersonalId = async (req, res) => {
     if (!client)
       return res.status(403).json({ error: "not-found", status: 403 });
 
+    await transaction.commit()
     return res.status(200).json(client)
   } catch (e) {
     await transaction.rollback()
@@ -244,6 +252,7 @@ exports.getLastActivity = async (req, res) => {
     if (!personalId || !validateUserPersonalId(personalId))
       return res.status(400).json({ message: "bad-request", status: 400 })
 
+    await transaction.commit()
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
@@ -266,6 +275,7 @@ exports.getUserSettings = async (req, res) => {
         try {
           const settings = await userService.getUserSettings({ id: client.id }, { transaction });
           settings.twoFa = settings.twoFa !== null
+          await transaction.commit()
           return res.status(200).json(settings);
         } catch (e) {
           logger.error(`Something went wrong while getting user security settings => ${e}`)
@@ -274,6 +284,7 @@ exports.getUserSettings = async (req, res) => {
       case 'p':
         try {
           const personalInformation = await userService.getUserPersonalSettings({ id: client.id }, { transaction })
+          await transaction.commit()
           return res.status(200).json(personalInformation);
         } catch (e) {
           logger.error(`Something went wrong while getting user personal settings => ${e}`)
@@ -281,6 +292,7 @@ exports.getUserSettings = async (req, res) => {
         }
       case 'ss':
         try {
+          await transaction.commit()
           return res.status(200).json({});
         } catch (e) {
           logger.error(`Something went wrong while getting user site settings => ${e}`)
@@ -297,6 +309,7 @@ exports.updateUserPersonalInformation = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     logger.info(`Personal settings has been successfully updated for user`)
+    await transaction.commit()
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
@@ -323,6 +336,7 @@ exports.setTwoFa = async (req, res) => {
     await userService.setTwoFa({ twoFaToken, id: client.id }, { transaction })
     logger.info(`2FA was successfully created for client with id: ${ client.id }`)
 
+    await transaction.commit()
     return res.status(200).json({ status: 1 })
   } catch (e) {
     logger.error(`Something went wrong while setting 2FA => ${e}`)
@@ -346,6 +360,7 @@ exports.disableTwoFa = async (req, res) => {
     await userService.disableTwoFa({ id: client.id }, { transaction })
     logger.info(`2FA was successfully disabled for client with id: ${client.id}`)
 
+    await transaction.commit()
     return res.status(200).json({ status: 1 })
   } catch (e) {
     logger.error(`Something went wrong while disabling 2FA => ${e}`)
