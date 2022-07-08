@@ -9,6 +9,7 @@ exports.up = function(knex) {
     table.text('first_name').nullable()
     table.text('last_name').nullable()
     table.text('title').nullable()
+    table.text('company').nullable()
     table.text('location').nullable()
     table.text('about_me').nullable()
     table.text('website_link').nullable()

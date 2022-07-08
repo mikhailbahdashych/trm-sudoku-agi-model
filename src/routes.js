@@ -175,4 +175,8 @@ router.patch("/update-user-personal-information", wrapAsync(userController.updat
 router.get("/get-blog-post/:postId", wrapAsync(blogController.getPostById));
 router.get("/get-forum-post/:postId", wrapAsync(forumController.getPostById));
 router.get("/get-question/:questionId", wrapAsync(questionController.getQuestionById));
+
+router.post("/create-blog-post", wrapAsync(blogController.createPost));
+router.post("/create-forum-post", wrapAsync(forumController.createPost));
+router.post("/create-question-post", wrapAsync(questionController.createPost));
 module.exports = router;
