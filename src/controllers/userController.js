@@ -264,43 +264,21 @@ exports.getLastActivity = async (req, res) => {
 exports.getUserSettings = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    if (!req.params.t || !['s', 'p', 'ss'].includes(req.params.t))
-      return res.status(400).json({ message: "bad-request", status: 400 })
-
     const client = await getClientByJwtToken(req.headers.ato, { transaction })
     if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
 
-    switch (req.params.t) {
-      case 's':
-        try {
-          const settings = await userService.getUserSettings({ id: client.id }, { transaction });
-          settings.twoFa = settings.twoFa !== null
-          await transaction.commit()
-          return res.status(200).json(settings);
-        } catch (e) {
-          logger.error(`Something went wrong while getting user security settings => ${e}`)
-          return res.status(500).json({ message: "something-went-wrong", status: 500 })
-        }
-      case 'p':
-        try {
-          const personalInformation = await userService.getUserPersonalSettings({ id: client.id }, { transaction })
-          await transaction.commit()
-          return res.status(200).json(personalInformation);
-        } catch (e) {
-          logger.error(`Something went wrong while getting user personal settings => ${e}`)
-          return res.status(500).json({ message: "something-went-wrong", status: 500 })
-        }
-      case 'ss':
-        try {
-          await transaction.commit()
-          return res.status(200).json({});
-        } catch (e) {
-          logger.error(`Something went wrong while getting user site settings => ${e}`)
-          return res.status(500).json({ message: "something-went-wrong", status: 500 })
-        }
-    }
+    const securitySettings = await userService.getUserSecuritySettings({ id: client.id }, { transaction });
+    securitySettings.twoFa = securitySettings.twoFa !== null
+
+    const personalSettings = await userService.getUserPersonalSettings({ id: client.id }, { transaction });
+
+    await transaction.commit()
+    return res.status(200).json({
+      securitySettings, personalSettings
+    });
   } catch (e) {
     await transaction.rollback()
+    logger.error(`Something went wrong while getting user's settings => ${e}`)
     return res.status(500).json({ message: "something-went-wrong", status: 500 })
   }
 }

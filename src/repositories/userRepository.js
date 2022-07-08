@@ -66,7 +66,7 @@ module.exports = {
     const result = knex('users_info').insert({ user_id, username })
     return transaction ? result.transacting(transaction) : result
   },
-  getUserSettings: async ({ id }, { transaction } = { transaction: null }) => {
+  getUserSecuritySettings: async ({ id }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('id', id)
       .first('two_fa as twoFa')

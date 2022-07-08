@@ -3,6 +3,8 @@ const wrapAsync = require('./middlewares/async');
 
 const userController = require('./controllers/userController');
 const blogController = require('./controllers/blogController');
+const forumController = require('./controllers/forumController');
+const questionController = require('./controllers/qaController');
 
 const { v } = require('./middlewares/validator');
 
@@ -152,14 +154,9 @@ router.get("/get-user-last-activity/:personalId", wrapAsync(userController.getLa
  *    tags:
  *      - GET
  *    description:
- *      Endpoint used to get user's different settings (personal, security and site settings)
- *    parameters:
- *      - in: path
- *        name: t
- *        required: true
- *        description: One/two letters code describing type of getting settings.
+ *      Endpoint used to get user's settings (personal, security and site settings)
  */
-router.get("/get-user-settings/:t", wrapAsync(userController.getUserSettings));
+router.get("/get-user-settings", wrapAsync(userController.getUserSettings));
 
 /**
  * @swagger
@@ -175,5 +172,7 @@ router.patch("/update-user-personal-information", wrapAsync(userController.updat
 
 
 
-router.get("/get-post/:postId", wrapAsync())
+router.get("/get-blog-post/:postId", wrapAsync(blogController.getPostById));
+router.get("/get-forum-post/:postId", wrapAsync(forumController.getPostById));
+router.get("/get-question/:questionId", wrapAsync(questionController.getQuestionById));
 module.exports = router;

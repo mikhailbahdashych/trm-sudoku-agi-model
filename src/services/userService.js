@@ -36,9 +36,9 @@ module.exports = {
       throw Error("error-while-getting-user-by-personal-id")
     }
   },
-  getUserSettings: async ({ id }, { transaction } = { transaction: null }) => {
+  getUserSecuritySettings: async ({ id }, { transaction } = { transaction: null }) => {
     try {
-      return await userRepository.getUserSettings({ id }, { transaction })
+      return await userRepository.getUserSecuritySettings({ id }, { transaction })
     } catch (e) {
       logger.error(`Error while getting user settings: ${e.message}`)
       throw Error("error-while-getting-user-settings")
