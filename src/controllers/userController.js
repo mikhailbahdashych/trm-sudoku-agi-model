@@ -273,9 +273,7 @@ exports.getUserSettings = async (req, res) => {
     const personalSettings = await userService.getUserPersonalSettings({ id: client.id }, { transaction });
 
     await transaction.commit()
-    return res.status(200).json({
-      securitySettings, personalSettings
-    });
+    return res.status(200).json({ securitySettings, personalSettings });
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting user's settings => ${e}`)

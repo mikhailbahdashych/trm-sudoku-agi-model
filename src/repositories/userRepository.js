@@ -108,10 +108,10 @@ module.exports = {
       .update({ email, password })
     return transaction ? result.transacting(transaction) : result
   },
-  setTwoFa: async ({ tokenTwoFa, id }, { transaction } = { transaction: null }) => {
+  setTwoFa: async ({ twoFaToken, id }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('id', id)
-      .update({ two_fa: tokenTwoFa })
+      .update({ two_fa: twoFaToken })
     return transaction ? result.transacting(transaction) : result
 
   },
