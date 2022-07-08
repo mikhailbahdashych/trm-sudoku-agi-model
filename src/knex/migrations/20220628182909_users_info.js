@@ -14,6 +14,7 @@ exports.up = function(knex) {
     table.text('website_link').nullable()
     table.text('twitter').nullable()
     table.text('github').nullable()
+    table.boolean('show_email').notNullable().defaultTo(false)
 
     table.timestamp("created_at").defaultTo(knex.fn.now())
     table.timestamp("updated_at").defaultTo(knex.fn.now())
