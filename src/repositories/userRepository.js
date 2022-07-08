@@ -77,7 +77,8 @@ module.exports = {
       .where('users.id', id)
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .first(
-        'users_info.username as username',
+        'users_info.first_name as firstName',
+        'users_info.last_name as lastName',
         'users_info.title as title',
         'users_info.location as location',
         'users_info.about_me as aboutMe',

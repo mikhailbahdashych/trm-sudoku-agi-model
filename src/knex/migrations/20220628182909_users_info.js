@@ -6,6 +6,8 @@ exports.up = function(knex) {
       .inTable('users')
       .notNullable()
     table.text('username').notNullable()
+    table.text('first_name').nullable()
+    table.text('last_name').nullable()
     table.text('title').nullable()
     table.text('location').nullable()
     table.text('about_me').nullable()
