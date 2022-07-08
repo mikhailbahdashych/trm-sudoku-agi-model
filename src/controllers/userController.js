@@ -65,7 +65,7 @@ exports.signIn = async (req, res) => {
 exports.signUp = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    let { email, password, username } = req.body
+    let { email, password, username, personalInformation } = req.body
 
     if (!email || !password || !username || !validateEmail(email) || !validatePassword(password))
       return res.status(400).json({ message: "bad-request", status: 400 })
