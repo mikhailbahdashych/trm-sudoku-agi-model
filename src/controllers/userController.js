@@ -103,7 +103,7 @@ exports.changePassword = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const client = await getClientByJwtToken(req.body.token, { transaction })
-    if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
+    if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
 
     const { currentPassword, newPassword, newPasswordRepeat, twoFa } = req.body
 
@@ -148,7 +148,7 @@ exports.changeEmail = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const client = await getClientByJwtToken(req.body.token, { transaction })
-    if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
+    if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
 
     const { newEmail, twoFa } = req.body
 
@@ -177,7 +177,7 @@ exports.closeAccount = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const client = await getClientByJwtToken(req.body.token, { transaction })
-    if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
+    if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
 
     const { password, twoFa } = req.body
 
@@ -211,7 +211,7 @@ exports.getUserByToken = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const client = await getClientByJwtToken(req.headers.ato, { transaction })
-    if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
+    if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
 
     await transaction.commit()
     return res.status(200).json({ personalId: client.personalId, username: client.username })
@@ -265,7 +265,7 @@ exports.getUserSettings = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const client = await getClientByJwtToken(req.headers.ato, { transaction })
-    if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
+    if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
 
     const { t } = req.params
 
