@@ -68,8 +68,12 @@ module.exports = {
   },
   getUserSecuritySettings: async ({ id }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
-      .where('id', id)
-      .first('two_fa as twoFa')
+      .where('users.id', id)
+      .leftJoin('users_info', 'users_info.user_id', 'users.id')
+      .first(
+        'users_info.username',
+        'users.two_fa as twoFa'
+      )
     return transaction ? result.transacting(transaction) : result
   },
   getUserPersonalSettings: async ({ id }, { transaction } = { transaction: null }) => {
