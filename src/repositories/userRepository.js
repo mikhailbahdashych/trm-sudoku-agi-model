@@ -77,14 +77,16 @@ module.exports = {
       .where('users.id', id)
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .first(
-        'users_info.first_name as firstName',
-        'users_info.last_name as lastName',
-        'users_info.title as title',
-        'users_info.location as location',
-        'users_info.about_me as aboutMe',
-        'users_info.website_link as websiteLink',
-        'users_info.twitter as twitter',
-        'users_info.github as github'
+        'users_info.username',
+        'users_info.first_name',
+        'users_info.last_name',
+        'users_info.title',
+        'users_info.company',
+        'users_info.location',
+        'users_info.about_me',
+        'users_info.website_link',
+        'users_info.twitter',
+        'users_info.github'
       )
     return transaction ? result.transacting(transaction) : result
   },
