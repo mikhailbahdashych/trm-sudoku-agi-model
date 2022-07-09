@@ -154,9 +154,13 @@ router.get("/get-user-last-activity/:personalId", wrapAsync(userController.getLa
  *    tags:
  *      - GET
  *    description:
- *      Endpoint used to get user's settings (personal, security and site settings)
+ *      Endpoint used to get user's settings (personal, security or notification)
+ *    parameters:
+ *      - in: path
+ *        name: t
+ *        description: Type of settings (personal, security or notification)
  */
-router.get("/get-user-settings", wrapAsync(userController.getUserSettings));
+router.get("/get-user-settings/:t", wrapAsync(userController.getUserSettings));
 
 /**
  * @swagger

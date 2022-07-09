@@ -267,13 +267,26 @@ exports.getUserSettings = async (req, res) => {
     const client = await getClientByJwtToken(req.headers.ato, { transaction })
     if (typeof client === "string" || !client) return res.status(200).json({ status: -1 });
 
-    const securitySettings = await userService.getUserSecuritySettings({ id: client.id }, { transaction });
-    securitySettings.twoFa = securitySettings.twoFa !== null
+    const { t } = req.params
 
-    const personalSettings = await userService.getUserPersonalSettings({ id: client.id }, { transaction });
+    if (!t || !['security', 'personal', 'notifications'].includes(t))
+      return res.status(400).json({ message: "bad-request", status: 400 })
 
-    await transaction.commit()
-    return res.status(200).json({ securitySettings, personalSettings });
+    switch (t) {
+      case 'security':
+        const securitySettings = await userService.getUserSecuritySettings({ id: client.id }, { transaction });
+        securitySettings.twoFa = securitySettings.twoFa !== null
+
+        await transaction.commit();
+        return res.status(200).json(securitySettings);
+      case 'personal':
+        const personalSettings = await userService.getUserPersonalSettings({ id: client.id }, { transaction });
+
+        await transaction.commit();
+        return res.status(200).json(personalSettings);
+      case 'notifications':
+        break
+    }
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting user's settings => ${e}`)
