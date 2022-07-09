@@ -52,11 +52,11 @@ module.exports = {
       throw Error("error-while-getting-user-personal-settings")
     }
   },
-  createUser: async ({ email, password, personalId, username }, { transaction } = { transaction: null }) => {
+  createUser: async ({ email, password, personalId, username, personalInformation }, { transaction } = { transaction: null }) => {
     try {
       const createdUser = await userRepository.createUser({ email, password, personalId }, { transaction })
       return await userRepository.createUserInfo({
-        user_id: createdUser[0].id, username
+        user_id: createdUser[0].id, username, personalInformation
       }, { transaction })
     } catch (e) {
       logger.error(`Error while creating user: ${e.message}`)

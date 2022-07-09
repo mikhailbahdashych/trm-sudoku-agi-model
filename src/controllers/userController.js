@@ -87,7 +87,7 @@ exports.signUp = async (req, res) => {
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
     const personalId = (seedrandom(email).quick() * 1e10).toFixed(0)
-    await userService.createUser({ email, password, personalId, username }, { transaction })
+    await userService.createUser({ email, password, personalId, username, personalInformation }, { transaction })
     logger.info(`Client with email ${email} has been successfully created!`)
 
     await transaction.commit()

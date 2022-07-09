@@ -62,8 +62,8 @@ module.exports = {
     }).returning('id')
     return transaction ? result.transacting(transaction) : result
   },
-  createUserInfo: async ({ user_id, username }, { transaction } = { transaction: null }) => {
-    const result = knex('users_info').insert({ user_id, username })
+  createUserInfo: async ({ user_id, username, personalInformation }, { transaction } = { transaction: null }) => {
+    const result = knex('users_info').insert({ user_id, username, ...personalInformation })
     return transaction ? result.transacting(transaction) : result
   },
   getUserSecuritySettings: async ({ id }, { transaction } = { transaction: null }) => {
