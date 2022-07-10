@@ -50,11 +50,14 @@ exports.signIn = async (req, res) => {
     }
 
     const uxd = cryptoService.encrypt(client.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
-    const token = jwtService.sign({ uxd })
+    const { accessToken, refreshToken } = jwtService.updateTokens({
+      userId: uxd,
+      username: client.username
+    })
     logger.info(`Client ${client.email} has been successfully signed in!`)
 
     await transaction.commit()
-    return res.status(200).json({ token, personalId: client.personalId, username: reopening ? client.username : null })
+    return res.status(200).json({ accessToken, refreshToken, reopening: reopening ? client.username : null })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while sign in => ${e}`)
