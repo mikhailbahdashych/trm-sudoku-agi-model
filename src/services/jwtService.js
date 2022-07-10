@@ -17,7 +17,7 @@ module.exports = {
       },
       {
         algorithm: "RS256",
-        expiresIn: "7d"
+        expiresIn: "3d"
       }
     )
   },

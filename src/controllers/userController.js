@@ -210,7 +210,8 @@ exports.closeAccount = async (req, res) => {
 exports.getUserByToken = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const client = await getClientByJwtToken(req.headers.ato, { transaction })
+    const token = req.headers.authorization.split(' ')[1]
+    const client = await getClientByJwtToken(token, { transaction })
     if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
 
     await transaction.commit()
@@ -264,7 +265,8 @@ exports.getLastActivity = async (req, res) => {
 exports.getUserSettings = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const client = await getClientByJwtToken(req.headers.ato, { transaction })
+    const token = req.headers.authorization.split(' ')[1]
+    const client = await getClientByJwtToken(token, { transaction })
     if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
 
     const { t } = req.params
