@@ -11,6 +11,7 @@ const logger = loggerInstance({ label: "jwt-service", path: "jwt" })
 const privateKey = fs.readFileSync(path.resolve(__dirname + "../../../keys/private.pem"));
 
 const jwtRepository = require("../repositories/jwtRepository");
+const cryptoService = require("./cryptoService");
 
 const jwtConfig = {
   secret: privateKey,
@@ -25,76 +26,66 @@ const jwtConfig = {
   }
 }
 
+const generateAccessToken = ({ userId, username }) => {
+  try {
+    const payload = {
+      userId,
+      username,
+      type: jwtConfig.access.type
+    }
+    const options = {
+      expiresIn: jwtConfig.access.expiresIn,
+      algorithm: "RS256"
+    }
+    const secret = {
+      key: privateKey,
+      passphrase: jwtConfig.passphrase
+    }
+
+    return jwt.sign(payload, secret, options)
+  } catch (e) {
+    logger.error(`Error while generating access JWT token => ${e}`)
+    throw Error("error-while-generating-access-token")
+  }
+}
+
+const generateRefreshToken = () => {
+  try {
+    const payload = {
+      id: cryptoService.encrypt(uuid.v4(), process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString()),
+      type: jwtConfig.refresh.type
+    }
+    const options = { expiresIn: jwtConfig.refresh.expiresIn }
+
+    return jwt.sign(payload, privateKey, options)
+  } catch (e) {
+    logger.error(`Error while generating refresh JWT token => ${e}`)
+    throw Error("error-while-generating-refresh-token")
+  }
+}
+
+const updateRefreshToken = async ({ tokenId, userId }, { transaction } = { transaction: null }) => {
+  try {
+    await jwtRepository.deleteRefreshToken({ userId }, { transaction })
+    return await jwtRepository.createRefreshToken({ tokenId, userId }, { transaction })
+  } catch (e) {
+    logger.error(`Error while updating refresh token: ${e.message}`)
+    throw Error("error-while-updating-refresh-token")
+  }
+}
+
 module.exports = {
-  generateAccessToken: ({ userId, username }) => {
-    try {
-      const payload = {
-        userId,
-        username,
-        type: jwtConfig.access.type
-      }
-      const options = {
-        expiresIn: jwtConfig.access.expiresIn,
-        algorithm: "RS256"
-      }
-      const secret = {
-        key: privateKey,
-        passphrase: jwtConfig.passphrase
-      }
-
-      return jwt.sign(payload, secret, options, (err) => {
-        logger.error(`Access token JWT generating error => ${err}`)
-      })
-    } catch (e) {
-      logger.error(`Error while generating access JWT token => ${e}`)
-      throw Error("error-while-generating-access-token")
-    }
-  },
-  generateRefreshToken: () => {
-    try {
-      const payload = {
-        id: uuid.v4(),
-        type: jwtConfig.refresh.type
-      }
-      const options = { expiresIn: jwtConfig.refresh.expiresIn }
-      const secret = {
-        key: privateKey,
-        passphrase: jwtConfig.passphrase
-      }
-
-      return {
-        token: jwt.sign(payload, secret, options, (err) => {
-          logger.error(`Refresh token JWT generating error => ${err}`)
-        })
-      }
-    } catch (e) {
-      logger.error(`Error while generating refresh JWT token => ${e}`)
-      throw Error("error-while-generating-refresh-token")
-    }
-  },
-  updateRefreshToken: async ({ tokenId, userId }, { transaction } = { transaction: null }) => {
-    try {
-      await jwtRepository.deleteRefreshToken({ userId }, { transaction })
-      return await jwtRepository.createRefreshToken({ tokenId, userId }, { transaction })
-    } catch (e) {
-      logger.error(`Error while updating refresh token: ${e.message}`)
-      throw Error("error-while-updating-refresh-token")
-    }
-  },
   updateTokens: async ({ userId, username }, { transaction } = { transaction: null }) => {
     try {
-      const accessToken = this.generateAccessToken({ userId, username })
-      const refreshToken = this.generateRefreshToken();
+      const accessToken = generateAccessToken({ userId, username })
+      const refreshToken = generateRefreshToken();
 
-      await this.updateRefreshToken({
-        tokenId: refreshToken.id,
-        userId
+      await updateRefreshToken({
+        tokenId: cryptoService.decrypt(refreshToken.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString()),
+        userId: cryptoService.decrypt(userId, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
       }, { transaction })
 
-      return {
-        accessToken,
-        refreshToken: refreshToken.token
-      }
+      return { accessToken, refreshToken }
     } catch (e) {
       logger.error(`Error while updating tokens: ${e.message}`)
       throw Error("error-while-updating-tokens")
