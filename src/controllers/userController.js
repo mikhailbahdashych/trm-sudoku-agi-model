@@ -214,8 +214,10 @@ exports.getUserByToken = async (req, res) => {
     const client = await getClientByJwtToken(token, { transaction })
     if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
 
+    const personalInfo = await userService.getUserPersonalSettings({ id: client.id }, { transaction })
+
     await transaction.commit()
-    return res.status(200).json({ personalId: client.personalId, username: client.username })
+    return res.status(200).json({ personalId: client.personalId, username: client.username, ...personalInfo })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting user by token => ${e}`)

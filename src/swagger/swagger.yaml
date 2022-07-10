@@ -97,17 +97,17 @@ paths:
           name: postId
           required: true
           description: "Blog post ID"
-  /get-forum-post/{postId}:
+  /get-forum-thread/{threadId}:
     get:
-      summary: "Used to get forum post by post ID"
-      description: "This resource allows to get forum post by post ID."
+      summary: "Used to get forum thread by ID"
+      description: "This resource allows to get forum thread by ID."
       tags:
         - GET
       parameters:
         - in: path
-          name: postId
+          name: threadId
           required: true
-          description: "Forum post ID"
+          description: "Forum thread ID"
   /get-question/{questionId}:
     get:
       summary: "Used to get question by question ID"

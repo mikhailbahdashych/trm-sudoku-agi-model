@@ -25,10 +25,11 @@ router.get("/get-user-settings/:t", wrapAsync(userController.getUserSettings));
 router.patch("/update-user-personal-information", wrapAsync(userController.updateUserPersonalInformation));
 
 router.get("/get-blog-post/:postId", basicAuth, wrapAsync(blogController.getPostById));
-router.get("/get-forum-post/:postId", basicAuth, wrapAsync(forumController.getPostById));
+router.get("/get-forum-thread/:threadId", basicAuth, wrapAsync(forumController.getPostById));
 router.get("/get-question/:questionId", basicAuth, wrapAsync(questionController.getQuestionById));
 
 router.post("/create-blog-post", wrapAsync(blogController.createPost));
 router.post("/create-forum-post", wrapAsync(forumController.createPost));
 router.post("/create-question-post", wrapAsync(questionController.createPost));
+
 module.exports = router;
