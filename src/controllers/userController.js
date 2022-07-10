@@ -231,7 +231,24 @@ exports.getUserByToken = async (req, res) => {
 exports.refreshToken = async (req, res) => {
   const transaction = await knex.transaction()
   try {
+    const { refreshToken } = req.body
 
+    const payload = jwtService.verifyToken({ token: refreshToken })
+
+    if (payload.type !== 'refresh')
+      return res.status(401).json({ message: "unauthorized", status: 401 })
+
+    const token = jwtService.getTokenById({ tokenId: payload.id }, { transaction })
+
+    if (!token)
+      return res.status(401).json({ message: "unauthorized", status: 401 })
+
+    const tokens = await jwtService.updateTokens({
+      userId: token.userId,
+      username: token.username
+    })
+    await transaction.commit()
+    return res.status(200).json({ accessToken: tokens.accessToken, refreshToken: tokens.refreshToken })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while token refreshing => ${e}`)

@@ -1,8 +1,4 @@
-const jwt = require('jsonwebtoken');
-const fs = require('fs')
-const path = require("path");
-
-const publicKey = fs.readFileSync(path.resolve(__dirname + "../../../keys/public.pem"));
+const jwtService = require('../services/jwtService');
 
 module.exports = (req, res, next) => {
   try {
@@ -12,7 +8,7 @@ module.exports = (req, res, next) => {
       return res.status(401).json({ message: "unauthorized", status: 401 })
 
     const token = req.headers.authorization.split(' ')[1]
-    const payload = jwt.verify(token, publicKey)
+    const payload = jwtService.verifyToken({ token })
 
     if (payload.type !== 'access')
       return res.status(401).json({ message: "unauthorized", status: 401 })

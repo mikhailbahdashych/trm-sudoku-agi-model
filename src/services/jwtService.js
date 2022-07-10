@@ -9,6 +9,7 @@ const loggerInstance = require('../common/logger');
 const logger = loggerInstance({ label: "jwt-service", path: "jwt" })
 
 const privateKey = fs.readFileSync(path.resolve(__dirname + "../../../keys/private.pem"));
+const publicKey = fs.readFileSync(path.resolve(__dirname + "../../../keys/public.pem"));
 
 const jwtRepository = require("../repositories/jwtRepository");
 const cryptoService = require("./cryptoService");
@@ -75,6 +76,14 @@ const updateRefreshToken = async ({ tokenId, userId }, { transaction } = { trans
 }
 
 module.exports = {
+  getTokenById: async ({ tokenId }, { transaction } = { transaction: null }) => {
+    try {
+      return await jwtRepository.getTokenById({ tokenId }, { transaction })
+    } catch (e) {
+      logger.error(`Error while getting token by id: ${e.message}`)
+      throw Error("error-while-getting-token-by-id")
+    }
+  },
   updateTokens: async ({ userId, username }, { transaction } = { transaction: null }) => {
     try {
       const accessToken = generateAccessToken({ userId, username })
@@ -89,6 +98,14 @@ module.exports = {
     } catch (e) {
       logger.error(`Error while updating tokens: ${e.message}`)
       throw Error("error-while-updating-tokens")
+    }
+  },
+  verifyToken: ({ token }) => {
+    try {
+      return jwt.verify(token, publicKey)
+    } catch (e) {
+      logger.error(`Error while verifying token: ${e.message}`)
+      throw Error("error-while-verifying-token")
     }
   }
 }
