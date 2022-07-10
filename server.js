@@ -12,10 +12,10 @@ const swaggerOptions = {
     info: {
       title: 'PNB API',
       version: '0.0.1',
-      description: 'PNB - Pentester\'s notes blog RESTful API documentation.'
+      description: 'PNB - Pentester\'s notes blog REST API documentation.'
     },
   },
-  apis: ["./src/routes.js"]
+  apis: ["./src/swagger/swagger.yaml"]
 };
 const swaggerDocs = swaggerJsDocs(swaggerOptions);
 

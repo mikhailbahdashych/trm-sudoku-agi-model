@@ -1,0 +1,87 @@
+paths:
+  /sign-in:
+    post:
+      summary: "Used to sign in user"
+      description: "This resource allows an individual user to sign in the system."
+      tags:
+        - POST
+  /sign-up:
+    post:
+      summary: "Used to sign up user"
+      description: "This resource allows an individual user to sign up in the system."
+      tags:
+        - POST
+  /change-password:
+    post:
+      summary: "Used to change user's password"
+      description: "This resource allows an individual user to change password for his account. <br />Operation is available only one time in 48 hours."
+      tags:
+        - POST
+  /change-email:
+    post:
+      summary: "Used to change user's email"
+      description: "This resource allows an individual user to change email for his account. <br />Operation is available only one time per individual user."
+      tags:
+        - POST
+  /set-2fa:
+    post:
+      summary: "Used to set two-factor authentication"
+      description: "This resource allows an individual user to set up 2FA for account."
+      tags:
+        - POST
+  /disable-2fa:
+    post:
+      summary: "Used to disable two-factor authentication"
+      description: "This resource allows an individual user to disable 2FA for account."
+      tags:
+        - POST
+  /close-account:
+    post:
+      summary: "Used to disable two-factor authentication"
+      description: "This resource allows an individual user to close his account. <br />Operation makes account unavailable for normal user. <br />All public information become hidden from other users. <br />Account can be restored by sign in system during 6 months."
+      tags:
+        - POST
+  /get-user-by-token:
+    get:
+      summary: "Used to get user by JWT"
+      description: "User's JWT token"
+      tags:
+        - GET
+  /get-user-by-personal-id/{personalId}:
+    get:
+      summary: "Used to get user by personal ID"
+      tags:
+        - GET
+      description: "Personal ID is 10 digits random generated number unique for each user (public ID). <br />Can be changed by user from personal settings."
+      parameters:
+        - in: path
+          name: personalId
+          required: true
+          description: "The user's personal ID"
+  /get-user-last-activity/{personalId}:
+    get:
+      summary: "Used to get user's last activity"
+      tags:
+        - GET
+      description: "Used to get user's last activity on site such as last forum/blog posts and asked questions. <br />Visible on public data on user's profile page."
+      parameters:
+        - in: path
+          name: personalId
+          required: true
+          description: "The user's personal ID"
+  /get-user-settings/{t}:
+    get:
+      summary: "Used to get user's settings to edit"
+      tags:
+        - GET
+      description: "Endpoint used to get user's settings (personal, security or notification)"
+      parameters:
+        - in: path
+          name: t
+          description: "Type of settings (personal, security or notification)"
+  /update-user-personal-information:
+    patch:
+      summary: "Used to update user's personal information"
+      description: "This resource allows an individual user update user's personal information."
+      tags:
+        - PATCH
