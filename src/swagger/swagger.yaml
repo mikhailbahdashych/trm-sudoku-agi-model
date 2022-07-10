@@ -50,9 +50,9 @@ paths:
   /get-user-by-personal-id/{personalId}:
     get:
       summary: "Used to get user by personal ID"
+      description: "Personal ID is 10 digits random generated number unique for each user (public ID). <br />Can be changed by user from personal settings."
       tags:
         - GET
-      description: "Personal ID is 10 digits random generated number unique for each user (public ID). <br />Can be changed by user from personal settings."
       parameters:
         - in: path
           name: personalId
@@ -61,9 +61,9 @@ paths:
   /get-user-last-activity/{personalId}:
     get:
       summary: "Used to get user's last activity"
+      description: "Used to get user's last activity on site such as last forum/blog posts and asked questions. <br />Visible on public data on user's profile page."
       tags:
         - GET
-      description: "Used to get user's last activity on site such as last forum/blog posts and asked questions. <br />Visible on public data on user's profile page."
       parameters:
         - in: path
           name: personalId
@@ -72,12 +72,13 @@ paths:
   /get-user-settings/{t}:
     get:
       summary: "Used to get user's settings to edit"
+      description: "Endpoint used to get user's settings (personal, security or notification)"
       tags:
         - GET
-      description: "Endpoint used to get user's settings (personal, security or notification)"
       parameters:
         - in: path
           name: t
+          required: true
           description: "Type of settings (personal, security or notification)"
   /update-user-personal-information:
     patch:
@@ -85,3 +86,36 @@ paths:
       description: "This resource allows an individual user update user's personal information."
       tags:
         - PATCH
+  /get-blog-post/{postId}:
+    get:
+      summary: "Used to get blog post by post ID"
+      description: "This resource allows to get blog post by post ID."
+      tags:
+        - GET
+      parameters:
+        - in: path
+          name: postId
+          required: true
+          description: "Blog post ID"
+  /get-forum-post/{postId}:
+    get:
+      summary: "Used to get forum post by post ID"
+      description: "This resource allows to get forum post by post ID."
+      tags:
+        - GET
+      parameters:
+        - in: path
+          name: postId
+          required: true
+          description: "Forum post ID"
+  /get-question/{questionId}:
+    get:
+      summary: "Used to get question by question ID"
+      description: "This resource allows to get forum post by post ID."
+      tags:
+        - GET
+      parameters:
+        - in: path
+          name: questionId
+          required: true
+          description: "Question ID"
