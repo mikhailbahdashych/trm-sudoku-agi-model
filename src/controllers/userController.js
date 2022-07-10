@@ -14,6 +14,8 @@ const { verifyTwoFa } = require("../common/verifyTwoFa")
 const twoFactorService = require("node-2fa");
 const logger = loggerInstance({ label: "client-controller", path: "client" });
 
+// @TODO Replace crypto service to services
+
 exports.signIn = async (req, res) => {
   const transaction = await knex.transaction()
   try {
