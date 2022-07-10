@@ -225,6 +225,17 @@ exports.getUserByToken = async (req, res) => {
   }
 }
 
+exports.refreshToken = async (req, res) => {
+  const transaction = await knex.transaction()
+  try {
+
+  } catch (e) {
+    await transaction.rollback()
+    logger.error(`Something went wrong while token refreshing => ${e}`)
+    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+  }
+}
+
 exports.getUserByPersonalId = async (req, res) => {
   const transaction = await knex.transaction()
   try {

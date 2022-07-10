@@ -47,6 +47,12 @@ paths:
       description: "User's JWT token"
       tags:
         - GET
+  /refresh-token:
+    post:
+      summary: "Used to refresh JWT token"
+      description: "Used to refresh and verify user's JWT token"
+      tags:
+        - POST
   /get-user-by-personal-id/{personalId}:
     get:
       summary: "Used to get user by personal ID"

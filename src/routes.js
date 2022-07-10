@@ -18,6 +18,8 @@ router.post("/disable-2fa", wrapAsync(userController.disableTwoFa));
 router.post("/delete-account", wrapAsync(userController.deleteAccount));
 
 router.get("/get-user-by-token", wrapAsync(userController.getUserByToken));
+router.post("/refresh-token", wrapAsync(userController.refreshToken));
+
 router.get("/get-user-by-personal-id/:personalId", basicAuth, wrapAsync(userController.getUserByPersonalId));
 router.get("/get-user-last-activity/:personalId", basicAuth, wrapAsync(userController.getLastActivity));
 router.get("/get-user-settings/:t", wrapAsync(userController.getUserSettings));
