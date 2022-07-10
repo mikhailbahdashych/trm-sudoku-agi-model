@@ -5,6 +5,7 @@ const cors = require("cors");
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsDocs = require("swagger-jsdoc");
+const basicAuth = require("./src/middlewares/basicAuth")
 
 const swaggerOptions = {
   definition: {
@@ -26,7 +27,7 @@ const server = require("http").createServer(app);
 app.use(bodyParser.json({limit: '2MB'}))
 app.use(bodyParser.urlencoded({extended: true}))
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
+app.use(basicAuth);
 app.use("/", require('./src/routes'));
 app.use(cors({
   origin: '*'
