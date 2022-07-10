@@ -33,7 +33,7 @@ exports.signIn = async (req, res) => {
     }
 
     if (client.email.slice(-4) === "_del") {
-      logger.info(`User has closed account, reopening...`)
+      logger.info(`User has deleted account, reopening...`)
       await userService.reopenAccount({
         id: client.id,
         email: client.email.split("_del")[0],
@@ -173,7 +173,7 @@ exports.changeEmail = async (req, res) => {
   }
 }
 
-exports.closeAccount = async (req, res) => {
+exports.deleteAccount = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const client = await getClientByJwtToken(req.body.token, { transaction })
@@ -191,18 +191,18 @@ exports.closeAccount = async (req, res) => {
     if (client.password !== cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString()))
       return res.status(401).json({ error: "unauthorized", status: -3 });
 
-    await userService.closeAccount({
+    await userService.deleteAccount({
       id: client.id,
       email: client.email,
       password: client.password
     }, { transaction })
-    logger.info(`Account has been successfully close for user with email ${client.email}`)
+    logger.info(`Account has been successfully deleted for user with email ${client.email}`)
 
     await transaction.commit()
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while closing account => ${e}`)
+    logger.error(`Something went wrong while deleting account => ${e}`)
     return res.status(500).json({ message: "something-went-wrong", status: 500 })
   }
 }

@@ -71,12 +71,12 @@ module.exports = {
       throw Error("error-while-changing-password")
     }
   },
-  closeAccount: async ({ id, email, password }, { transaction } = { transaction: null }) => {
+  deleteAccount: async ({ id, email, password }, { transaction } = { transaction: null }) => {
     try {
-      return await userRepository.closeAccount({ id, email, password }, { transaction })
+      return await userRepository.deleteAccount({ id, email, password }, { transaction })
     } catch (e) {
-      logger.error(`Error white closing account: ${e.message}`)
-      throw Error("error-while-closing-account")
+      logger.error(`Error white deleting account: ${e.message}`)
+      throw Error("error-while-deleting-account")
     }
   },
   reopenAccount: async ({ id, email, password }, { transaction } = { transaction: null }) => {

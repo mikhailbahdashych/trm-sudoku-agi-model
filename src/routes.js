@@ -15,7 +15,7 @@ router.post("/change-password", wrapAsync(userController.changePassword));
 router.post("/change-email", wrapAsync(userController.changeEmail));
 router.post("/set-2fa", wrapAsync(userController.setTwoFa));
 router.post("/disable-2fa", wrapAsync(userController.disableTwoFa));
-router.post("/close-account", wrapAsync(userController.closeAccount));
+router.post("/delete-account", wrapAsync(userController.deleteAccount));
 
 router.get("/get-user-by-token", wrapAsync(userController.getUserByToken));
 router.get("/get-user-by-personal-id/:personalId", basicAuth, wrapAsync(userController.getUserByPersonalId));

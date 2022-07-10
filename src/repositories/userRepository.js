@@ -100,7 +100,7 @@ module.exports = {
       .update({ password: newPassword })
     return transaction ? result.transacting(transaction) : result
   },
-  closeAccount: async ({ id, email, password }, { transaction } = { transaction: null }) => {
+  deleteAccount: async ({ id, email, password }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('id', id)
       .update({
