@@ -1,6 +1,7 @@
 const app = require("express")();
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 const swaggerUi = require("swagger-ui-express");
@@ -23,13 +24,14 @@ dotenv.config();
 
 const server = require("http").createServer(app);
 
-app.use(bodyParser.json({limit: '2MB'}))
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(cookieParser());
+app.use(bodyParser.json({limit: '2MB'}));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use("/", require('./src/routes'));
 app.use(cors({
   origin: '*'
-}))
+}));
 
 const port = process.env.PORT || 3001;
 server.listen(port, () => console.log("API listening on port " + port + "!"));

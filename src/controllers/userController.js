@@ -14,8 +14,6 @@ const { verifyTwoFa } = require("../common/verifyTwoFa")
 const twoFactorService = require("node-2fa");
 const logger = loggerInstance({ label: "client-controller", path: "client" });
 
-// @TODO Replace crypto service to services
-
 exports.signIn = async (req, res) => {
   const transaction = await knex.transaction()
   try {
@@ -25,7 +23,6 @@ exports.signIn = async (req, res) => {
     if (!email || !password || !validateEmail(email) || !validatePassword(password))
       return res.status(400).json({ message: "bad-request", status: 400 })
 
-    password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
     const client = await userService.getClientToSignIn({ email, password }, { transaction })
     logger.info(`Sign in client with email: ${email}`)
 
@@ -51,15 +48,16 @@ exports.signIn = async (req, res) => {
       if (!twoFaResult) return res.status(403).json({ status: -2, message: "access-forbidden" })
     }
 
-    const uxd = cryptoService.encrypt(client.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
-    const { accessToken, refreshToken } = jwtService.updateTokens({
-      userId: uxd,
-      username: client.username
-    })
+    const { refreshToken, accessToken } = await jwtService.updateTokens({
+      userId: client.id, username: client.username
+    }, { transaction })
     logger.info(`Client ${client.email} has been successfully signed in!`)
 
     await transaction.commit()
-    return res.status(200).json({ accessToken, refreshToken, reopening: reopening ? client.username : null })
+    return res
+      .status(200)
+      .cookie("refreshToken", refreshToken, { httpOnly: true, sameSite: "strict" })
+      .json({ accessToken, reopening: reopening ? client.username : null })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while sign in => ${e}`)
@@ -90,7 +88,6 @@ exports.signUp = async (req, res) => {
       return res.status(409).json({ message: "conflict", status: -2 })
     }
 
-    password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
     const personalId = (seedrandom(email).quick() * 1e10).toFixed(0)
     await userService.createUser({ email, password, personalId, username, personalInformation }, { transaction })
     logger.info(`Client with email ${email} has been successfully created!`)
@@ -135,8 +132,7 @@ exports.changePassword = async (req, res) => {
       return res.status(409).json({ message: "conflict", status: -4 })
 
     await userService.changePassword({
-      id: client.id,
-      newPassword: cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString())
+      id: client.id, newPassword
     }, { transaction })
     logger.info(`Password has been successfully changed for user with email ${client.email}`)
 

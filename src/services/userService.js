@@ -1,4 +1,8 @@
+const dotenv = require("dotenv")
+dotenv.config()
+
 const userRepository = require("../repositories/userRepository");
+const cryptoService = require("./cryptoService");
 
 const loggerInstance = require("../common/logger");
 const logger = loggerInstance({ label: "client-service", path: "client" });
@@ -6,7 +10,10 @@ const logger = loggerInstance({ label: "client-service", path: "client" });
 module.exports = {
   getClientToSignIn: async ({ email, password }, { transaction } = { transaction: null }) => {
     try {
-      return await userRepository.getClientToSignIn({ email, password }, { transaction })
+      return await userRepository.getClientToSignIn({
+        email,
+        password: cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
+      }, { transaction })
     } catch (e) {
       logger.error(`Error while getting client to sign in: ${e.message}`)
       throw Error("error-while-getting-client-to-sign-in")
@@ -54,7 +61,11 @@ module.exports = {
   },
   createUser: async ({ email, password, personalId, username, personalInformation }, { transaction } = { transaction: null }) => {
     try {
-      const createdUser = await userRepository.createUser({ email, password, personalId }, { transaction })
+      const createdUser = await userRepository.createUser({
+        email,
+        password: cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString()),
+        personalId
+      }, { transaction })
       return await userRepository.createUserInfo({
         user_id: createdUser[0].id, username, personalInformation
       }, { transaction })
@@ -65,7 +76,10 @@ module.exports = {
   },
   changePassword: async ({ id, newPassword }, { transaction } = { transaction: null }) => {
     try {
-      return await userRepository.changePassword({ id, newPassword }, { transaction })
+      return await userRepository.changePassword({
+        id,
+        newPassword: cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString())
+      }, { transaction })
     } catch (e) {
       logger.error(`Error while changing password: ${e.message}`)
       throw Error("error-while-changing-password")

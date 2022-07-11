@@ -27,6 +27,10 @@ const jwtConfig = {
   }
 }
 
+const encrypt = (text) => {
+  return cryptoService.encrypt(text, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
+}
+
 const generateAccessToken = ({ userId, username }) => {
   try {
     const payload = {
@@ -52,13 +56,11 @@ const generateAccessToken = ({ userId, username }) => {
 
 const generateRefreshToken = () => {
   try {
-    const payload = {
-      id: cryptoService.encrypt(uuid.v4(), process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString()),
-      type: jwtConfig.refresh.type
-    }
+    const id = uuid.v4()
+    const payload = { id, type: jwtConfig.refresh.type }
     const options = { expiresIn: jwtConfig.refresh.expiresIn }
 
-    return jwt.sign(payload, privateKey, options)
+    return { id, token: jwt.sign(payload, privateKey, options) }
   } catch (e) {
     logger.error(`Error while generating refresh JWT token => ${e}`)
     throw Error("error-while-generating-refresh-token")
@@ -67,8 +69,13 @@ const generateRefreshToken = () => {
 
 const updateRefreshToken = async ({ tokenId, userId }, { transaction } = { transaction: null }) => {
   try {
-    await jwtRepository.deleteRefreshToken({ userId }, { transaction })
-    return await jwtRepository.createRefreshToken({ tokenId, userId }, { transaction })
+    await jwtRepository.deleteRefreshToken({
+      userId: encrypt(userId),
+    }, { transaction })
+    return await jwtRepository.createRefreshToken({
+      tokenId: encrypt(tokenId),
+      userId: encrypt(userId)
+    }, { transaction })
   } catch (e) {
     logger.error(`Error while updating refresh token: ${e.message}`)
     throw Error("error-while-updating-refresh-token")
@@ -86,15 +93,18 @@ module.exports = {
   },
   updateTokens: async ({ userId, username }, { transaction } = { transaction: null }) => {
     try {
-      const accessToken = generateAccessToken({ userId, username })
+      const accessToken = generateAccessToken({
+        userId: encrypt(userId),
+        username
+      })
       const refreshToken = generateRefreshToken();
 
       await updateRefreshToken({
-        tokenId: cryptoService.decrypt(refreshToken.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString()),
-        userId: cryptoService.decrypt(userId, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
+        tokenId: encrypt(refreshToken.id),
+        userId: encrypt(userId)
       }, { transaction })
 
-      return { accessToken, refreshToken }
+      return { accessToken, refreshToken: refreshToken.token }
     } catch (e) {
       logger.error(`Error while updating tokens: ${e.message}`)
       throw Error("error-while-updating-tokens")

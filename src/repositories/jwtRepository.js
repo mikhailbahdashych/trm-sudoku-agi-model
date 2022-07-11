@@ -6,7 +6,7 @@ module.exports = {
     const result = knex(tableName)
       .where('token_id', tokenId)
       .first(
-        'user_id as '
+        'user_id as userId'
       )
     return transaction ? result.transacting(transaction) : result
   },
