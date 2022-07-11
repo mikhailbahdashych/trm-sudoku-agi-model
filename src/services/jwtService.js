@@ -34,7 +34,7 @@ const encrypt = (text) => {
 const generateAccessToken = ({ userId, username }) => {
   try {
     const payload = {
-      userId,
+      userId: encrypt(userId),
       username,
       type: jwtConfig.access.type
     }
@@ -56,7 +56,7 @@ const generateAccessToken = ({ userId, username }) => {
 
 const generateRefreshToken = () => {
   try {
-    const id = uuid.v4()
+    const id = encrypt(uuid.v4())
     const payload = { id, type: jwtConfig.refresh.type }
     const options = { expiresIn: jwtConfig.refresh.expiresIn }
 
@@ -69,13 +69,8 @@ const generateRefreshToken = () => {
 
 const updateRefreshToken = async ({ tokenId, userId }, { transaction } = { transaction: null }) => {
   try {
-    await jwtRepository.deleteRefreshToken({
-      userId: encrypt(userId),
-    }, { transaction })
-    return await jwtRepository.createRefreshToken({
-      tokenId: encrypt(tokenId),
-      userId: encrypt(userId)
-    }, { transaction })
+    await jwtRepository.deleteRefreshToken({ userId }, { transaction })
+    return await jwtRepository.createRefreshToken({ tokenId, userId }, { transaction })
   } catch (e) {
     logger.error(`Error while updating refresh token: ${e.message}`)
     throw Error("error-while-updating-refresh-token")
@@ -93,14 +88,11 @@ module.exports = {
   },
   updateTokens: async ({ userId, username }, { transaction } = { transaction: null }) => {
     try {
-      const accessToken = generateAccessToken({
-        userId: encrypt(userId),
-        username
-      })
+      const accessToken = generateAccessToken({ userId, username })
       const refreshToken = generateRefreshToken();
 
       await updateRefreshToken({
-        tokenId: encrypt(refreshToken.id),
+        tokenId: refreshToken.id,
         userId: encrypt(userId)
       }, { transaction })
 
