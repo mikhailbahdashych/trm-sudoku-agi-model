@@ -211,9 +211,9 @@ exports.getUserByToken = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const token = req.headers.authorization.split(' ')[1]
-    console.log('token', token)
+
     const client = await getClientByJwtToken({ token }, { transaction })
-    console.log('client', client)
+
     if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
 
     const personalInfo = await userService.getUserPersonalSettings({ id: client.id }, { transaction })

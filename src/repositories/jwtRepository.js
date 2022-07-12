@@ -5,9 +5,7 @@ module.exports = {
   getTokenById: async ({ tokenId }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('token_id', tokenId)
-      .first(
-        'user_id as userId'
-      )
+      .first('user_id as userId')
     return transaction ? result.transacting(transaction) : result
   },
   createRefreshToken: async ({ tokenId, userId }, { transaction } = { transaction: null }) => {
