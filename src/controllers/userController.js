@@ -56,7 +56,7 @@ exports.signIn = async (req, res) => {
     await transaction.commit()
     return res
       .status(200)
-      .cookie("refreshToken", refreshToken, { httpOnly: true, sameSite: false, secure: false })
+      .cookie("refreshToken", refreshToken, { httpOnly: true, secure: false })
       .json({ accessToken, reopening: reopening ? client.username : null })
   } catch (e) {
     await transaction.rollback()
