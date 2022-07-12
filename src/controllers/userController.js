@@ -56,8 +56,7 @@ exports.signIn = async (req, res) => {
     await transaction.commit()
     return res
       .status(200)
-      .cookie("refreshToken", refreshToken, { httpOnly: true, secure: false })
-      .json({ accessToken, reopening: reopening ? client.username : null })
+      .json({ accessToken, refreshToken, reopening: reopening ? client.username : null })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while sign in => ${e}`)
