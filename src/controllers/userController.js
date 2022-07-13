@@ -9,7 +9,6 @@ const jwtService = require("../services/jwtService");
 const { validatePassword, validateEmail, validateUserPersonalId } = require("../common/validators");
 
 const loggerInstance = require("../common/logger");
-const { getUserByJwtToken } = require("../common/getUserByJwtToken")
 const { verifyTwoFa } = require("../common/verifyTwoFa")
 const twoFactorService = require("node-2fa");
 const logger = loggerInstance({ label: "user-controller", path: "user" });
@@ -103,7 +102,6 @@ exports.signUp = async (req, res) => {
 exports.changePassword = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const user = await getUserByJwtToken(req.body.token, { transaction })
     if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
 
     const { currentPassword, newPassword, newPasswordRepeat, twoFa } = req.body
@@ -147,7 +145,6 @@ exports.changePassword = async (req, res) => {
 exports.changeEmail = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const user = await getUserByJwtToken(req.body.token, { transaction })
     if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
 
     const { newEmail, twoFa } = req.body
@@ -176,7 +173,6 @@ exports.changeEmail = async (req, res) => {
 exports.deleteAccount = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const user = await getUserByJwtToken(req.body.token, { transaction })
     if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
 
     const { password, twoFa } = req.body
@@ -211,8 +207,6 @@ exports.getUserByAccessToken = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const accessToken = req.headers.authorization.split(' ')[1]
-
-    const user = await getUserByJwtToken({ token: accessToken }, { transaction })
 
     if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
 
@@ -298,8 +292,6 @@ exports.getLastActivity = async (req, res) => {
 exports.getUserSettings = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const token = req.headers.authorization.split(' ')[1]
-    const user = await getUserByJwtToken({ token }, { transaction })
     if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
 
     const { t } = req.params
@@ -369,7 +361,6 @@ exports.setTwoFa = async (req, res) => {
 exports.disableTwoFa = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const user = await getUserByJwtToken(req.body.token)
     if (typeof user === 'string' || !user) return res.status(200).json({ status: -1 });
 
     const { twoFaCode } = req.body
