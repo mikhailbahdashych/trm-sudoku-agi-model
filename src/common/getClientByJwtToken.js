@@ -9,7 +9,7 @@ exports.getClientByJwtToken = async ({ token }, { transaction } = { transaction:
     const payload = jwtService.verifyToken({ token })
     if (payload.type !== 'access') return false
 
-    const userId = cryptoService.decrypt(payload.userId, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
+    const userId = cryptoService.decrypt(payload.userId)
 
     return await userService.getUserById({ id: userId }, { transaction })
   } catch (e) {

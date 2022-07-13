@@ -117,7 +117,7 @@ exports.changePassword = async (req, res) => {
     )
       return res.status(400).json({ message: "bad-request", status: 400 })
 
-    if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString()))
+    if (client.password !== cryptoService.hashPassword(currentPassword))
       return res.status(401).json({ error: "unauthorized", status: -2 });
 
     if (client.twoFa) {
@@ -188,7 +188,7 @@ exports.deleteAccount = async (req, res) => {
       if (!twoFaResult) return res.status(403).json({ status: -2, message: "access-forbidden" })
     }
 
-    if (client.password !== cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString()))
+    if (client.password !== cryptoService.hashPassword(password))
       return res.status(401).json({ error: "unauthorized", status: -3 });
 
     await userService.deleteAccount({
@@ -243,7 +243,7 @@ exports.refreshToken = async (req, res) => {
       return res.status(401).json({ message: "unauthorized", status: 401 })
 
     const tokens = await jwtService.updateTokens({
-      userId: cryptoService.decrypt(token.userId, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString()),
+      userId: cryptoService.decrypt(token.userId),
       username: token.username
     })
     await transaction.commit()

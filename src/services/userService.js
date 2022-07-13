@@ -12,7 +12,7 @@ module.exports = {
     try {
       return await userRepository.getClientToSignIn({
         email,
-        password: cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
+        password: cryptoService.hashPassword(password)
       }, { transaction })
     } catch (e) {
       logger.error(`Error while getting client to sign in: ${e.message}`)
@@ -63,7 +63,7 @@ module.exports = {
     try {
       const createdUser = await userRepository.createUser({
         email,
-        password: cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString()),
+        password: cryptoService.hashPassword(password),
         personalId
       }, { transaction })
       return await userRepository.createUserInfo({
@@ -78,7 +78,7 @@ module.exports = {
     try {
       return await userRepository.changePassword({
         id,
-        newPassword: cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString())
+        newPassword: cryptoService.hashPassword(newPassword)
       }, { transaction })
     } catch (e) {
       logger.error(`Error while changing password: ${e.message}`)

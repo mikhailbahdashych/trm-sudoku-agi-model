@@ -27,14 +27,10 @@ const jwtConfig = {
   }
 }
 
-const encrypt = (text) => {
-  return cryptoService.encrypt(text, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
-}
-
 const generateAccessToken = ({ userId, username }) => {
   try {
     const payload = {
-      userId: encrypt(userId),
+      userId: cryptoService.encrypt(userId),
       username,
       type: jwtConfig.access.type
     }
@@ -56,7 +52,7 @@ const generateAccessToken = ({ userId, username }) => {
 
 const generateRefreshToken = () => {
   try {
-    const id = encrypt(uuid.v4())
+    const id = cryptoService.encrypt(uuid.v4())
     const payload = {
       id,
       type: jwtConfig.refresh.type
@@ -103,7 +99,7 @@ module.exports = {
 
       await updateRefreshToken({
         tokenId: refreshToken.id,
-        userId: encrypt(userId)
+        userId: cryptoService.encrypt(userId)
       }, { transaction })
 
       return { accessToken, refreshToken: refreshToken.token }
