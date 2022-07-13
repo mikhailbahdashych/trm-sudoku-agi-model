@@ -13,6 +13,8 @@ const { verifyTwoFa } = require("../common/verifyTwoFa")
 const twoFactorService = require("node-2fa");
 const logger = loggerInstance({ label: "user-controller", path: "user" });
 
+// @TODO Update 2FA input
+
 exports.signIn = async (req, res) => {
   const transaction = await knex.transaction()
   try {
