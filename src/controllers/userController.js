@@ -243,7 +243,7 @@ exports.refreshToken = async (req, res) => {
       return res.status(401).json({ message: "unauthorized", status: 401 })
 
     const tokens = await jwtService.updateTokens({
-      userId: token.userId,
+      userId: cryptoService.decrypt(token.userId, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString()),
       username: token.username
     })
     await transaction.commit()
