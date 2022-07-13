@@ -23,7 +23,7 @@ const jwtConfig = {
   },
   refresh: {
     type: 'refresh',
-    expiresIn: '25m'
+    expiresIn: '20m'
   }
 }
 
@@ -38,13 +38,13 @@ const generateAccessToken = ({ userId, username }) => {
       username,
       type: jwtConfig.access.type
     }
-    const options = {
-      expiresIn: jwtConfig.access.expiresIn,
-      algorithm: "RS256"
-    }
     const secret = {
       key: privateKey,
       passphrase: jwtConfig.passphrase
+    }
+    const options = {
+      expiresIn: jwtConfig.access.expiresIn,
+      algorithm: "RS256"
     }
 
     return jwt.sign(payload, secret, options)
@@ -57,10 +57,20 @@ const generateAccessToken = ({ userId, username }) => {
 const generateRefreshToken = () => {
   try {
     const id = encrypt(uuid.v4())
-    const payload = { id, type: jwtConfig.refresh.type }
-    const options = { expiresIn: jwtConfig.refresh.expiresIn }
+    const payload = {
+      id,
+      type: jwtConfig.refresh.type
+    }
+    const secret = {
+      key: privateKey,
+      passphrase: jwtConfig.passphrase
+    }
+    const options = {
+      expiresIn: jwtConfig.refresh.expiresIn,
+      algorithm: "RS256"
+    }
 
-    return { id, token: jwt.sign(payload, privateKey, options) }
+    return { id, token: jwt.sign(payload, secret, options) }
   } catch (e) {
     logger.error(`Error while generating refresh JWT token => ${e}`)
     throw Error("error-while-generating-refresh-token")

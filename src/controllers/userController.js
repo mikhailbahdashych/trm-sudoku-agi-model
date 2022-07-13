@@ -237,7 +237,7 @@ exports.refreshToken = async (req, res) => {
     if (payload.type !== 'refresh')
       return res.status(401).json({ message: "unauthorized", status: 401 })
 
-    const token = jwtService.getTokenById({ tokenId: payload.id }, { transaction })
+    const token = await jwtService.getTokenById({ tokenId: payload.id }, { transaction })
 
     if (!token)
       return res.status(401).json({ message: "unauthorized", status: 401 })
