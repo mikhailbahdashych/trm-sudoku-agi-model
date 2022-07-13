@@ -207,12 +207,12 @@ exports.deleteAccount = async (req, res) => {
   }
 }
 
-exports.getUserByToken = async (req, res) => {
+exports.getUserByAccessToken = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const token = req.headers.authorization.split(' ')[1]
+    const accessToken = req.headers.authorization.split(' ')[1]
 
-    const client = await getClientByJwtToken({ token }, { transaction })
+    const client = await getClientByJwtToken({ token: accessToken }, { transaction })
 
     if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
 
@@ -230,7 +230,7 @@ exports.getUserByToken = async (req, res) => {
 exports.refreshToken = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const { refreshToken } = req.body
+    const refreshToken = req.headers.cookie.split('=')[1]
 
     const payload = jwtService.verifyToken({ token: refreshToken })
 
@@ -245,7 +245,8 @@ exports.refreshToken = async (req, res) => {
     const tokens = await jwtService.updateTokens({
       userId: cryptoService.decrypt(token.userId),
       username: token.username
-    })
+    }, { transaction })
+
     await transaction.commit()
     return res.status(200).json({ accessToken: tokens.accessToken, refreshToken: tokens.refreshToken })
   } catch (e) {
@@ -298,7 +299,7 @@ exports.getUserSettings = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const token = req.headers.authorization.split(' ')[1]
-    const client = await getClientByJwtToken(token, { transaction })
+    const client = await getClientByJwtToken({ token }, { transaction })
     if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
 
     const { t } = req.params
