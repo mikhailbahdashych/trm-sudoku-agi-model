@@ -4,7 +4,7 @@ const userService = require('../repositories/userRepository');
 const dotenv = require('dotenv');
 dotenv.config();
 
-exports.getClientByJwtToken = async ({ token }, { transaction } = { transaction: null }) => {
+exports.getUserByJwtToken = async ({ token }, { transaction } = { transaction: null }) => {
   try {
     const payload = jwtService.verifyToken({ token })
     if (payload.type !== 'access') return false

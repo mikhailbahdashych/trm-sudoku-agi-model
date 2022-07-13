@@ -5,18 +5,18 @@ const userRepository = require("../repositories/userRepository");
 const cryptoService = require("./cryptoService");
 
 const loggerInstance = require("../common/logger");
-const logger = loggerInstance({ label: "client-service", path: "client" });
+const logger = loggerInstance({ label: "user-service", path: "user" });
 
 module.exports = {
-  getClientToSignIn: async ({ email, password }, { transaction } = { transaction: null }) => {
+  getUserToSignIn: async ({ email, password }, { transaction } = { transaction: null }) => {
     try {
-      return await userRepository.getClientToSignIn({
+      return await userRepository.getUserToSignIn({
         email,
         password: cryptoService.hashPassword(password)
       }, { transaction })
     } catch (e) {
-      logger.error(`Error while getting client to sign in: ${e.message}`)
-      throw Error("error-while-getting-client-to-sign-in")
+      logger.error(`Error while getting user to sign in: ${e.message}`)
+      throw Error("error-while-getting-user-to-sign-in")
     }
   },
   getUserById: async ({ id }, { transaction } = { transaction: null }) => {

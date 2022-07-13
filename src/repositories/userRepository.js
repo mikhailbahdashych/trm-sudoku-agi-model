@@ -39,7 +39,7 @@ module.exports = {
       )
     return transaction ? result.transacting(transaction) : result
   },
-  getClientToSignIn: async ({ email, password }, { transaction } = { transaction: null }) => {
+  getUserToSignIn: async ({ email, password }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('email', email)
       .andWhere('password', password)

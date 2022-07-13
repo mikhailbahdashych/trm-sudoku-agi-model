@@ -9,10 +9,10 @@ const jwtService = require("../services/jwtService");
 const { validatePassword, validateEmail, validateUserPersonalId } = require("../common/validators");
 
 const loggerInstance = require("../common/logger");
-const { getClientByJwtToken } = require("../common/getClientByJwtToken")
+const { getUserByJwtToken } = require("../common/getUserByJwtToken")
 const { verifyTwoFa } = require("../common/verifyTwoFa")
 const twoFactorService = require("node-2fa");
-const logger = loggerInstance({ label: "client-controller", path: "client" });
+const logger = loggerInstance({ label: "user-controller", path: "user" });
 
 exports.signIn = async (req, res) => {
   const transaction = await knex.transaction()
@@ -23,40 +23,40 @@ exports.signIn = async (req, res) => {
     if (!email || !password || !validateEmail(email) || !validatePassword(password))
       return res.status(400).json({ message: "bad-request", status: 400 })
 
-    const client = await userService.getClientToSignIn({ email, password }, { transaction })
-    logger.info(`Sign in client with email: ${email}`)
+    const user = await userService.getUserToSignIn({ email, password }, { transaction })
+    logger.info(`Sign in user with email: ${email}`)
 
-    if (!client) {
-      logger.info(`Wrong data while sign in for client with email: ${email}`)
+    if (!user) {
+      logger.info(`Wrong data while sign in for user with email: ${email}`)
       return res.status(401).json({ message: "unauthorized", status: -1 })
     }
 
-    if (client.email.slice(-4) === "_del") {
+    if (user.email.slice(-4) === "_del") {
       logger.info(`User has deleted account, reopening...`)
       await userService.reopenAccount({
-        id: client.id,
-        email: client.email.split("_del")[0],
-        password: client.password.split("_del")[0]
+        id: user.id,
+        email: user.email.split("_del")[0],
+        password: user.password.split("_del")[0]
         },{ transaction })
       reopening = true
     }
 
-    if (client.twoFa) {
+    if (user.twoFa) {
       if (!twoFa) return res.status(200).json({ twoFa: true })
 
-      const twoFaResult = verifyTwoFa(client.twoFa, twoFa)
+      const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
       if (!twoFaResult) return res.status(403).json({ status: -2, message: "access-forbidden" })
     }
 
     const { refreshToken, accessToken } = await jwtService.updateTokens({
-      userId: client.id, username: client.username
+      userId: user.id, username: user.username
     }, { transaction })
-    logger.info(`Client ${client.email} has been successfully signed in!`)
+    logger.info(`User ${user.email} has been successfully signed in!`)
 
     await transaction.commit()
     return res
       .status(200)
-      .json({ accessToken, refreshToken, reopening: reopening ? client.username : null })
+      .json({ accessToken, refreshToken, reopening: reopening ? user.username : null })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while sign in => ${e}`)
@@ -73,23 +73,23 @@ exports.signUp = async (req, res) => {
       return res.status(400).json({ message: "bad-request", status: 400 })
 
     const user = await userService.getUserByEmail({ email })
-    logger.info(`Registration client with email: ${email}`)
+    logger.info(`Registration user with email: ${email}`)
 
     if (user) {
-      logger.warn(`Client with email ${email} already exists`)
+      logger.warn(`User with email ${email} already exists`)
       return res.status(409).json({ message: "conflict", status: -1 })
     }
 
     const pickedUsername = await userService.getUserByUsername({ username }, { transaction })
 
     if (pickedUsername) {
-      logger.warn(`Client with nickname - ${username} - already exists`)
+      logger.warn(`User with nickname - ${username} - already exists`)
       return res.status(409).json({ message: "conflict", status: -2 })
     }
 
     const personalId = (seedrandom(email).quick() * 1e10).toFixed(0)
     await userService.createUser({ email, password, personalId, username, personalInformation }, { transaction })
-    logger.info(`Client with email ${email} has been successfully created!`)
+    logger.info(`User with email ${email} has been successfully created!`)
 
     await transaction.commit()
     return res.status(200).json({ message: "success", status: 1 })
@@ -103,8 +103,8 @@ exports.signUp = async (req, res) => {
 exports.changePassword = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const client = await getClientByJwtToken(req.body.token, { transaction })
-    if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
+    const user = await getUserByJwtToken(req.body.token, { transaction })
+    if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
 
     const { currentPassword, newPassword, newPasswordRepeat, twoFa } = req.body
 
@@ -117,13 +117,13 @@ exports.changePassword = async (req, res) => {
     )
       return res.status(400).json({ message: "bad-request", status: 400 })
 
-    if (client.password !== cryptoService.hashPassword(currentPassword))
+    if (user.password !== cryptoService.hashPassword(currentPassword))
       return res.status(401).json({ error: "unauthorized", status: -2 });
 
-    if (client.twoFa) {
+    if (user.twoFa) {
       if (!twoFa) return res.status(400).json({ message: "bad-request", status: 400 })
 
-      const twoFaResult = verifyTwoFa(client.twoFa, twoFa)
+      const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
       if (!twoFaResult) return res.status(403).json({ status: -3, message: "access-forbidden" })
     }
 
@@ -131,9 +131,9 @@ exports.changePassword = async (req, res) => {
       return res.status(409).json({ message: "conflict", status: -4 })
 
     await userService.changePassword({
-      id: client.id, newPassword
+      id: user.id, newPassword
     }, { transaction })
-    logger.info(`Password has been successfully changed for user with email ${client.email}`)
+    logger.info(`Password has been successfully changed for user with email ${user.email}`)
 
     await transaction.commit()
     return res.status(200).json({ status: 1 });
@@ -147,18 +147,18 @@ exports.changePassword = async (req, res) => {
 exports.changeEmail = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const client = await getClientByJwtToken(req.body.token, { transaction })
-    if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
+    const user = await getUserByJwtToken(req.body.token, { transaction })
+    if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
 
     const { newEmail, twoFa } = req.body
 
     if (!newEmail || !validateEmail(newEmail))
       return res.status(400).json({ message: "bad-request", status: 400 })
 
-    if (client.twoFa) {
+    if (user.twoFa) {
       if (!twoFa) return res.status(400).json({ message: "bad-request", status: 400 })
 
-      const twoFaResult = verifyTwoFa(client.twoFa, twoFa)
+      const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
       if (!twoFaResult) return res.status(403).json({ status: -2, message: "access-forbidden" })
     }
 
@@ -176,27 +176,27 @@ exports.changeEmail = async (req, res) => {
 exports.deleteAccount = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const client = await getClientByJwtToken(req.body.token, { transaction })
-    if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
+    const user = await getUserByJwtToken(req.body.token, { transaction })
+    if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
 
     const { password, twoFa } = req.body
 
-    if (client.twoFa) {
+    if (user.twoFa) {
       if (!twoFa) return res.status(400).json({ message: "bad-request", status: 400 })
 
-      const twoFaResult = verifyTwoFa(client.twoFa, twoFa)
+      const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
       if (!twoFaResult) return res.status(403).json({ status: -2, message: "access-forbidden" })
     }
 
-    if (client.password !== cryptoService.hashPassword(password))
+    if (user.password !== cryptoService.hashPassword(password))
       return res.status(401).json({ error: "unauthorized", status: -3 });
 
     await userService.deleteAccount({
-      id: client.id,
-      email: client.email,
-      password: client.password
+      id: user.id,
+      email: user.email,
+      password: user.password
     }, { transaction })
-    logger.info(`Account has been successfully deleted for user with email ${client.email}`)
+    logger.info(`Account has been successfully deleted for user with email ${user.email}`)
 
     await transaction.commit()
     return res.status(200).json({ status: 1 });
@@ -212,14 +212,14 @@ exports.getUserByAccessToken = async (req, res) => {
   try {
     const accessToken = req.headers.authorization.split(' ')[1]
 
-    const client = await getClientByJwtToken({ token: accessToken }, { transaction })
+    const user = await getUserByJwtToken({ token: accessToken }, { transaction })
 
-    if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
+    if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
 
-    const personalInfo = await userService.getUserPersonalSettings({ id: client.id }, { transaction })
+    const personalInfo = await userService.getUserPersonalSettings({ id: user.id }, { transaction })
 
     await transaction.commit()
-    return res.status(200).json({ personalId: client.personalId, username: client.username, ...personalInfo })
+    return res.status(200).json({ personalId: user.personalId, username: user.username, ...personalInfo })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting user by token => ${e}`)
@@ -264,13 +264,13 @@ exports.getUserByPersonalId = async (req, res) => {
     if (!personalId || !validateUserPersonalId(personalId))
       return res.status(400).json({ message: "bad-request", status: 400 })
 
-    const client = await userService.getUserByPersonalId({ personalId }, { transaction })
+    const user = await userService.getUserByPersonalId({ personalId }, { transaction })
 
-    if (!client)
+    if (!user)
       return res.status(403).json({ error: "not-found", status: 403 });
 
     await transaction.commit()
-    return res.status(200).json(client)
+    return res.status(200).json(user)
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting user by personal Id => ${e}`)
@@ -299,8 +299,8 @@ exports.getUserSettings = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const token = req.headers.authorization.split(' ')[1]
-    const client = await getClientByJwtToken({ token }, { transaction })
-    if (typeof client === "string" || !client.id) return res.status(200).json({ status: -1 });
+    const user = await getUserByJwtToken({ token }, { transaction })
+    if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
 
     const { t } = req.params
 
@@ -309,13 +309,13 @@ exports.getUserSettings = async (req, res) => {
 
     switch (t) {
       case 'security':
-        const securitySettings = await userService.getUserSecuritySettings({ id: client.id }, { transaction });
+        const securitySettings = await userService.getUserSecuritySettings({ id: user.id }, { transaction });
         securitySettings.twoFa = securitySettings.twoFa !== null
 
         await transaction.commit();
         return res.status(200).json(securitySettings);
       case 'personal':
-        const personalSettings = await userService.getUserPersonalSettings({ id: client.id }, { transaction });
+        const personalSettings = await userService.getUserPersonalSettings({ id: user.id }, { transaction });
 
         await transaction.commit();
         return res.status(200).json(personalSettings);
@@ -369,18 +369,18 @@ exports.setTwoFa = async (req, res) => {
 exports.disableTwoFa = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const client = await getClientByJwtToken(req.body.token)
-    if (typeof client === 'string' || !client) return res.status(200).json({ status: -1 });
+    const user = await getUserByJwtToken(req.body.token)
+    if (typeof user === 'string' || !user) return res.status(200).json({ status: -1 });
 
     const { twoFaCode } = req.body
 
-    const result2Fa = twoFactorService.verifyToken(client.twoFa, twoFaCode)
+    const result2Fa = twoFactorService.verifyToken(user.twoFa, twoFaCode)
 
     if (!result2Fa) return res.status(403).json({ status: -1, message: 'access-forbidden' })
     if (result2Fa.delta !== 0) return res.status(403).json({ status: -1, message: 'access-forbidden' })
 
-    await userService.disableTwoFa({ id: client.id }, { transaction })
-    logger.info(`2FA was successfully disabled for client with id: ${client.id}`)
+    await userService.disableTwoFa({ id: user.id }, { transaction })
+    logger.info(`2FA was successfully disabled for user with id: ${user.id}`)
 
     await transaction.commit()
     return res.status(200).json({ status: 1 })
