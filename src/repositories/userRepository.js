@@ -3,6 +3,7 @@ const tableName = 'users'
 
 module.exports = {
   getUserById: async ({ id }, { transaction } = { transaction: null }) => {
+    console.log(id)
     const result = knex(tableName)
       .where('users.id', id)
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
@@ -14,6 +15,7 @@ module.exports = {
         'users.password as password',
         'email'
       )
+    console.log('result', result)
     return transaction ? result.transacting(transaction) : result
   },
   getUserByEmail: async ({ email }, { transaction } = { transaction: null }) => {

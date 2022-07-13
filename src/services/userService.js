@@ -19,6 +19,14 @@ module.exports = {
       throw Error("error-while-getting-client-to-sign-in")
     }
   },
+  getUserById: async ({ id }, { transaction } = { transaction: null }) => {
+    try {
+      return await userRepository.getUserById({ id }, { transaction })
+    } catch (e) {
+      logger.error(`Error while getting user by id: ${e.message}`)
+      throw Error("error-while-getting-user-by-id")
+    }
+  },
   getUserByEmail: async ({ email }, { transaction } = { transaction: null }) => {
     try {
       return await userRepository.getUserByEmail({ email }, { transaction })

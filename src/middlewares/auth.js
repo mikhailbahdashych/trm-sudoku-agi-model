@@ -13,6 +13,8 @@ module.exports = (req, res, next) => {
     if (payload.type !== 'access')
       return res.status(401).json({ message: "unauthorized", status: 401 })
 
+    req.body.userId = payload.userId
+
     next();
   } catch (e) {
     return res.status(401).json({ message: "unauthorized", status: 401 })

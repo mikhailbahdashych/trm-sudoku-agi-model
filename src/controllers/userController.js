@@ -346,19 +346,17 @@ exports.updateUserPersonalInformation = async (req, res) => {
 exports.setTwoFa = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const client = await getClientByJwtToken(req.body.token)
-    if (typeof client === 'string' || !client) return res.status(200).json({ status: -1 });
-
-    const { twoFaCode, twoFaToken } = req.body
+    const { twoFaCode, twoFaToken, userId } = req.body
+    const user = userService.getUserById({ id: cryptoService.decrypt(userId) }, { transaction });
 
     const resultTwoFa = twoFactorService.verifyToken(twoFaToken, twoFaCode);
-    logger.info(`Setting 2FA for client with id: ${client.id}`)
+    logger.info(`Setting 2FA for user with id: ${user.id}`)
 
     if (!resultTwoFa) return res.status(403).json({ status: -1, message: 'access-forbidden' })
     if (resultTwoFa.delta !== 0) return res.status(403).json({ status: -1, message: 'access-forbidden' })
 
-    await userService.setTwoFa({ twoFaToken, id: client.id }, { transaction })
-    logger.info(`2FA was successfully created for client with id: ${ client.id }`)
+    await userService.setTwoFa({ twoFaToken, id: user.id }, { transaction })
+    logger.info(`2FA was successfully created for user with id: ${ user.id }`)
 
     await transaction.commit()
     return res.status(200).json({ status: 1 })
