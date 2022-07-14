@@ -2,7 +2,7 @@ const knex = require('../knex/knex')
 const tableName = 'session_tokens'
 
 module.exports = {
-  getTokenById: async ({ tokenId }, { transaction } = { transaction: null }) => {
+  getTokenByTokenId: async ({ tokenId }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('token_id', tokenId)
       .first('user_id as userId')

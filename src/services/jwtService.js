@@ -85,9 +85,9 @@ const updateRefreshToken = async ({ tokenId, userId }, { transaction } = { trans
 }
 
 module.exports = {
-  getTokenById: async ({ tokenId }, { transaction } = { transaction: null }) => {
+  getTokenByTokenId: async ({ tokenId }, { transaction } = { transaction: null }) => {
     try {
-      return await jwtRepository.getTokenById({ tokenId }, { transaction })
+      return await jwtRepository.getTokenByTokenId({ tokenId }, { transaction })
     } catch (e) {
       logger.error(`Error while getting token by id: ${e.message}`)
       throw Error("error-while-getting-token-by-id")
