@@ -13,8 +13,6 @@ const { verifyTwoFa } = require("../common/verifyTwoFa")
 const twoFactorService = require("node-2fa");
 const logger = loggerInstance({ label: "user-controller", path: "user" });
 
-// @TODO Update 2FA input
-
 exports.signIn = async (req, res) => {
   const transaction = await knex.transaction()
   try {
@@ -104,7 +102,9 @@ exports.signUp = async (req, res) => {
 exports.changePassword = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
+    const user = await userService.getUserById({
+      id: cryptoService.decrypt(req.headers.userId)
+    }, { transaction })
 
     const { currentPassword, newPassword, newPasswordRepeat, twoFa } = req.body
 
@@ -147,7 +147,9 @@ exports.changePassword = async (req, res) => {
 exports.changeEmail = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
+    const user = await userService.getUserById({
+      id: cryptoService.decrypt(req.headers.userId)
+    }, { transaction })
 
     const { newEmail, twoFa } = req.body
 
@@ -175,7 +177,9 @@ exports.changeEmail = async (req, res) => {
 exports.deleteAccount = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
+    const user = await userService.getUserById({
+      id: cryptoService.decrypt(req.headers.userId)
+    }, { transaction })
 
     const { password, twoFa } = req.body
 
@@ -209,8 +213,10 @@ exports.getUserByAccessToken = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const accessToken = req.headers.authorization.split(' ')[1]
-
-    if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
+    const { userId } = jwtService.verifyToken({ token: accessToken })
+    const user = await userService.getUserById({
+      id: cryptoService.decrypt(userId)
+    }, { transaction })
 
     const personalInfo = await userService.getUserPersonalSettings({ id: user.id }, { transaction })
 
@@ -294,7 +300,9 @@ exports.getLastActivity = async (req, res) => {
 exports.getUserSettings = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    if (typeof user === "string" || !user.id) return res.status(200).json({ status: -1 });
+    const user = await userService.getUserById({
+      id: cryptoService.decrypt(req.headers.userId)
+    }, { transaction })
 
     const { t } = req.params
 
@@ -363,7 +371,9 @@ exports.setTwoFa = async (req, res) => {
 exports.disableTwoFa = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    if (typeof user === 'string' || !user) return res.status(200).json({ status: -1 });
+    const user = await userService.getUserById({
+      id: cryptoService.decrypt(req.headers.userId)
+    }, { transaction })
 
     const { twoFaCode } = req.body
 
