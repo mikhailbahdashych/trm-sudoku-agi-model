@@ -48,14 +48,14 @@ exports.signIn = async (req, res) => {
     }
 
     const { refreshToken, accessToken } = await jwtService.updateTokens({
-      userId: user.id, username: user.username
+      userId: user.id, username: user.username, personalId: user.personalId
     }, { transaction })
     logger.info(`User ${user.email} has been successfully signed in!`)
 
     await transaction.commit()
     return res
       .status(200)
-      .json({ accessToken, refreshToken, reopening: reopening ? user.username : null })
+      .json({ _at: accessToken, _rt: refreshToken, reopening: reopening ? user.username : null })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while sign in => ${e}`)
@@ -232,9 +232,9 @@ exports.getUserByAccessToken = async (req, res) => {
 exports.refreshToken = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const refreshToken = req.headers.cookie.split('=')[1]
+    const _rt = req.headers.cookie.split('=')[1]
 
-    const payload = jwtService.verifyToken({ token: refreshToken })
+    const payload = jwtService.verifyToken({ token: _rt })
 
     if (payload.type !== 'refresh')
       return res.status(401).json({ message: "unauthorized", status: 401 })
@@ -246,11 +246,12 @@ exports.refreshToken = async (req, res) => {
 
     const tokens = await jwtService.updateTokens({
       userId: cryptoService.decrypt(token.userId),
-      username: token.username
+      username: token.username,
+      personalId: token.personalId
     }, { transaction })
 
     await transaction.commit()
-    return res.status(200).json({ accessToken: tokens.accessToken, refreshToken: tokens.refreshToken })
+    return res.status(200).json({ _at: tokens.accessToken, _rt: tokens.refreshToken })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while token refreshing => ${e}`)
