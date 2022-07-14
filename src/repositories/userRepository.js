@@ -84,7 +84,7 @@ module.exports = {
         'users_info.username',
         'users_info.first_name',
         'users_info.last_name',
-        'users_info.title',
+        'users_info.status',
         'users_info.company',
         'users_info.location',
         'users_info.about_me',
