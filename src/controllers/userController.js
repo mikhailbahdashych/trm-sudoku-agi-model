@@ -348,8 +348,10 @@ exports.updateUserPersonalInformation = async (req, res) => {
 exports.setTwoFa = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const { twoFaCode, twoFaToken, userId } = req.body
-    const user = userService.getUserById({ id: cryptoService.decrypt(userId) }, { transaction });
+    const { twoFaCode, twoFaToken } = req.body
+    const user = await userService.getUserById({
+      id: cryptoService.decrypt(req.headers.userId)
+    }, { transaction })
 
     const resultTwoFa = twoFactorService.verifyToken(twoFaToken, twoFaCode);
     logger.info(`Setting 2FA for user with id: ${user.id}`)
