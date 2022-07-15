@@ -58,9 +58,7 @@ module.exports = {
   },
   createUser: async ({ email, password, personalId }, { transaction } = { transaction: null }) => {
     const result = knex(tableName).insert({
-      email: email,
-      password: password,
-      personal_id: personalId,
+      email, password, personal_id: personalId,
     }).returning('id')
     return transaction ? result.transacting(transaction) : result
   },
@@ -73,7 +71,6 @@ module.exports = {
       .where('users.id', id)
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .first(
-        'users_info.username',
         'users.two_fa as twoFa'
       )
     return transaction ? result.transacting(transaction) : result
