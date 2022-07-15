@@ -19,28 +19,12 @@ module.exports = {
       throw Error("error-while-getting-user-to-sign-in")
     }
   },
-  getUserById: async ({ id }, { transaction } = { transaction: null }) => {
+  getUser: async ({ id, email, username }, { transaction } = { transaction: null }) => {
     try {
-      return await userRepository.getUserById({ id }, { transaction })
+      return await userRepository.getUser({ id, email, username }, { transaction })
     } catch (e) {
       logger.error(`Error while getting user by id: ${e.message}`)
       throw Error("error-while-getting-user-by-id")
-    }
-  },
-  getUserByEmail: async ({ email }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.getUserByEmail({ email }, { transaction })
-    } catch (e) {
-      logger.error(`Error while getting user by email: ${e.message}`)
-      throw Error("error-while-getting-user-by-email")
-    }
-  },
-  getUserByUsername: async ({ username }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.getUserByUsername({ username }, { transaction })
-    } catch (e) {
-      logger.error(`Error while getting user by username: ${e.message}`)
-      throw Error("error-while-getting-user-by-username")
     }
   },
   getUserByPersonalId: async ({ personalId }, { transaction } = { transaction: null }) => {

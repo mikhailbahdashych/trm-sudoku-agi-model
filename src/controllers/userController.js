@@ -71,7 +71,7 @@ exports.signUp = async (req, res) => {
     if (!email || !password || !username || !validateEmail(email) || !validatePassword(password))
       return res.status(400).json({ message: "bad-request", status: 400 })
 
-    const user = await userService.getUserByEmail({ email })
+    const user = await userService.getUser({ email })
     logger.info(`Registration user with email: ${email}`)
 
     if (user) {
@@ -79,9 +79,7 @@ exports.signUp = async (req, res) => {
       return res.status(409).json({ message: "conflict", status: -1 })
     }
 
-    const pickedUsername = await userService.getUserByUsername({ username }, { transaction })
-
-    if (pickedUsername) {
+    if (user.username === username) {
       logger.warn(`User with nickname - ${username} - already exists`)
       return res.status(409).json({ message: "conflict", status: -2 })
     }
@@ -102,7 +100,7 @@ exports.signUp = async (req, res) => {
 exports.changePassword = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const user = await userService.getUserById({
+    const user = await userService.getUser({
       id: cryptoService.decrypt(req.headers.userId)
     }, { transaction })
 
@@ -147,7 +145,7 @@ exports.changePassword = async (req, res) => {
 exports.changeEmail = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const user = await userService.getUserById({
+    const user = await userService.getUser({
       id: cryptoService.decrypt(req.headers.userId)
     }, { transaction })
 
@@ -177,7 +175,7 @@ exports.changeEmail = async (req, res) => {
 exports.deleteAccount = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const user = await userService.getUserById({
+    const user = await userService.getUser({
       id: cryptoService.decrypt(req.headers.userId)
     }, { transaction })
 
@@ -214,7 +212,8 @@ exports.getUserByAccessToken = async (req, res) => {
   try {
     const accessToken = req.headers.authorization.split(' ')[1]
     const { userId } = jwtService.verifyToken({ token: accessToken })
-    const user = await userService.getUserById({
+
+    const user = await userService.getUser({
       id: cryptoService.decrypt(userId)
     }, { transaction })
 
@@ -240,7 +239,7 @@ exports.refreshToken = async (req, res) => {
       return res.status(401).json({ message: "unauthorized", status: 401 })
 
     const token = await jwtService.getTokenByTokenId({ tokenId: payload.id }, { transaction })
-    const user = await userService.getUserById({
+    const user = await userService.getUser({
       id: cryptoService.decrypt(token.userId)
     }, { transaction })
 
@@ -304,7 +303,7 @@ exports.getLastActivity = async (req, res) => {
 exports.getUserSettings = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const user = await userService.getUserById({
+    const user = await userService.getUser({
       id: cryptoService.decrypt(req.headers.userId)
     }, { transaction })
 
@@ -353,7 +352,7 @@ exports.setTwoFa = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const { twoFaCode, twoFaToken } = req.body
-    const user = await userService.getUserById({
+    const user = await userService.getUser({
       id: cryptoService.decrypt(req.headers.userId)
     }, { transaction })
 
@@ -377,7 +376,7 @@ exports.setTwoFa = async (req, res) => {
 exports.disableTwoFa = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const user = await userService.getUserById({
+    const user = await userService.getUser({
       id: cryptoService.decrypt(req.headers.userId)
     }, { transaction })
 

@@ -2,10 +2,14 @@ const knex = require('../knex/knex');
 const tableName = 'users'
 
 module.exports = {
-  getUserById: async ({ id }, { transaction } = { transaction: null }) => {
+  getUser: async ({ id, email, username }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
-      .where('users.id', id)
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
+      .modify((x) => {
+        if (id) x.where('users.id', id)
+        else if (email) x.where('users.email', email)
+        else if (username) x.where('users_info.username', username)
+      })
       .first(
         'personal_id as personalId',
         'two_fa as twoFa',
@@ -14,18 +18,6 @@ module.exports = {
         'users.password as password',
         'email'
       )
-    return transaction ? result.transacting(transaction) : result
-  },
-  getUserByEmail: async ({ email }, { transaction } = { transaction: null }) => {
-    const result = knex(tableName)
-      .where('email', email)
-      .first()
-    return transaction ? result.transacting(transaction) : result
-  },
-  getUserByUsername: async ({ username }, { transaction } = { transaction: null }) => {
-    const result = knex('users_info')
-      .where('username', username)
-      .first()
     return transaction ? result.transacting(transaction) : result
   },
   getUserByPersonalId: async ({ personalId }, { transaction } = { transaction: null }) => {
