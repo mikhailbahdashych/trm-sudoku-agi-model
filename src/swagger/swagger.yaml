@@ -41,12 +41,6 @@ paths:
       description: "This resource allows an individual user to delete his account. <br />Operation makes account unavailable for normal user. <br />All public information become hidden from other users. <br />Account can be restored by sign in system during 6 months."
       tags:
         - POST
-  /get-user-by-token:
-    get:
-      summary: "Used to get user by JWT"
-      description: "User's JWT token"
-      tags:
-        - GET
   /refresh-token:
     post:
       summary: "Used to refresh JWT token"

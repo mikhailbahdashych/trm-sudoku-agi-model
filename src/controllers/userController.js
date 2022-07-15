@@ -207,27 +207,6 @@ exports.deleteAccount = async (req, res) => {
   }
 }
 
-exports.getUserByAccessToken = async (req, res) => {
-  const transaction = await knex.transaction()
-  try {
-    const accessToken = req.headers.authorization.split(' ')[1]
-    const { userId } = jwtService.verifyToken({ token: accessToken })
-
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(userId)
-    }, { transaction })
-
-    const personalInfo = await userService.getUserPersonalSettings({ id: user.id }, { transaction })
-
-    await transaction.commit()
-    return res.status(200).json({ personalId: user.personalId, username: user.username, ...personalInfo })
-  } catch (e) {
-    await transaction.rollback()
-    logger.error(`Something went wrong while getting user by token => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
-  }
-}
-
 exports.refreshToken = async (req, res) => {
   const transaction = await knex.transaction()
   try {
