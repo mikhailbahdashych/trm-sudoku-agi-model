@@ -25,7 +25,17 @@ module.exports = {
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .where('users.personal_id', personalId)
       .first(
-        'users_info.username as username'
+        'users.personal_id as personalId',
+        'users_info.username',
+        'users_info.first_name',
+        'users_info.last_name',
+        'users_info.status',
+        'users_info.company',
+        'users_info.location',
+        'users_info.about_me',
+        'users_info.website_link',
+        'users_info.twitter',
+        'users_info.github'
       )
     return transaction ? result.transacting(transaction) : result
   },
@@ -65,24 +75,6 @@ module.exports = {
       .first(
         'users_info.username',
         'users.two_fa as twoFa'
-      )
-    return transaction ? result.transacting(transaction) : result
-  },
-  getUserPersonalSettings: async ({ id }, { transaction } = { transaction: null }) => {
-    const result = knex(tableName)
-      .where('users.id', id)
-      .leftJoin('users_info', 'users_info.user_id', 'users.id')
-      .first(
-        'users_info.username',
-        'users_info.first_name',
-        'users_info.last_name',
-        'users_info.status',
-        'users_info.company',
-        'users_info.location',
-        'users_info.about_me',
-        'users_info.website_link',
-        'users_info.twitter',
-        'users_info.github'
       )
     return transaction ? result.transacting(transaction) : result
   },

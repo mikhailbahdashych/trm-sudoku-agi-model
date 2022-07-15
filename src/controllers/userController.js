@@ -299,7 +299,7 @@ exports.getUserSettings = async (req, res) => {
         await transaction.commit();
         return res.status(200).json(securitySettings);
       case 'personal':
-        const personalSettings = await userService.getUserPersonalSettings({ id: user.id }, { transaction });
+        const personalSettings = await userService.getUserByPersonalId({ personalId: user.personalId }, { transaction });
 
         await transaction.commit();
         return res.status(200).json(personalSettings);
