@@ -58,22 +58,6 @@ module.exports = {
       )
     return transaction ? result.transacting(transaction) : result
   },
-  createUser: async ({ email, password, personalId }, { transaction } = { transaction: null }) => {
-    const result = knex(tableName).insert({
-      email, password, personal_id: personalId,
-    }).returning('id')
-    return transaction ? result.transacting(transaction) : result
-  },
-  updateUserPersonalInformation: async ({ information, userId }, { transaction } = { transaction: null }) => {
-    const result = knex(tableName)
-      .where('id', userId)
-      .update(information)
-    return transaction ? result.transacting(transaction) : result
-  },
-  createUserInfo: async ({ user_id, username, personalInformation }, { transaction } = { transaction: null }) => {
-    const result = knex('users_info').insert({ user_id, username, ...personalInformation })
-    return transaction ? result.transacting(transaction) : result
-  },
   getUserSecuritySettings: async ({ id }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('id', id)
@@ -82,6 +66,38 @@ module.exports = {
         'changed_email as changedEmail',
         'changed_password_at as changedPasswordAt'
       )
+    return transaction ? result.transacting(transaction) : result
+  },
+  getUserPersonalSettings: async ({ id }, { transaction } = { transaction: null }) => {
+    const result = knex('users_info')
+      .where('user_id', id)
+      .first(
+        'first_name',
+        'last_name',
+        'status',
+        'company',
+        'location',
+        'about_me',
+        'website_link',
+        'twitter',
+        'github'
+      )
+    return transaction ? result.transacting(transaction) : result
+  },
+  createUser: async ({ email, password, personalId }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName).insert({
+      email, password, personal_id: personalId,
+    }).returning('id')
+    return transaction ? result.transacting(transaction) : result
+  },
+  createUserInfo: async ({ user_id, username, personalInformation }, { transaction } = { transaction: null }) => {
+    const result = knex('users_info').insert({ user_id, username, ...personalInformation })
+    return transaction ? result.transacting(transaction) : result
+  },
+  updateUserPersonalInformation: async ({ information, userId }, { transaction } = { transaction: null }) => {
+    const result = knex('users_info')
+      .where('user_id', userId)
+      .update({ ...information })
     return transaction ? result.transacting(transaction) : result
   },
   changePassword: async ({ id, newPassword, changePasswordAt }, { transaction } = { transaction: null }) => {
