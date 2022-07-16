@@ -3,18 +3,26 @@ const knex = require('../knex/knex');
 const loggerInstance = require('../common/logger');
 const logger = loggerInstance({ label: 'blog-controller', path: 'blog' });
 
-exports.getPostById = async (req, res) => {
+exports.getBlogPostById = async (req, res) => {
+  const transaction = await knex.transaction()
   try {
 
+    await transaction.commit()
   } catch (e) {
-
+    await transaction.rollback()
+    logger.error(`Something went wrong while getting blog post by id: ${e.message}`)
+    return res.status(500).json({ message: "something-went-wrong", status: 500 })
   }
 }
 
-exports.createPost = async (req, res) => {
+exports.createBlogPost = async (req, res) => {
+  const transaction = await knex.transaction()
   try {
 
+    await transaction.commit()
   } catch (e) {
-
+    await transaction.rollback()
+    logger.error(`Something went wrong while creating blog post: ${e.message}`)
+    return res.status(500).json({ message: "something-went-wrong", status: 500 })
   }
 }

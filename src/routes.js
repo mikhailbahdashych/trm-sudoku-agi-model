@@ -5,6 +5,7 @@ const userController = require('./controllers/userController');
 const blogController = require('./controllers/blogController');
 const forumController = require('./controllers/forumController');
 const questionController = require('./controllers/qaController');
+const voteController = require('./controllers/voteController');
 
 const v = require('./middlewares/validator');
 const authMiddleware = require('./middlewares/auth');
@@ -22,16 +23,18 @@ router.get("/get-refreshed-tokens", wrapAsync(userController.refreshToken));
 
 router.get("/get-user-by-personal-id/:personalId", basicAuth, wrapAsync(userController.getUserByPersonalId));
 router.get("/get-user-last-activity/:personalId", basicAuth, wrapAsync(userController.getLastActivity));
-
 router.get("/get-user-settings/:t", authMiddleware, wrapAsync(userController.getUserSettings));
+
 router.patch("/update-user-personal-information", authMiddleware, wrapAsync(userController.updateUserPersonalInformation));
 
-router.get("/get-blog-post/:postId", basicAuth, wrapAsync(blogController.getPostById));
-router.get("/get-forum-thread/:threadId", basicAuth, wrapAsync(forumController.getPostById));
+router.patch("/vote/:id/:type", authMiddleware, wrapAsync(voteController.vote))
+
+router.get("/get-blog-post/:postId", basicAuth, wrapAsync(blogController.getBlogPostById));
+router.get("/get-forum-thread/:threadId", basicAuth, wrapAsync(forumController.getForumThreadById));
 router.get("/get-question/:questionId", basicAuth, wrapAsync(questionController.getQuestionById));
 
-router.post("/create-blog-post", authMiddleware, wrapAsync(blogController.createPost));
-router.post("/create-forum-post", authMiddleware, wrapAsync(forumController.createPost));
-router.post("/create-question-post", authMiddleware, wrapAsync(questionController.createPost));
+router.post("/create-blog-post", authMiddleware, wrapAsync(blogController.createBlogPost));
+router.post("/create-forum-post", authMiddleware, wrapAsync(forumController.createForumThread));
+router.post("/create-question-post", authMiddleware, wrapAsync(questionController.createQuestion));
 
 module.exports = router;
