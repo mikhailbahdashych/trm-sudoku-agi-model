@@ -67,6 +67,7 @@ module.exports = {
     try {
       return await userRepository.changePassword({
         id,
+        changePasswordAt: moment(),
         newPassword: cryptoService.hashPassword(newPassword)
       }, { transaction })
     } catch (e) {

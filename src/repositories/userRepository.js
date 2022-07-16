@@ -78,12 +78,12 @@ module.exports = {
       )
     return transaction ? result.transacting(transaction) : result
   },
-  changePassword: async ({ id, newPassword }, { transaction } = { transaction: null }) => {
+  changePassword: async ({ id, newPassword, changePasswordAt }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('id', id)
       .update({
         password: newPassword,
-        changed_password_at: Date.now()
+        changed_password_at: changePasswordAt
       })
     return transaction ? result.transacting(transaction) : result
   },
