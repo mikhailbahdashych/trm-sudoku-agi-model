@@ -72,15 +72,17 @@ exports.signUp = async (req, res) => {
     if (!email || !password || !username || !validateEmail(email) || !validatePassword(password))
       return res.status(400).json({ message: "bad-request", status: 400 })
 
-    const user = await userService.getUser({ email })
+    const sameEmailUser = await userService.getUser({ email }, { transaction })
     logger.info(`Registration user with email: ${email}`)
 
-    if (user) {
+    if (sameEmailUser) {
       logger.warn(`User with email ${email} already exists`)
       return res.status(409).json({ message: "conflict", status: -1 })
     }
 
-    if (user.username === username) {
+    const sameUsernameUser = await userService.getUser({ username }, { transaction })
+
+    if (sameUsernameUser) {
       logger.warn(`User with nickname - ${username} - already exists`)
       return res.status(409).json({ message: "conflict", status: -2 })
     }
