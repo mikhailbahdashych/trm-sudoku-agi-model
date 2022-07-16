@@ -104,7 +104,7 @@ exports.changePassword = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
-      id: cryptoService.decrypt(req.headers.userId)
+      id: cryptoService.decrypt(req.user)
     }, { transaction })
 
     const { currentPassword, newPassword, newPasswordRepeat, twoFa } = req.body
@@ -157,7 +157,7 @@ exports.changeEmail = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
-      id: cryptoService.decrypt(req.headers.userId)
+      id: cryptoService.decrypt(req.user)
     }, { transaction })
 
     const { newEmail, twoFa } = req.body
@@ -190,7 +190,7 @@ exports.deleteAccount = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
-      id: cryptoService.decrypt(req.headers.userId)
+      id: cryptoService.decrypt(req.user)
     }, { transaction })
 
     const { password, twoFa } = req.body
@@ -297,7 +297,7 @@ exports.getUserSettings = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
-      id: cryptoService.decrypt(req.headers.userId)
+      id: cryptoService.decrypt(req.user)
     }, { transaction })
 
     const { t } = req.params
@@ -330,7 +330,7 @@ exports.updateUserPersonalInformation = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
-      id: cryptoService.decrypt(req.headers.userId)
+      id: cryptoService.decrypt(req.user)
     }, { transaction })
 
     await userService.updateUserPersonalInformation({
@@ -354,7 +354,7 @@ exports.setTwoFa = async (req, res) => {
   try {
     const { twoFaCode, twoFaToken } = req.body
     const user = await userService.getUser({
-      id: cryptoService.decrypt(req.headers.userId)
+      id: cryptoService.decrypt(req.user)
     }, { transaction })
 
     const resultTwoFa = twoFactorService.verifyToken(twoFaToken, twoFaCode);
@@ -378,7 +378,7 @@ exports.disableTwoFa = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
-      id: cryptoService.decrypt(req.headers.userId)
+      id: cryptoService.decrypt(req.user)
     }, { transaction })
 
     const { twoFaCode } = req.body

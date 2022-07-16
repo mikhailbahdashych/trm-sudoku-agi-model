@@ -14,7 +14,7 @@ exports.vote = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
-      id: cryptoService.decrypt(req.headers.userId)
+      id: cryptoService.decrypt(req.user)
     }, { transaction })
 
     const { id, v, postType } = req.params
