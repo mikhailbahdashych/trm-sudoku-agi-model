@@ -5,6 +5,7 @@ const cryptoService = require('../services/cryptoService')
 const blogService = require('../services/blogService')
 const forumService = require('../services/forumService')
 const questionService = require('../services/qaService')
+const voteService = require('../services/voteService')
 
 const loggerInstance = require('../common/logger')
 const logger = loggerInstance({ label: 'vote-controller', path: 'vote' })
@@ -39,7 +40,10 @@ exports.vote = async (req, res) => {
         break;
     }
 
+    await voteService.vote({ id, v, postType, userId: user.id })
+
     await transaction.commit()
+    return res.status(200).json({ status: 1 })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while voting: ${e.message}`)

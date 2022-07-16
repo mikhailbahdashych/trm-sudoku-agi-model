@@ -61,7 +61,7 @@ module.exports = {
       const createdUser = await userRepository.createUser({
         email,
         password: cryptoService.hashPassword(password),
-        personalId
+        personal_id: personalId
       }, { transaction })
       return await userRepository.createUserInfo({
         user_id: createdUser[0].id, username, personalInformation
