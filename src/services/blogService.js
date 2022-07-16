@@ -1,7 +1,7 @@
-const blogRepository = require("../repositories/blogRepository")
+const blogRepository = require('../repositories/blogRepository')
 
-const loggerInstance = require("../common/logger")
-const logger = loggerInstance({ label: "blog-service", path: "blog" })
+const loggerInstance = require('../common/logger')
+const logger = loggerInstance({ label: 'blog-service', path: 'blog' })
 
 module.exports = {
   getBlogPostById: async ({ id }, { transaction } = { transaction: null }) => {
@@ -9,7 +9,7 @@ module.exports = {
       return await blogRepository.getBlogPostById({ id }, { transaction })
     } catch (e) {
       logger.error(`Error while getting blog post by id: ${e.message}`)
-      throw Error("error-while-getting-blog-post-by-id")
+      throw Error('error-while-getting-blog-post-by-id')
     }
   }
 }

@@ -9,7 +9,7 @@ module.exports = {
       return await questionRepository.getQuestionById({ id }, { transaction })
     } catch (e) {
       logger.error(`Error while getting question by id: ${e.message}`)
-      throw Error("error-while-getting-question-by-id")
+      throw Error('error-while-getting-question-by-id')
     }
   }
 }

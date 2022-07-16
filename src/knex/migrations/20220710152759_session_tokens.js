@@ -3,8 +3,8 @@ exports.up = function(knex) {
     table.uuid('id').notNullable().defaultTo(knex.raw('gen_random_uuid ()')).primary()
     table.text('token_id').notNullable()
     table.text('user_id').notNullable()
-    table.timestamp("created_at").defaultTo(knex.fn.now())
-    table.timestamp("updated_at").defaultTo(knex.fn.now())
+    table.timestamp('created_at').defaultTo(knex.fn.now())
+    table.timestamp('updated_at').defaultTo(knex.fn.now())
   })
 };
 

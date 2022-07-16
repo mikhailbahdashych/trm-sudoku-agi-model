@@ -23,7 +23,7 @@ module.exports = {
   encrypt: (text) => { return encryptText(text) },
   decrypt: (text) => { return decryptText(text) },
   hashPassword: (password) => {
-    const sha256Hasher = crypto.createHmac("sha256", salt);
-    return sha256Hasher.update(password).digest("hex");
+    const sha256Hasher = crypto.createHmac('sha256', salt);
+    return sha256Hasher.update(password).digest('hex');
   }
 }

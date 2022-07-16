@@ -6,6 +6,6 @@ exports.search = async (req, res) => {
 
   } catch (e) {
     logger.error(`Error while searching: ${e.message}`)
-    throw Error("error-while-searching")
+    throw Error('error-while-searching')
   }
 }

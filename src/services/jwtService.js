@@ -6,13 +6,13 @@ const uuid = require('uuid')
 dotenv.config();
 
 const loggerInstance = require('../common/logger');
-const logger = loggerInstance({ label: "jwt-service", path: "jwt" })
+const logger = loggerInstance({ label: 'jwt-service', path: 'jwt' })
 
-const privateKey = fs.readFileSync(path.resolve(__dirname + "../../../keys/private.pem"));
-const publicKey = fs.readFileSync(path.resolve(__dirname + "../../../keys/public.pem"));
+const privateKey = fs.readFileSync(path.resolve(__dirname + '../../../keys/private.pem'));
+const publicKey = fs.readFileSync(path.resolve(__dirname + '../../../keys/public.pem'));
 
-const jwtRepository = require("../repositories/jwtRepository");
-const cryptoService = require("./cryptoService");
+const jwtRepository = require('../repositories/jwtRepository');
+const cryptoService = require('./cryptoService');
 
 const jwtConfig = {
   secret: privateKey,
@@ -41,13 +41,13 @@ const generateAccessToken = ({ userId, personalId, username }) => {
     }
     const options = {
       expiresIn: jwtConfig.access.expiresIn,
-      algorithm: "RS256"
+      algorithm: 'RS256'
     }
 
     return jwt.sign(payload, secret, options)
   } catch (e) {
     logger.error(`Error while generating access JWT token => ${e}`)
-    throw Error("error-while-generating-access-token")
+    throw Error('error-while-generating-access-token')
   }
 }
 
@@ -64,13 +64,13 @@ const generateRefreshToken = () => {
     }
     const options = {
       expiresIn: jwtConfig.refresh.expiresIn,
-      algorithm: "RS256"
+      algorithm: 'RS256'
     }
 
     return { id, token: jwt.sign(payload, secret, options) }
   } catch (e) {
     logger.error(`Error while generating refresh JWT token => ${e}`)
-    throw Error("error-while-generating-refresh-token")
+    throw Error('error-while-generating-refresh-token')
   }
 }
 
@@ -80,7 +80,7 @@ const updateRefreshToken = async ({ tokenId, userId }, { transaction } = { trans
     return await jwtRepository.createRefreshToken({ tokenId, userId }, { transaction })
   } catch (e) {
     logger.error(`Error while updating refresh token: ${e.message}`)
-    throw Error("error-while-updating-refresh-token")
+    throw Error('error-while-updating-refresh-token')
   }
 }
 
@@ -90,7 +90,7 @@ module.exports = {
       return await jwtRepository.getTokenByTokenId({ tokenId }, { transaction })
     } catch (e) {
       logger.error(`Error while getting token by id: ${e.message}`)
-      throw Error("error-while-getting-token-by-id")
+      throw Error('error-while-getting-token-by-id')
     }
   },
   updateTokens: async ({ userId, username, personalId }, { transaction } = { transaction: null }) => {
@@ -106,7 +106,7 @@ module.exports = {
       return { accessToken, refreshToken: refreshToken.token }
     } catch (e) {
       logger.error(`Error while updating tokens: ${e.message}`)
-      throw Error("error-while-updating-tokens")
+      throw Error('error-while-updating-tokens')
     }
   },
   verifyToken: ({ token }) => {
@@ -114,9 +114,9 @@ module.exports = {
       return jwt.verify(token, publicKey)
     } catch (e) {
       if (e instanceof jwt.TokenExpiredError)
-        return { message: "token-expired" }
+        return { message: 'token-expired' }
       else if (e instanceof jwt.JsonWebTokenError)
-        return { message: "invalid-token" }
+        return { message: 'invalid-token' }
     }
   }
 }

@@ -19,23 +19,23 @@ exports.vote = async (req, res) => {
     const { id, v, postType } = req.params
 
     if (!['up', 'down'].includes(v) || !['blog', 'forum', 'question'].includes(postType))
-      return res.status(400).json({ message: "bad-request", status: 400 })
+      return res.status(400).json({ message: 'bad-request', status: 400 })
 
     switch (postType) {
       case 'blog':
         const blogPost = await blogService.getBlogPostById({ id }, { transaction })
         if (!blogPost)
-          return res.status(400).json({ message: "bad-request", status: 400 })
+          return res.status(400).json({ message: 'bad-request', status: 400 })
         break;
       case 'forum':
         const forumPost = await forumService.getForumThreadById({ id }, { transaction })
         if (!forumPost)
-          return res.status(400).json({ message: "bad-request", status: 400 })
+          return res.status(400).json({ message: 'bad-request', status: 400 })
         break;
       case 'question':
         const questionPost = await questionService.getQuestionById({ id }, { transaction })
         if (!questionPost)
-          return res.status(400).json({ message: "bad-request", status: 400 })
+          return res.status(400).json({ message: 'bad-request', status: 400 })
         break;
     }
 
@@ -43,6 +43,6 @@ exports.vote = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while voting: ${e.message}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }

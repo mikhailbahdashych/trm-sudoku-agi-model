@@ -9,7 +9,7 @@ module.exports = {
       return await forumRepository.getForumThreadById({ id }, { transaction })
     } catch (e) {
       logger.error(`Error while getting forum thread by id: ${e.message}`)
-      throw Error("error-while-getting-forum-thread-by-id")
+      throw Error('error-while-getting-forum-thread-by-id')
     }
   }
 }

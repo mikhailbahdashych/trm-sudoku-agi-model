@@ -1,18 +1,18 @@
-const seedrandom = require("seedrandom");
-const moment = require("moment");
+const seedrandom = require('seedrandom');
+const moment = require('moment');
 const knex = require('../knex/knex');
-const dotenv = require("dotenv");
+const dotenv = require('dotenv');
 dotenv.config();
 
-const userService = require("../services/userService");
-const cryptoService = require("../services/cryptoService");
-const jwtService = require("../services/jwtService");
-const { validatePassword, validateEmail, validateUserPersonalId } = require("../common/validators");
+const userService = require('../services/userService');
+const cryptoService = require('../services/cryptoService');
+const jwtService = require('../services/jwtService');
+const { validatePassword, validateEmail, validateUserPersonalId } = require('../common/validators');
 
-const loggerInstance = require("../common/logger");
-const { verifyTwoFa } = require("../common/verifyTwoFa")
-const twoFactorService = require("node-2fa");
-const logger = loggerInstance({ label: "user-controller", path: "user" });
+const loggerInstance = require('../common/logger');
+const { verifyTwoFa } = require('../common/verifyTwoFa')
+const twoFactorService = require('node-2fa');
+const logger = loggerInstance({ label: 'user-controller', path: 'user' });
 
 exports.signIn = async (req, res) => {
   const transaction = await knex.transaction()
@@ -21,22 +21,22 @@ exports.signIn = async (req, res) => {
     let reopening = false
 
     if (!email || !password || !validateEmail(email) || !validatePassword(password))
-      return res.status(400).json({ message: "bad-request", status: 400 })
+      return res.status(400).json({ message: 'bad-request', status: 400 })
 
     const user = await userService.getUserToSignIn({ email, password }, { transaction })
     logger.info(`Sign in user with email: ${email}`)
 
     if (!user) {
       logger.info(`Wrong data while sign in for user with email: ${email}`)
-      return res.status(401).json({ message: "unauthorized", status: -1 })
+      return res.status(401).json({ message: 'unauthorized', status: -1 })
     }
 
-    if (user.email.slice(-4) === "_del") {
+    if (user.email.slice(-4) === '_del') {
       logger.info(`User has deleted account, reopening...`)
       await userService.reopenAccount({
         id: user.id,
-        email: user.email.split("_del")[0],
-        password: user.password.split("_del")[0]
+        email: user.email.split('_del')[0],
+        password: user.password.split('_del')[0]
         },{ transaction })
       reopening = true
     }
@@ -45,7 +45,7 @@ exports.signIn = async (req, res) => {
       if (!twoFa) return res.status(200).json({ twoFa: true })
 
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
-      if (!twoFaResult) return res.status(403).json({ status: -2, message: "access-forbidden" })
+      if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
     }
 
     const { refreshToken, accessToken } = await jwtService.updateTokens({
@@ -60,7 +60,7 @@ exports.signIn = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while sign in => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
 
@@ -70,21 +70,21 @@ exports.signUp = async (req, res) => {
     let { email, password, username, personalInformation } = req.body
 
     if (!email || !password || !username || !validateEmail(email) || !validatePassword(password))
-      return res.status(400).json({ message: "bad-request", status: 400 })
+      return res.status(400).json({ message: 'bad-request', status: 400 })
 
     const sameEmailUser = await userService.getUser({ email }, { transaction })
     logger.info(`Registration user with email: ${email}`)
 
     if (sameEmailUser) {
       logger.warn(`User with email ${email} already exists`)
-      return res.status(409).json({ message: "conflict", status: -1 })
+      return res.status(409).json({ message: 'conflict', status: -1 })
     }
 
     const sameUsernameUser = await userService.getUser({ username }, { transaction })
 
     if (sameUsernameUser) {
       logger.warn(`User with nickname - ${username} - already exists`)
-      return res.status(409).json({ message: "conflict", status: -2 })
+      return res.status(409).json({ message: 'conflict', status: -2 })
     }
 
     const personalId = (seedrandom(email).quick() * 1e10).toFixed(0)
@@ -92,11 +92,11 @@ exports.signUp = async (req, res) => {
     logger.info(`User with email ${email} has been successfully created!`)
 
     await transaction.commit()
-    return res.status(200).json({ message: "success", status: 1 })
+    return res.status(200).json({ message: 'success', status: 1 })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while sign up => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
 
@@ -116,19 +116,19 @@ exports.changePassword = async (req, res) => {
       newPasswordRepeat !== newPassword ||
       !validatePassword(currentPassword) || !validatePassword(newPassword) || !validatePassword(newPasswordRepeat)
     )
-      return res.status(400).json({ message: "bad-request", status: 400 })
+      return res.status(400).json({ message: 'bad-request', status: 400 })
 
     if (user.password !== cryptoService.hashPassword(currentPassword))
-      return res.status(401).json({ error: "unauthorized", status: -2 });
+      return res.status(401).json({ error: 'unauthorized', status: -2 });
 
     if (currentPassword === newPassword)
-      return res.status(409).json({ message: "conflict", status: -4 })
+      return res.status(409).json({ message: 'conflict', status: -4 })
 
     if (user.twoFa) {
-      if (!twoFa) return res.status(400).json({ message: "bad-request", status: 400 })
+      if (!twoFa) return res.status(400).json({ message: 'bad-request', status: 400 })
 
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
-      if (!twoFaResult) return res.status(403).json({ status: -3, message: "access-forbidden" })
+      if (!twoFaResult) return res.status(403).json({ status: -3, message: 'access-forbidden' })
     }
 
     if (
@@ -149,7 +149,7 @@ exports.changePassword = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while changing password => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
 
@@ -163,13 +163,13 @@ exports.changeEmail = async (req, res) => {
     const { newEmail, twoFa } = req.body
 
     if (!newEmail || !validateEmail(newEmail))
-      return res.status(400).json({ message: "bad-request", status: 400 })
+      return res.status(400).json({ message: 'bad-request', status: 400 })
 
     if (user.twoFa) {
-      if (!twoFa) return res.status(400).json({ message: "bad-request", status: 400 })
+      if (!twoFa) return res.status(400).json({ message: 'bad-request', status: 400 })
 
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
-      if (!twoFaResult) return res.status(403).json({ status: -2, message: "access-forbidden" })
+      if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
     }
 
     if (user.changedEmail)
@@ -182,7 +182,7 @@ exports.changeEmail = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while changing email => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
 
@@ -196,14 +196,14 @@ exports.deleteAccount = async (req, res) => {
     const { password, twoFa } = req.body
 
     if (user.twoFa) {
-      if (!twoFa) return res.status(400).json({ message: "bad-request", status: 400 })
+      if (!twoFa) return res.status(400).json({ message: 'bad-request', status: 400 })
 
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
-      if (!twoFaResult) return res.status(403).json({ status: -2, message: "access-forbidden" })
+      if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
     }
 
     if (user.password !== cryptoService.hashPassword(password))
-      return res.status(401).json({ error: "unauthorized", status: -3 });
+      return res.status(401).json({ error: 'unauthorized', status: -3 });
 
     await userService.deleteAccount({
       id: user.id,
@@ -217,7 +217,7 @@ exports.deleteAccount = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while deleting account => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
 
@@ -229,7 +229,7 @@ exports.refreshToken = async (req, res) => {
     const payload = jwtService.verifyToken({ token: _rt })
 
     if (payload.type !== 'refresh')
-      return res.status(401).json({ message: "unauthorized", status: 401 })
+      return res.status(401).json({ message: 'unauthorized', status: 401 })
 
     const token = await jwtService.getTokenByTokenId({ tokenId: payload.id }, { transaction })
     const user = await userService.getUser({
@@ -237,7 +237,7 @@ exports.refreshToken = async (req, res) => {
     }, { transaction })
 
     if (!token)
-      return res.status(401).json({ message: "unauthorized", status: 401 })
+      return res.status(401).json({ message: 'unauthorized', status: 401 })
 
     const tokens = await jwtService.updateTokens({
       userId: cryptoService.decrypt(token.userId),
@@ -250,7 +250,7 @@ exports.refreshToken = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while token refreshing => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
 
@@ -260,19 +260,19 @@ exports.getUserByPersonalId = async (req, res) => {
     const { personalId } = req.params
 
     if (!personalId || !validateUserPersonalId(personalId))
-      return res.status(400).json({ message: "bad-request", status: 400 })
+      return res.status(400).json({ message: 'bad-request', status: 400 })
 
     const user = await userService.getUserByPersonalId({ personalId }, { transaction })
 
     if (!user)
-      return res.status(403).json({ error: "not-found", status: 403 });
+      return res.status(403).json({ error: 'not-found', status: 403 });
 
     await transaction.commit()
     return res.status(200).json(user)
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting user by personal Id => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
 
@@ -282,14 +282,14 @@ exports.getLastActivity = async (req, res) => {
     const { personalId } = req.params
 
     if (!personalId || !validateUserPersonalId(personalId))
-      return res.status(400).json({ message: "bad-request", status: 400 })
+      return res.status(400).json({ message: 'bad-request', status: 400 })
 
     await transaction.commit()
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting last activity => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
 
@@ -303,7 +303,7 @@ exports.getUserSettings = async (req, res) => {
     const { t } = req.params
 
     if (!t || !['security', 'personal', 'notifications'].includes(t))
-      return res.status(400).json({ message: "bad-request", status: 400 })
+      return res.status(400).json({ message: 'bad-request', status: 400 })
 
     switch (t) {
       case 'security':
@@ -322,7 +322,7 @@ exports.getUserSettings = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting user's settings => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
 
@@ -344,7 +344,7 @@ exports.updateUserPersonalInformation = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while updating user personal information => ${e}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
 

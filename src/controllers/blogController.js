@@ -11,7 +11,7 @@ exports.getBlogPostById = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting blog post by id: ${e.message}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
 
@@ -23,6 +23,6 @@ exports.createBlogPost = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while creating blog post: ${e.message}`)
-    return res.status(500).json({ message: "something-went-wrong", status: 500 })
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
