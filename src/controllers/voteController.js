@@ -1,11 +1,43 @@
 const knex = require('../knex/knex')
 
+const userService = require('../services/userService')
+const cryptoService = require('../services/cryptoService')
+const blogService = require('../services/blogService')
+const forumService = require('../services/forumService')
+const questionService = require('../services/qaService')
+
 const loggerInstance = require('../common/logger')
 const logger = loggerInstance({ label: 'vote-controller', path: 'vote' })
 
 exports.vote = async (req, res) => {
   const transaction = await knex.transaction()
   try {
+    const user = await userService.getUser({
+      id: cryptoService.decrypt(req.headers.userId)
+    }, { transaction })
+
+    const { id, v, postType } = req.params
+
+    if (!['up', 'down'].includes(v) || !['blog', 'forum', 'question'].includes(postType))
+      return res.status(400).json({ message: "bad-request", status: 400 })
+
+    switch (postType) {
+      case 'blog':
+        const blogPost = await blogService.getBlogPostById({ id }, { transaction })
+        if (!blogPost)
+          return res.status(400).json({ message: "bad-request", status: 400 })
+        break;
+      case 'forum':
+        const forumPost = await forumService.getForumThreadById({ id }, { transaction })
+        if (!forumPost)
+          return res.status(400).json({ message: "bad-request", status: 400 })
+        break;
+      case 'question':
+        const questionPost = await questionService.getQuestionById({ id }, { transaction })
+        if (!questionPost)
+          return res.status(400).json({ message: "bad-request", status: 400 })
+        break;
+    }
 
     await transaction.commit()
   } catch (e) {

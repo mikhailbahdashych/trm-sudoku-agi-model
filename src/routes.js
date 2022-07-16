@@ -30,7 +30,7 @@ router.post("/search", wrapAsync(searchController.search))
 
 router.patch("/update-user-personal-information", authMiddleware, wrapAsync(userController.updateUserPersonalInformation));
 
-router.patch("/vote/:id/:type", authMiddleware, wrapAsync(voteController.vote))
+router.patch("/vote/:id/:v/:postType", authMiddleware, wrapAsync(voteController.vote))
 
 router.get("/get-blog-post/:id", basicAuth, wrapAsync(blogController.getBlogPostById));
 router.get("/get-forum-thread/:id", basicAuth, wrapAsync(forumController.getForumThreadById));
