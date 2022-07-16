@@ -64,7 +64,7 @@ module.exports = {
         personal_id: personalId
       }, { transaction })
       return await userRepository.createUserInfo({
-        user_id: createdUser[0].id, username, personalInformation
+        user_id: createdUser[0].id, username, ...personalInformation
       }, { transaction })
     } catch (e) {
       logger.error(`Error while creating user: ${e.message}`)
