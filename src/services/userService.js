@@ -63,6 +63,14 @@ module.exports = {
       throw Error("error-while-creating-user")
     }
   },
+  updateUserPersonalInformation: async ({ information, userId }, { transaction } = { transaction: null }) => {
+    try {
+      return await userRepository.updateUserPersonalInformation({ information, userId }, { transaction })
+    } catch (e) {
+      logger.error(`Error while updating user personal information: ${e.message}`)
+      throw Error("error-while-updating-user-personal-information")
+    }
+  },
   changePassword: async ({ id, newPassword }, { transaction } = { transaction: null }) => {
     try {
       return await userRepository.changePassword({

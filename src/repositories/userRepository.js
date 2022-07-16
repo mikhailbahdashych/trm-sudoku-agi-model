@@ -64,6 +64,12 @@ module.exports = {
     }).returning('id')
     return transaction ? result.transacting(transaction) : result
   },
+  updateUserPersonalInformation: async ({ information, userId }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+      .where('id', userId)
+      .update(information)
+    return transaction ? result.transacting(transaction) : result
+  },
   createUserInfo: async ({ user_id, username, personalInformation }, { transaction } = { transaction: null }) => {
     const result = knex('users_info').insert({ user_id, username, ...personalInformation })
     return transaction ? result.transacting(transaction) : result

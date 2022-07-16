@@ -329,6 +329,15 @@ exports.getUserSettings = async (req, res) => {
 exports.updateUserPersonalInformation = async (req, res) => {
   const transaction = await knex.transaction()
   try {
+    const user = await userService.getUser({
+      id: cryptoService.decrypt(req.headers.userId)
+    }, { transaction })
+
+    await userService.updateUserPersonalInformation({
+      information: req.body,
+      userId: user.id
+    }, { transaction })
+
     logger.info(`Personal settings has been successfully updated for user`)
     await transaction.commit()
     return res.status(200).json({ status: 1 });
