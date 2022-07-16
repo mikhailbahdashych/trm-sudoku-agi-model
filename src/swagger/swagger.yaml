@@ -86,7 +86,7 @@ paths:
       description: "This resource allows an individual user update user's personal information."
       tags:
         - PATCH
-  /get-blog-post/{postId}:
+  /get-blog-post/{id}:
     get:
       summary: "Used to get blog post by post ID"
       description: "This resource allows to get blog post by post ID."
@@ -94,10 +94,10 @@ paths:
         - GET
       parameters:
         - in: path
-          name: postId
+          name: id
           required: true
           description: "Blog post ID"
-  /get-forum-thread/{threadId}:
+  /get-forum-thread/{id}:
     get:
       summary: "Used to get forum thread by ID"
       description: "This resource allows to get forum thread by ID."
@@ -105,10 +105,10 @@ paths:
         - GET
       parameters:
         - in: path
-          name: threadId
+          name: id
           required: true
           description: "Forum thread ID"
-  /get-question/{questionId}:
+  /get-question/{id}:
     get:
       summary: "Used to get question by question ID"
       description: "This resource allows to get forum post by post ID."
@@ -116,6 +116,6 @@ paths:
         - GET
       parameters:
         - in: path
-          name: questionId
+          name: id
           required: true
           description: "Question ID"

@@ -6,6 +6,7 @@ const blogController = require('./controllers/blogController');
 const forumController = require('./controllers/forumController');
 const questionController = require('./controllers/qaController');
 const voteController = require('./controllers/voteController');
+const searchController = require('./controllers/searchController');
 
 const v = require('./middlewares/validator');
 const authMiddleware = require('./middlewares/auth');
@@ -25,13 +26,15 @@ router.get("/get-user-by-personal-id/:personalId", basicAuth, wrapAsync(userCont
 router.get("/get-user-last-activity/:personalId", basicAuth, wrapAsync(userController.getLastActivity));
 router.get("/get-user-settings/:t", authMiddleware, wrapAsync(userController.getUserSettings));
 
+router.post("/search", wrapAsync(searchController.search))
+
 router.patch("/update-user-personal-information", authMiddleware, wrapAsync(userController.updateUserPersonalInformation));
 
 router.patch("/vote/:id/:type", authMiddleware, wrapAsync(voteController.vote))
 
-router.get("/get-blog-post/:postId", basicAuth, wrapAsync(blogController.getBlogPostById));
-router.get("/get-forum-thread/:threadId", basicAuth, wrapAsync(forumController.getForumThreadById));
-router.get("/get-question/:questionId", basicAuth, wrapAsync(questionController.getQuestionById));
+router.get("/get-blog-post/:id", basicAuth, wrapAsync(blogController.getBlogPostById));
+router.get("/get-forum-thread/:id", basicAuth, wrapAsync(forumController.getForumThreadById));
+router.get("/get-question/:id", basicAuth, wrapAsync(questionController.getQuestionById));
 
 router.post("/create-blog-post", authMiddleware, wrapAsync(blogController.createBlogPost));
 router.post("/create-forum-post", authMiddleware, wrapAsync(forumController.createForumThread));
