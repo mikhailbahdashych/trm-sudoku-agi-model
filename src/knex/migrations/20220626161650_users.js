@@ -6,6 +6,9 @@ exports.up = function(knex) {
     table.text('personal_id').notNullable()
     table.text('two_fa').nullable()
 
+    table.boolean('changed_email').notNullable().defaultTo(false)
+    table.timestamp('changed_password_at').nullable().defaultTo(null)
+
     table.timestamp("created_at").defaultTo(knex.fn.now())
     table.timestamp("updated_at").defaultTo(knex.fn.now())
   })

@@ -1,4 +1,5 @@
 const seedrandom = require("seedrandom");
+const moment = require("moment");
 const knex = require('../knex/knex');
 const dotenv = require("dotenv");
 dotenv.config();
@@ -118,6 +119,9 @@ exports.changePassword = async (req, res) => {
     if (user.password !== cryptoService.hashPassword(currentPassword))
       return res.status(401).json({ error: "unauthorized", status: -2 });
 
+    if (currentPassword === newPassword)
+      return res.status(409).json({ message: "conflict", status: -4 })
+
     if (user.twoFa) {
       if (!twoFa) return res.status(400).json({ message: "bad-request", status: 400 })
 
@@ -125,8 +129,13 @@ exports.changePassword = async (req, res) => {
       if (!twoFaResult) return res.status(403).json({ status: -3, message: "access-forbidden" })
     }
 
-    if (currentPassword === newPassword)
-      return res.status(409).json({ message: "conflict", status: -4 })
+    if (
+      user.changedPasswordAt &&
+      moment(user.changedPasswordAt).format('YYYY-MM-DD HH:mm:ss') >=
+      moment().subtract(2, 'days').format('YYYY-MM-DD HH:mm:ss')
+    ) {
+      return res.status(200).json({ status: -5 })
+    }
 
     await userService.changePassword({
       id: user.id, newPassword
@@ -160,6 +169,9 @@ exports.changeEmail = async (req, res) => {
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
       if (!twoFaResult) return res.status(403).json({ status: -2, message: "access-forbidden" })
     }
+
+    if (user.changedEmail)
+      return res.status(200).json({ status: -1 })
 
     logger.info(`Email has been successfully changed for user with email`)
 
@@ -294,7 +306,6 @@ exports.getUserSettings = async (req, res) => {
     switch (t) {
       case 'security':
         const securitySettings = await userService.getUserSecuritySettings({ id: user.id }, { transaction });
-        securitySettings.twoFa = securitySettings.twoFa !== null
 
         await transaction.commit();
         return res.status(200).json(securitySettings);

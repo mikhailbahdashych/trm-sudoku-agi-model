@@ -11,12 +11,14 @@ module.exports = {
         else if (username) x.where('users_info.username', username)
       })
       .first(
-        'personal_id as personalId',
-        'two_fa as twoFa',
-        'users_info.username as username',
+        'users.personal_id as personalId',
+        'users.two_fa as twoFa',
         'users.id as id',
         'users.password as password',
-        'email'
+        'users.email',
+        'users.changed_email as changedEmail',
+        'users.changed_password_at as changedPasswordAt',
+        'users_info.username as username'
       )
     return transaction ? result.transacting(transaction) : result
   },
@@ -68,17 +70,21 @@ module.exports = {
   },
   getUserSecuritySettings: async ({ id }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
-      .where('users.id', id)
-      .leftJoin('users_info', 'users_info.user_id', 'users.id')
+      .where('id', id)
       .first(
-        'users.two_fa as twoFa'
+        'two_fa as twoFa',
+        'changed_email as changedEmail',
+        'changed_password_at as changedPasswordAt'
       )
     return transaction ? result.transacting(transaction) : result
   },
   changePassword: async ({ id, newPassword }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('id', id)
-      .update({ password: newPassword })
+      .update({
+        password: newPassword,
+        changed_password_at: Date.now()
+      })
     return transaction ? result.transacting(transaction) : result
   },
   deleteAccount: async ({ id, email, password }, { transaction } = { transaction: null }) => {

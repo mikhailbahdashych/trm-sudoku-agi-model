@@ -1,4 +1,5 @@
 const dotenv = require("dotenv")
+const moment = require("moment")
 dotenv.config()
 
 const userRepository = require("../repositories/userRepository");
@@ -37,7 +38,11 @@ module.exports = {
   },
   getUserSecuritySettings: async ({ id }, { transaction } = { transaction: null }) => {
     try {
-      return await userRepository.getUserSecuritySettings({ id }, { transaction })
+      const userSecuritySettings = await userRepository.getUserSecuritySettings({ id }, { transaction })
+      userSecuritySettings.twoFa = userSecuritySettings.twoFa !== null
+      userSecuritySettings.changedPasswordAt = moment(userSecuritySettings.changedPasswordAt) >= moment().subtract(2, 'days')
+
+      return userSecuritySettings
     } catch (e) {
       logger.error(`Error while getting user settings: ${e.message}`)
       throw Error("error-while-getting-user-settings")
