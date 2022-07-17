@@ -5,9 +5,6 @@ const dotenv = require('dotenv');
 const uuid = require('uuid')
 dotenv.config();
 
-const loggerInstance = require('../common/logger');
-const logger = loggerInstance({ label: 'jwt-service', path: 'jwt' })
-
 const privateKey = fs.readFileSync(path.resolve(__dirname + '../../../keys/private.pem'));
 const publicKey = fs.readFileSync(path.resolve(__dirname + '../../../keys/public.pem'));
 
@@ -46,7 +43,6 @@ const generateAccessToken = ({ userId, personalId, username }) => {
 
     return jwt.sign(payload, secret, options)
   } catch (e) {
-    logger.error(`Error while generating access JWT token => ${e}`)
     throw Error('error-while-generating-access-token')
   }
 }
@@ -69,7 +65,6 @@ const generateRefreshToken = () => {
 
     return { id, token: jwt.sign(payload, secret, options) }
   } catch (e) {
-    logger.error(`Error while generating refresh JWT token => ${e}`)
     throw Error('error-while-generating-refresh-token')
   }
 }
@@ -79,7 +74,6 @@ const updateRefreshToken = async ({ tokenId, userId }, { transaction } = { trans
     await jwtRepository.deleteRefreshToken({ userId }, { transaction })
     return await jwtRepository.createRefreshToken({ tokenId, userId }, { transaction })
   } catch (e) {
-    logger.error(`Error while updating refresh token: ${e.message}`)
     throw Error('error-while-updating-refresh-token')
   }
 }
@@ -89,7 +83,6 @@ module.exports = {
     try {
       return await jwtRepository.getTokenByTokenId({ tokenId }, { transaction })
     } catch (e) {
-      logger.error(`Error while getting token by id: ${e.message}`)
       throw Error('error-while-getting-token-by-id')
     }
   },
@@ -105,7 +98,6 @@ module.exports = {
 
       return { accessToken, refreshToken: refreshToken.token }
     } catch (e) {
-      logger.error(`Error while updating tokens: ${e.message}`)
       throw Error('error-while-updating-tokens')
     }
   },
