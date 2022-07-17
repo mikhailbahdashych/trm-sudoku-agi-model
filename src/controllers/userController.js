@@ -59,7 +59,7 @@ exports.signIn = async (req, res) => {
       .json({ _at: accessToken, _rt: refreshToken, reopening: reopening ? user.username : null })
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while sign in => ${e}`)
+    logger.error(`Something went wrong while sign in : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -95,7 +95,7 @@ exports.signUp = async (req, res) => {
     return res.status(200).json({ message: 'success', status: 1 })
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while sign up => ${e}`)
+    logger.error(`Something went wrong while sign up : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -148,7 +148,7 @@ exports.changePassword = async (req, res) => {
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while changing password => ${e}`)
+    logger.error(`Something went wrong while changing password : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -181,7 +181,7 @@ exports.changeEmail = async (req, res) => {
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while changing email => ${e}`)
+    logger.error(`Something went wrong while changing email : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -216,7 +216,7 @@ exports.deleteAccount = async (req, res) => {
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while deleting account => ${e}`)
+    logger.error(`Something went wrong while deleting account : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -249,7 +249,7 @@ exports.refreshToken = async (req, res) => {
     return res.status(200).json({ _at: tokens.accessToken, _rt: tokens.refreshToken })
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while token refreshing => ${e}`)
+    logger.error(`Something went wrong while token refreshing : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -271,7 +271,7 @@ exports.getUserByPersonalId = async (req, res) => {
     return res.status(200).json(user)
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while getting user by personal Id => ${e}`)
+    logger.error(`Something went wrong while getting user by personal Id : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -288,7 +288,7 @@ exports.getLastActivity = async (req, res) => {
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while getting last activity => ${e}`)
+    logger.error(`Something went wrong while getting last activity : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -321,7 +321,7 @@ exports.getUserSettings = async (req, res) => {
     }
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while getting user's settings => ${e}`)
+    logger.error(`Something went wrong while getting user's settings : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -343,7 +343,7 @@ exports.updateUserPersonalInformation = async (req, res) => {
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while updating user personal information => ${e}`)
+    logger.error(`Something went wrong while updating user personal information : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -369,7 +369,7 @@ exports.setTwoFa = async (req, res) => {
     await transaction.commit()
     return res.status(200).json({ status: 1 })
   } catch (e) {
-    logger.error(`Something went wrong while setting 2FA => ${e}`)
+    logger.error(`Something went wrong while setting 2FA : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -394,7 +394,7 @@ exports.disableTwoFa = async (req, res) => {
     await transaction.commit()
     return res.status(200).json({ status: 1 })
   } catch (e) {
-    logger.error(`Something went wrong while disabling 2FA => ${e}`)
+    logger.error(`Something went wrong while disabling 2FA : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }

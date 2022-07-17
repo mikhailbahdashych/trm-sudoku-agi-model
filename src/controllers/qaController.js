@@ -10,7 +10,7 @@ exports.getQuestionById = async (req, res) => {
   try {
     const { id } = req.params
 
-    const question = await questionService.getQuestionById({ id }, { transaction })
+    const question = await questionService.getQuestion({ id }, { transaction })
 
     await transaction.commit()
     return res.status(200).json(question)
@@ -21,7 +21,23 @@ exports.getQuestionById = async (req, res) => {
   }
 }
 
-exports.getQuestions = async (req, res) => {
+exports.getQuestionBySlug = async (req, res) => {
+  const transaction = await knex.transaction()
+  try {
+    const { slug } = req.params
+
+    const question = await questionService.getQuestion({ slug }, { transaction })
+
+    await transaction.commit()
+    return res.status(200).json(question)
+  } catch (e) {
+    await transaction.rollback()
+    logger.error(`Something went wrong while getting question by slug: ${e.message}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
+exports.getQuestionsBySortType = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const { by } = req.params
@@ -29,7 +45,7 @@ exports.getQuestions = async (req, res) => {
     if (!['latest', 'hottest', 'week', 'month'].includes(by))
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
-    const questions = await questionService.getQuestions({ by }, { transaction })
+    const questions = await questionService.getQuestionsBySortType({ by }, { transaction })
 
     await transaction.commit()
     return res.status(200).json(questions)
