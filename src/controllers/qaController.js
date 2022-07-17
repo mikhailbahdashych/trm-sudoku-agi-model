@@ -8,8 +8,12 @@ const logger = loggerInstance({ label: 'question-controller', path: 'question' }
 exports.getQuestionById = async (req, res) => {
   const transaction = await knex.transaction()
   try {
+    const { id } = req.params
+
+    const question = await questionService.getQuestionById({ id }, { transaction })
 
     await transaction.commit()
+    return res.status(200).json(question)
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting question by id: ${e.message}`)

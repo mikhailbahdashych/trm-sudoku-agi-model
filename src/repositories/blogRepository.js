@@ -1,5 +1,5 @@
 const knex = require('../knex/knex')
-const tableName = ''
+const tableName = 'blog_posts'
 
 module.exports = {
   getBlogPostById: async ({ id }, { transaction } = { transaction: null }) => {
