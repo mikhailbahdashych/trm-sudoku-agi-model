@@ -7,7 +7,6 @@ dotenv.config();
 const userService = require('../services/userService');
 const cryptoService = require('../services/cryptoService');
 const jwtService = require('../services/jwtService');
-const { validatePassword, validateEmail, validateUserPersonalId } = require('../common/validators');
 
 const loggerInstance = require('../common/logger');
 const { verifyTwoFa } = require('../common/verifyTwoFa')
@@ -19,9 +18,6 @@ exports.signIn = async (req, res) => {
   try {
     let { email, password, twoFa } = req.body
     let reopening = false
-
-    if (!email || !password || !validateEmail(email) || !validatePassword(password))
-      return res.status(400).json({ message: 'bad-request', status: 400 })
 
     const user = await userService.getUserToSignIn({ email, password }, { transaction })
     logger.info(`Sign in user with email: ${email}`)
@@ -69,9 +65,6 @@ exports.signUp = async (req, res) => {
   try {
     let { email, password, username, personalInformation } = req.body
 
-    if (!email || !password || !username || !validateEmail(email) || !validatePassword(password))
-      return res.status(400).json({ message: 'bad-request', status: 400 })
-
     const sameEmailUser = await userService.getUser({ email }, { transaction })
     logger.info(`Registration user with email: ${email}`)
 
@@ -109,13 +102,7 @@ exports.changePassword = async (req, res) => {
 
     const { currentPassword, newPassword, newPasswordRepeat, twoFa } = req.body
 
-    if (
-      !currentPassword ||
-      !newPassword ||
-      !newPasswordRepeat ||
-      newPasswordRepeat !== newPassword ||
-      !validatePassword(currentPassword) || !validatePassword(newPassword) || !validatePassword(newPasswordRepeat)
-    )
+    if (newPasswordRepeat !== newPassword)
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
     if (user.password !== cryptoService.hashPassword(currentPassword))
@@ -162,12 +149,7 @@ exports.changeEmail = async (req, res) => {
 
     const { newEmail, twoFa } = req.body
 
-    if (!newEmail || !validateEmail(newEmail))
-      return res.status(400).json({ message: 'bad-request', status: 400 })
-
     if (user.twoFa) {
-      if (!twoFa) return res.status(400).json({ message: 'bad-request', status: 400 })
-
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
       if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
     }
@@ -196,8 +178,6 @@ exports.deleteAccount = async (req, res) => {
     const { password, twoFa } = req.body
 
     if (user.twoFa) {
-      if (!twoFa) return res.status(400).json({ message: 'bad-request', status: 400 })
-
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
       if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
     }
@@ -259,9 +239,6 @@ exports.getUserByPersonalId = async (req, res) => {
   try {
     const { personalId } = req.params
 
-    if (!personalId || !validateUserPersonalId(parseInt(personalId)))
-      return res.status(400).json({ message: 'bad-request', status: 400 })
-
     const user = await userService.getUserByPersonalId({ personalId }, { transaction })
 
     if (!user)
@@ -280,9 +257,6 @@ exports.getLastActivity = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const { personalId } = req.params
-
-    if (!personalId || !validateUserPersonalId(parseInt(personalId)))
-      return res.status(400).json({ message: 'bad-request', status: 400 })
 
     await transaction.commit()
     return res.status(200).json({ status: 1 });
