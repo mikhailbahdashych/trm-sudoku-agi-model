@@ -34,7 +34,7 @@ router.patch('/update-user-personal-information', authMiddleware, wrapAsync(user
 
 router.patch('/vote/:id/:v/:postType', authMiddleware, wrapAsync(voteController.vote))
 
-router.get('/get-question-by-slug/:slug', basicAuth, wrapAsync(questionController.getQuestionBySlug))
+router.get('/get-question-by-slug', basicAuth, wrapAsync(questionController.getQuestionBySlug))
 
 router.get('/get-blog-posts-by-sort-type/:by', basicAuth, wrapAsync(blogController.getBlogPostsBySortType))
 router.get('/get-forum-threads-by-sort-type/:by', basicAuth, wrapAsync(forumController.getForumThreadsBySortType))

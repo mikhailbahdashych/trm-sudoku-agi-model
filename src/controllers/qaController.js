@@ -26,7 +26,7 @@ exports.getQuestionById = async (req, res) => {
 exports.getQuestionBySlug = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const { slug } = req.params
+    const { slug } = req.query
 
     const question = await questionService.getQuestion({ slug }, { transaction })
 
@@ -70,12 +70,12 @@ exports.createQuestion = async (req, res) => {
     if (!title || !content || !notify)
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
-    const {} = await questionService.createQuestion({
+    const createdQuestion = await questionService.createQuestion({
       title, content, notify, slug: title.split(' ').json('-'), author_id: user.id
     }, { transaction })
 
     await transaction.commit()
-    return res.status(200).json({ status: 1 })
+    return res.status(200).json({ status: 1, questionId: createdQuestion[0].id })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while creating question: ${e.message}`)
