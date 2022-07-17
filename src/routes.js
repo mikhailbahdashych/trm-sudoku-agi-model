@@ -26,11 +26,15 @@ router.get('/get-user-by-personal-id/:personalId', basicAuth, wrapAsync(userCont
 router.get('/get-user-last-activity/:personalId', basicAuth, wrapAsync(userController.getLastActivity));
 router.get('/get-user-settings/:t', authMiddleware, wrapAsync(userController.getUserSettings));
 
-router.post('/search', wrapAsync(searchController.search))
+router.post('/search', basicAuth, wrapAsync(searchController.search))
 
 router.patch('/update-user-personal-information', authMiddleware, wrapAsync(userController.updateUserPersonalInformation));
 
 router.patch('/vote/:id/:v/:postType', authMiddleware, wrapAsync(voteController.vote))
+
+router.get('/get-blog-posts/:by', basicAuth, wrapAsync(blogController.getBlogPosts))
+router.get('/get-forum-threads/:by', basicAuth, wrapAsync(forumController.getForumThreads))
+router.get('/get-questions/:by', basicAuth, wrapAsync(questionController.getQuestions))
 
 router.get('/get-blog-post/:id', basicAuth, wrapAsync(blogController.getBlogPostById));
 router.get('/get-forum-thread/:id', basicAuth, wrapAsync(forumController.getForumThreadById));

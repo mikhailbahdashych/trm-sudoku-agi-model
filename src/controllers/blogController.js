@@ -15,6 +15,18 @@ exports.getBlogPostById = async (req, res) => {
   }
 }
 
+exports.getBlogPosts = async (req, res) => {
+  const transaction = await knex.transaction()
+  try {
+
+    await transaction.commit()
+  } catch (e) {
+    await transaction.rollback()
+    logger.error(`Something went wrong while getting blog posts: ${e.message}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
 exports.createBlogPost = async (req, res) => {
   const transaction = await knex.transaction()
   try {
