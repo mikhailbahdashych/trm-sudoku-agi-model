@@ -105,9 +105,7 @@ module.exports = {
     try {
       return jwt.verify(token, publicKey)
     } catch (e) {
-      if (e instanceof jwt.TokenExpiredError)
-        return { message: 'token-expired' }
-      else if (e instanceof jwt.JsonWebTokenError)
+      if (e instanceof jwt.TokenExpiredError || e instanceof jwt.JsonWebTokenError)
         return { message: 'invalid-token' }
     }
   }

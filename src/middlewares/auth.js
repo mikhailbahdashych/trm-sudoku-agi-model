@@ -17,7 +17,7 @@ module.exports = async (req, res, next) => {
 
     const user = await userService.getUser({
       id: cryptoService.decrypt(payload.userId)
-    }, { transaction })
+    })
 
     if (!user)
       return res.status(401).json({ message: 'unauthorized', status: 401 })
