@@ -15,7 +15,7 @@ exports.getForumThreadById = async (req, res) => {
   }
 }
 
-exports.getForumThreadsBySortType = async (req, res) => {
+exports.getForumThreads = async (req, res) => {
   const transaction = await knex.transaction()
   try {
 

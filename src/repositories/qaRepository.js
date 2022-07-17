@@ -12,7 +12,13 @@ module.exports = {
   },
   getQuestionsBySortType: async ({ by }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
-      .first()
+      .modify((x) => {
+        if (by === 'latest') {
+          x.limit(10)
+          x.orderBy('created_at')
+          x.select('*')
+        }
+      })
     return transaction ? result.transacting(transaction) : result
   },
   createQuestion: async (data, { transaction } = { transaction: null }) => {

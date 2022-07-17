@@ -15,7 +15,7 @@ exports.getBlogPostById = async (req, res) => {
   }
 }
 
-exports.getBlogPostsBySortType = async (req, res) => {
+exports.getBlogPosts = async (req, res) => {
   const transaction = await knex.transaction()
   try {
 

@@ -39,7 +39,7 @@ exports.getQuestionBySlug = async (req, res) => {
   }
 }
 
-exports.getQuestionsBySortType = async (req, res) => {
+exports.getQuestions = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const { by } = req.params
@@ -71,7 +71,7 @@ exports.createQuestion = async (req, res) => {
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
     const createdQuestion = await questionService.createQuestion({
-      title, content, notify, slug: title.split(' ').json('-'), author_id: user.id
+      title, content, notify, slug: title.split(' ').join('-'), author_id: user.id
     }, { transaction })
 
     await transaction.commit()

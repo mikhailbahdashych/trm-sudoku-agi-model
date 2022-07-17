@@ -36,9 +36,9 @@ router.patch('/vote/:id/:v/:postType', authMiddleware, wrapAsync(voteController.
 
 router.get('/get-question-by-slug', basicAuth, wrapAsync(questionController.getQuestionBySlug))
 
-router.get('/get-blog-posts-by-sort-type/:by', basicAuth, wrapAsync(blogController.getBlogPostsBySortType))
-router.get('/get-forum-threads-by-sort-type/:by', basicAuth, wrapAsync(forumController.getForumThreadsBySortType))
-router.get('/get-questions-by-sort-type/:by', basicAuth, wrapAsync(questionController.getQuestionsBySortType))
+router.get('/get-blog-posts/:by', basicAuth, wrapAsync(blogController.getBlogPosts))
+router.get('/get-forum-threads/:by', basicAuth, wrapAsync(forumController.getForumThreads))
+router.get('/get-questions/:by', basicAuth, wrapAsync(questionController.getQuestions))
 
 router.get('/get-blog-post/:id', basicAuth, wrapAsync(blogController.getBlogPostById));
 router.get('/get-forum-thread/:id', basicAuth, wrapAsync(forumController.getForumThreadById));
