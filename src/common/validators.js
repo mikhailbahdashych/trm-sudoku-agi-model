@@ -22,3 +22,8 @@ exports.validateUserPersonalId = (id) => {
   const regex = new RegExp('^\\d{10}$')
   return regex.test(id)
 }
+
+exports.validateSlug = slug => {
+  const regex = new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$')
+  return regex.test(slug)
+}

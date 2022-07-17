@@ -2,7 +2,7 @@ exports.up = function(knex) {
   return knex.schema.createTable('questions', table => {
     table.uuid('id').notNullable().defaultTo(knex.raw('gen_random_uuid ()')).primary()
     table.string('title', 100).notNullable()
-    table.string('slug').notNullable()
+    table.string('slug').unique().notNullable()
     table.text('content').notNullable()
 
     table.uuid('author_id')

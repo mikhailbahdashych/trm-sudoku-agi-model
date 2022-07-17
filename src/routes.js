@@ -8,11 +8,10 @@ const questionController = require('./controllers/qaController');
 const voteController = require('./controllers/voteController');
 const searchController = require('./controllers/searchController');
 
-const v = require('./middlewares/validator');
 const authMiddleware = require('./middlewares/auth');
 const basicAuth = require('./middlewares/basicAuth');
 
-// @TODO Validators for request fields and validators for blog/forum/qa fields + validate vue pages
+// @TODO Middleware validator
 
 router.post('/sign-in', wrapAsync(userController.signIn));
 router.post('/sign-up', wrapAsync(userController.signUp));

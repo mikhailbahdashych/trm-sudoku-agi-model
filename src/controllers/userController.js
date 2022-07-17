@@ -259,7 +259,7 @@ exports.getUserByPersonalId = async (req, res) => {
   try {
     const { personalId } = req.params
 
-    if (!personalId || !validateUserPersonalId(personalId))
+    if (!personalId || !validateUserPersonalId(parseInt(personalId)))
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
     const user = await userService.getUserByPersonalId({ personalId }, { transaction })
@@ -281,7 +281,7 @@ exports.getLastActivity = async (req, res) => {
   try {
     const { personalId } = req.params
 
-    if (!personalId || !validateUserPersonalId(personalId))
+    if (!personalId || !validateUserPersonalId(parseInt(personalId)))
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
     await transaction.commit()
