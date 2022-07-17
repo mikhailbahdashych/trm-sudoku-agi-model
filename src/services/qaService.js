@@ -11,5 +11,13 @@ module.exports = {
       logger.error(`Error while getting question by id: ${e.message}`)
       throw Error('error-while-getting-question-by-id')
     }
+  },
+  getQuestions: async ({ by }, { transaction } = { transaction: null }) => {
+    try {
+      return await questionRepository.getQuestionsBy({ by }, { transaction })
+    } catch (e) {
+      logger.error(`Error while getting questions by sort type: ${e.message}`)
+      throw Error('error-while-getting-questions-by-sort-type')
+    }
   }
 }

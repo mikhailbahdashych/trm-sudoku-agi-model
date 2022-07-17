@@ -1,6 +1,8 @@
 const knex = require('../knex/knex');
-const loggerInstance = require('../common/logger');
 
+const questionService = require('../services/qaService')
+
+const loggerInstance = require('../common/logger');
 const logger = loggerInstance({ label: 'question-controller', path: 'question' })
 
 exports.getQuestionById = async (req, res) => {
@@ -18,8 +20,15 @@ exports.getQuestionById = async (req, res) => {
 exports.getQuestions = async (req, res) => {
   const transaction = await knex.transaction()
   try {
+    const { by } = req.params
+
+    if (!['latest', 'hottest', 'week', 'month'].includes(by))
+      return res.status(400).json({ message: 'bad-request', status: 400 })
+
+    const questions = await questionService.getQuestions({ by }, { transaction })
 
     await transaction.commit()
+    return res.status(200).json(questions)
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting questions: ${e.message}`)

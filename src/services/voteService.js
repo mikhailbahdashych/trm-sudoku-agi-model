@@ -10,7 +10,7 @@ module.exports = {
         postType === 'blog' ? 'blog_post_id' : postType === 'forum' ? 'forum_post_id' : 'question_id'
           ]: id, v, user_id: userId }, { transaction })
     } catch (e) {
-      logger.error(`Error while voting: ${e.message}`)
+      // logger.error(`Error while voting: ${e.message}`)
       throw Error('error-while-voting')
     }
   }

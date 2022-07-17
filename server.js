@@ -24,7 +24,7 @@ dotenv.config();
 const server = require("http").createServer(app);
 
 app.use(cookieParser());
-app.use(bodyParser.json({limit: '2MB'}));
+app.use(bodyParser.json({limit: '10MB'}));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use("/", require('./src/routes'));
