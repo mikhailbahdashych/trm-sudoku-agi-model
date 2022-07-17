@@ -19,5 +19,13 @@ module.exports = {
       logger.error(`Error while getting questions by sort type: ${e.message}`)
       throw Error('error-while-getting-questions-by-sort-type')
     }
+  },
+  createQuestion: async (data, { transaction } = { transaction: null }) => {
+    try {
+      return await questionRepository.createQuestion(data, { transaction })
+    } catch (e) {
+      logger.error(`Error while creating question: ${e.message}`)
+      throw Error('error-while-creating-question')
+    }
   }
 }

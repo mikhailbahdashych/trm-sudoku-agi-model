@@ -12,6 +12,8 @@ const v = require('./middlewares/validator');
 const authMiddleware = require('./middlewares/auth');
 const basicAuth = require('./middlewares/basicAuth');
 
+// @TODO Validators for request fields and validators for blog/forum/qa fields
+
 router.post('/sign-in', wrapAsync(userController.signIn));
 router.post('/sign-up', wrapAsync(userController.signUp));
 router.post('/change-password', authMiddleware, wrapAsync(userController.changePassword));

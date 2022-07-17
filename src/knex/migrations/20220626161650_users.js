@@ -1,10 +1,10 @@
 exports.up = function(knex) {
   return knex.schema.createTable('users', table => {
     table.uuid('id').notNullable().defaultTo(knex.raw('gen_random_uuid ()')).primary()
-    table.text('email').notNullable()
-    table.text('password').notNullable()
-    table.text('personal_id').notNullable()
-    table.text('two_fa').nullable()
+    table.string('email').notNullable()
+    table.string('password').notNullable()
+    table.string('personal_id').notNullable()
+    table.string('two_fa').nullable()
     table.integer('reputation').defaultTo(0)
 
     table.boolean('changed_email').notNullable().defaultTo(false)

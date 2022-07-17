@@ -14,5 +14,10 @@ module.exports = {
     const result = knex(tableName)
       .first()
     return transaction ? result.transacting(transaction) : result
+  },
+  createQuestion: async (data, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+      .insert(data)
+    return transaction ? result.transacting(transaction) : result
   }
 }

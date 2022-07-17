@@ -1,6 +1,8 @@
 const knex = require('../knex/knex');
 
 const questionService = require('../services/qaService')
+const userService = require('../services/userService')
+const cryptoService = require('../services/cryptoService')
 
 const loggerInstance = require('../common/logger');
 const logger = loggerInstance({ label: 'question-controller', path: 'question' })
@@ -59,8 +61,21 @@ exports.getQuestionsBySortType = async (req, res) => {
 exports.createQuestion = async (req, res) => {
   const transaction = await knex.transaction()
   try {
+    const user = await userService.getUser({
+      id: cryptoService.decrypt(req.user)
+    }, { transaction })
+
+    const { title, content, notify } = req.body
+
+    if (!title || !content || !notify)
+      return res.status(400).json({ message: 'bad-request', status: 400 })
+
+    const {} = await questionService.createQuestion({
+      title, content, notify, slug: title.split(' ').json('-'), author_id: user.id
+    }, { transaction })
 
     await transaction.commit()
+    return res.status(200).json({ status: 1 })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while creating question: ${e.message}`)
