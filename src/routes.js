@@ -12,7 +12,7 @@ const v = require('./middlewares/validator');
 const authMiddleware = require('./middlewares/auth');
 const basicAuth = require('./middlewares/basicAuth');
 
-// @TODO Validators for request fields and validators for blog/forum/qa fields
+// @TODO Validators for request fields and validators for blog/forum/qa fields + validate vue pages
 
 router.post('/sign-in', wrapAsync(userController.signIn));
 router.post('/sign-up', wrapAsync(userController.signUp));
@@ -28,7 +28,7 @@ router.get('/get-user-by-personal-id/:personalId', basicAuth, wrapAsync(userCont
 router.get('/get-user-last-activity/:personalId', basicAuth, wrapAsync(userController.getLastActivity));
 router.get('/get-user-settings/:t', authMiddleware, wrapAsync(userController.getUserSettings));
 
-router.post('/search', basicAuth, wrapAsync(searchController.search))
+router.get('/search', basicAuth, wrapAsync(searchController.search))
 
 router.patch('/update-user-personal-information', authMiddleware, wrapAsync(userController.updateUserPersonalInformation));
 
