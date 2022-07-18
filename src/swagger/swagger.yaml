@@ -176,18 +176,18 @@ paths:
   /create-blog-post:
     post:
       summary: "Used to create blog post"
-        description: "Allows an authorized user create blog post."
-        tags:
-          - POST
+      description: "Allows an authorized user create blog post."
+      tags:
+        - POST
   /create-forum-thread:
     post:
       summary: "Used to create forum thread"
-        description: "Allows an authorized user create forum thread."
-        tags:
-          - POST
+      description: "Allows an authorized user create forum thread."
+      tags:
+        - POST
   /create-question:
     post:
       summary: "Used to create question post"
-        description: "Allows an authorized user create question."
-        tags:
-          - POST
+      description: "Allows an authorized user create question."
+      tags:
+        - POST
