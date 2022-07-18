@@ -41,12 +41,12 @@ paths:
       description: "This resource allows an individual user to delete his account. <br />Operation makes account unavailable for normal user. <br />All public information become hidden from other users. <br />Account can be restored by sign in system during 6 months."
       tags:
         - POST
-  /refresh-token:
-    post:
-      summary: "Used to refresh JWT token"
-      description: "Used to refresh and verify user's JWT token"
+  /get-refreshed-tokens:
+    get:
+      summary: "User to refresh user's access token by using refresh token"
+      description: "Implementation of JWT works depending on 2 kind of tokens - refresh and access token. Access token used to allow user to get access to services that require that. In purpose of security, access token has short time of living (15m) while refresh token has more (20m) to be able to refresh access token."
       tags:
-        - POST
+        - GET
   /get-user-by-personal-id/{personalId}:
     get:
       summary: "Used to get user by personal ID"
@@ -80,12 +80,66 @@ paths:
           name: t
           required: true
           description: "Type of settings (personal, security or notification)"
+  /search:
+    get:
+      summary: "Used to find posts and users"
+      description: "Used to find posts and users. Placed in header."
+      tags:
+        - GET
   /update-user-personal-information:
     patch:
       summary: "Used to update user's personal information"
       description: "This resource allows an individual user update user's personal information."
       tags:
         - PATCH
+  /vote/{id}/{v}/{postType}:
+    patch:
+      summary: "Used to vote (up or down) for post"
+      description: "Allows user to get his vote for post. For one user is allowed only one vote."
+      tags:
+        - PATCH
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: "Post ID"
+        - in: path
+          name: v
+          required: true
+          description: "Vote (up or down)"
+        - in: path
+          name: postType
+          required: true
+          description: "Type of post to define"
+  /get-question-by-slug:
+    get:
+      summary: "Used to get questions by slug"
+      description: "Used to get questions by slug. Helps users to find similar posts and check for duplicates name while creating."
+      tags:
+        - GET
+      parameters:
+        - in: query
+          name: slug
+          required: true
+          description: "Slug"
+  /get-blog-posts/{by}:
+    get:
+      summary: ""
+      description: ""
+      tags:
+        - GET
+  /get-forum-threads/{by}:
+    get:
+      summary: ""
+      description: ""
+      tags:
+        - GET
+  /get-questions/{by}:
+    get:
+      summary: ""
+      description: ""
+      tags:
+        - GET
   /get-blog-post/{id}:
     get:
       summary: "Used to get blog post by post ID"
@@ -119,3 +173,21 @@ paths:
           name: id
           required: true
           description: "Question ID"
+  /create-blog-post:
+    post:
+      summary: "Used to create blog post"
+        description: "Allows an authorized user create blog post."
+        tags:
+          - POST
+  /create-forum-thread:
+    post:
+      summary: "Used to create forum thread"
+        description: "Allows an authorized user create forum thread."
+        tags:
+          - POST
+  /create-question:
+    post:
+      summary: "Used to create question post"
+        description: "Allows an authorized user create question."
+        tags:
+          - POST

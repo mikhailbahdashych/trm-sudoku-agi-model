@@ -43,7 +43,7 @@ router.get('/get-forum-thread/:id', basicAuth, wrapAsync(forumController.getForu
 router.get('/get-question/:id', basicAuth, wrapAsync(questionController.getQuestionById));
 
 router.post('/create-blog-post', authMiddleware, wrapAsync(blogController.createBlogPost));
-router.post('/create-forum-post', authMiddleware, wrapAsync(forumController.createForumThread));
-router.post('/create-question-post', authMiddleware, wrapAsync(questionController.createQuestion));
+router.post('/create-forum-thread', authMiddleware, wrapAsync(forumController.createForumThread));
+router.post('/create-question', authMiddleware, wrapAsync(questionController.createQuestion));
 
 module.exports = router;

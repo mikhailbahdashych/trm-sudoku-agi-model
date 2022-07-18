@@ -34,7 +34,7 @@ exports.vote = async (req, res) => {
           return res.status(400).json({ message: 'bad-request', status: 400 })
         break;
       case 'question':
-        const questionPost = await questionService.getQuestionById({ id }, { transaction })
+        const questionPost = await questionService.getQuestion({ id }, { transaction })
         if (!questionPost)
           return res.status(400).json({ message: 'bad-request', status: 400 })
         break;
