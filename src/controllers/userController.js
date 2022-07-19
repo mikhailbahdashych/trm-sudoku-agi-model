@@ -38,8 +38,6 @@ exports.signIn = async (req, res) => {
     }
 
     if (user.twoFa) {
-      if (!twoFa) return res.status(200).json({ twoFa: true })
-
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
       if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
     }
@@ -102,18 +100,11 @@ exports.changePassword = async (req, res) => {
 
     const { password, newPassword, newPasswordRepeat, twoFa } = req.body
 
-    if (newPasswordRepeat !== newPassword)
-      return res.status(400).json({ message: 'bad-request', status: 400 })
-
-    if (user.password !== cryptoService.hashPassword(password))
-      return res.status(401).json({ error: 'unauthorized', status: -2 });
-
-    if (password === newPassword)
-      return res.status(409).json({ message: 'conflict', status: -4 })
+    if (newPasswordRepeat !== newPassword) return res.status(400).json({ message: 'bad-request', status: 400 })
+    if (user.password !== cryptoService.hashPassword(password)) return res.status(401).json({ error: 'unauthorized', status: -2 });
+    if (password === newPassword) return res.status(409).json({ message: 'conflict', status: -4 })
 
     if (user.twoFa) {
-      if (!twoFa) return res.status(400).json({ message: 'bad-request', status: 400 })
-
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
       if (!twoFaResult) return res.status(403).json({ status: -3, message: 'access-forbidden' })
     }
@@ -154,8 +145,7 @@ exports.changeEmail = async (req, res) => {
       if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
     }
 
-    if (user.changedEmail)
-      return res.status(200).json({ status: -1 })
+    if (user.changedEmail) return res.status(200).json({ status: -1 })
 
     logger.info(`Email has been successfully changed for user with email`)
 
@@ -182,8 +172,7 @@ exports.deleteAccount = async (req, res) => {
       if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
     }
 
-    if (user.password !== cryptoService.hashPassword(password))
-      return res.status(401).json({ error: 'unauthorized', status: -3 });
+    if (user.password !== cryptoService.hashPassword(password)) return res.status(401).json({ error: 'unauthorized', status: -3 });
 
     await userService.deleteAccount({
       id: user.id,
@@ -216,8 +205,7 @@ exports.refreshToken = async (req, res) => {
       id: cryptoService.decrypt(token.userId)
     }, { transaction })
 
-    if (!token)
-      return res.status(401).json({ message: 'unauthorized', status: 401 })
+    if (!token) return res.status(401).json({ message: 'unauthorized', status: 401 })
 
     const tokens = await jwtService.updateTokens({
       userId: cryptoService.decrypt(token.userId),
@@ -241,8 +229,7 @@ exports.getUserByPersonalId = async (req, res) => {
 
     const user = await userService.getUserByPersonalId({ personalId }, { transaction })
 
-    if (!user)
-      return res.status(403).json({ error: 'not-found', status: 403 });
+    if (!user) return res.status(403).json({ error: 'not-found', status: 403 });
 
     await transaction.commit()
     return res.status(200).json(user)
@@ -276,8 +263,7 @@ exports.getUserSettings = async (req, res) => {
 
     const { t } = req.params
 
-    if (!t || !['security', 'personal', 'notifications'].includes(t))
-      return res.status(400).json({ message: 'bad-request', status: 400 })
+    if (!t || !['security', 'personal', 'notifications'].includes(t)) return res.status(400).json({ message: 'bad-request', status: 400 })
 
     switch (t) {
       case 'security':
