@@ -4,12 +4,12 @@ const loggerInstance = require('../common/logger')
 const logger = loggerInstance({ label: 'blog-service', path: 'blog' })
 
 module.exports = {
-  getBlogPostById: async ({ id }, { transaction } = { transaction: null }) => {
+  getBlogPost: async ({ id, title }, { transaction } = { transaction: null }) => {
     try {
-      return await blogRepository.getBlogPostById({ id }, { transaction })
+      return await blogRepository.getBlogPost({ id, title }, { transaction })
     } catch (e) {
-      logger.error(`Error while getting blog post by id: ${e.message}`)
-      throw Error('error-while-getting-blog-post-by-id')
+      logger.error(`Error while getting blog post: ${e.message}`)
+      throw Error('error-while-getting-blog-post')
     }
   }
 }
