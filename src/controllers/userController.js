@@ -100,15 +100,15 @@ exports.changePassword = async (req, res) => {
       id: cryptoService.decrypt(req.user)
     }, { transaction })
 
-    const { currentPassword, newPassword, newPasswordRepeat, twoFa } = req.body
+    const { password, newPassword, newPasswordRepeat, twoFa } = req.body
 
     if (newPasswordRepeat !== newPassword)
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
-    if (user.password !== cryptoService.hashPassword(currentPassword))
+    if (user.password !== cryptoService.hashPassword(password))
       return res.status(401).json({ error: 'unauthorized', status: -2 });
 
-    if (currentPassword === newPassword)
+    if (password === newPassword)
       return res.status(409).json({ message: 'conflict', status: -4 })
 
     if (user.twoFa) {
@@ -147,7 +147,7 @@ exports.changeEmail = async (req, res) => {
       id: cryptoService.decrypt(req.user)
     }, { transaction })
 
-    const { newEmail, twoFa } = req.body
+    const { email, twoFa } = req.body
 
     if (user.twoFa) {
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
@@ -355,9 +355,9 @@ exports.disableTwoFa = async (req, res) => {
       id: cryptoService.decrypt(req.user)
     }, { transaction })
 
-    const { twoFaCode } = req.body
+    const { twoFa } = req.body
 
-    const result2Fa = twoFactorService.verifyToken(user.twoFa, twoFaCode)
+    const result2Fa = twoFactorService.verifyToken(user.twoFa, twoFa)
 
     if (!result2Fa) return res.status(403).json({ status: -1, message: 'access-forbidden' })
     if (result2Fa.delta !== 0) return res.status(403).json({ status: -1, message: 'access-forbidden' })

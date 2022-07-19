@@ -12,13 +12,13 @@ const { v } = require('./middlewares/validator');
 const authMiddleware = require('./middlewares/auth');
 const basicAuth = require('./middlewares/basicAuth');
 
-router.post('/sign-in', v(['email', 'password', 'twoFa', 'phone']), wrapAsync(userController.signIn));
+router.post('/sign-in', v(['email', 'password', 'phone', 'twoFa']), wrapAsync(userController.signIn));
 router.post('/sign-up', wrapAsync(userController.signUp));
-router.post('/change-password', authMiddleware, wrapAsync(userController.changePassword));
-router.post('/change-email', authMiddleware, wrapAsync(userController.changeEmail));
-router.post('/set-2fa', authMiddleware, wrapAsync(userController.setTwoFa));
-router.post('/disable-2fa', authMiddleware, wrapAsync(userController.disableTwoFa));
-router.post('/delete-account', authMiddleware, wrapAsync(userController.deleteAccount));
+router.post('/change-password', v(['password', 'newPassword', 'newPasswordRepeat', 'twoFa']), authMiddleware, wrapAsync(userController.changePassword));
+router.post('/change-email', v(['email', 'twoFa']), authMiddleware, wrapAsync(userController.changeEmail));
+router.post('/set-2fa', v(['twoFa']), authMiddleware, wrapAsync(userController.setTwoFa));
+router.post('/disable-2fa', v(['twoFa']), authMiddleware, wrapAsync(userController.disableTwoFa));
+router.post('/delete-account', v(['password', 'twoFa']), authMiddleware, wrapAsync(userController.deleteAccount));
 
 router.get('/get-refreshed-tokens', wrapAsync(userController.refreshToken));
 
