@@ -16,7 +16,7 @@ const logger = loggerInstance({ label: 'user-controller', path: 'user' });
 exports.signIn = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    let { email, password, twoFa } = req.body
+    let { email, password, twoFa, phone } = req.body
     let reopening = false
 
     const user = await userService.getUserToSignIn({ email, password }, { transaction })

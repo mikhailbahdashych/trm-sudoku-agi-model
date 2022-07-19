@@ -12,7 +12,7 @@ const { v } = require('./middlewares/validator');
 const authMiddleware = require('./middlewares/auth');
 const basicAuth = require('./middlewares/basicAuth');
 
-router.post('/sign-in', v(['email', 'password', 'twoFa']), wrapAsync(userController.signIn));
+router.post('/sign-in', v(['email', 'password', 'twoFa', 'phone']), wrapAsync(userController.signIn));
 router.post('/sign-up', wrapAsync(userController.signUp));
 router.post('/change-password', authMiddleware, wrapAsync(userController.changePassword));
 router.post('/change-email', authMiddleware, wrapAsync(userController.changeEmail));
