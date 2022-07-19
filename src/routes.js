@@ -32,15 +32,14 @@ router.patch('/update-user-personal-information', v(['personalInformation']), au
 
 router.patch('/vote/:id/:v/:type', authMiddleware, wrapAsync(voteController.vote))
 
-router.get('/get-question-by-slug', basicAuth, wrapAsync(questionController.getQuestionBySlug))
-
-router.get('/get-blog-posts/:by', basicAuth, wrapAsync(blogController.getBlogPosts))
-router.get('/get-forum-threads/:by', basicAuth, wrapAsync(forumController.getForumThreads))
+router.get('/get-question', basicAuth, wrapAsync(questionController.getQuestion))
 router.get('/get-questions/:sort', basicAuth, wrapAsync(questionController.getQuestions))
 
-router.get('/get-blog-post/:id', basicAuth, wrapAsync(blogController.getBlogPostById));
-router.get('/get-forum-thread/:id', basicAuth, wrapAsync(forumController.getForumThreadById));
-router.get('/get-question/:id', basicAuth, wrapAsync(questionController.getQuestionById));
+router.get('/get-blog-post', basicAuth, wrapAsync(blogController.getBlogPost))
+router.get('/get-blog-posts/:by', basicAuth, wrapAsync(blogController.getBlogPosts))
+
+router.get('/get-forum-thread', basicAuth, wrapAsync(forumController.getForumThread))
+router.get('/get-forum-threads/:by', basicAuth, wrapAsync(forumController.getForumThreads))
 
 router.post('/create-blog-post', authMiddleware, wrapAsync(blogController.createBlogPost));
 router.post('/create-forum-thread', authMiddleware, wrapAsync(forumController.createForumThread));

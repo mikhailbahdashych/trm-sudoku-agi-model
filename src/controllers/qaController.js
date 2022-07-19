@@ -7,23 +7,7 @@ const cryptoService = require('../services/cryptoService')
 const loggerInstance = require('../common/logger');
 const logger = loggerInstance({ label: 'question-controller', path: 'question' })
 
-exports.getQuestionById = async (req, res) => {
-  const transaction = await knex.transaction()
-  try {
-    const { id } = req.params
-
-    const question = await questionService.getQuestion({ id }, { transaction })
-
-    await transaction.commit()
-    return res.status(200).json(question)
-  } catch (e) {
-    await transaction.rollback()
-    logger.error(`Something went wrong while getting question by id: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
-  }
-}
-
-exports.getQuestionBySlug = async (req, res) => {
+exports.getQuestion = async (req, res) => {
   const transaction = await knex.transaction()
   try {
     const { slug } = req.query

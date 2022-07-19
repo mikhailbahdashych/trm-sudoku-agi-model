@@ -3,9 +3,10 @@ const knex = require('../knex/knex');
 const loggerInstance = require('../common/logger');
 const logger = loggerInstance({ label: 'blog-controller', path: 'blog' });
 
-exports.getBlogPostById = async (req, res) => {
+exports.getBlogPost = async (req, res) => {
   const transaction = await knex.transaction()
   try {
+    const { slug } = req.query
 
     await transaction.commit()
   } catch (e) {

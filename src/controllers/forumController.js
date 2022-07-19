@@ -3,9 +3,10 @@ const knex = require('../knex/knex');
 const loggerInstance = require('../common/logger');
 const logger = loggerInstance({ label: 'forum-controller', path: 'forum' });
 
-exports.getForumThreadById = async (req, res) => {
+exports.getForumThread = async (req, res) => {
   const transaction = await knex.transaction()
   try {
+    const { slug } = req.query
 
     await transaction.commit()
   } catch (e) {
