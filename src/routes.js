@@ -13,7 +13,7 @@ const authMiddleware = require('./middlewares/auth');
 const basicAuth = require('./middlewares/basicAuth');
 
 router.post('/sign-in', v(['email', 'password', 'phone', 'twoFa']), wrapAsync(userController.signIn));
-router.post('/sign-up', wrapAsync(userController.signUp));
+router.post('/sign-up', v(['email', 'password', 'username', 'personalInformation']), wrapAsync(userController.signUp));
 router.post('/change-password', v(['password', 'newPassword', 'newPasswordRepeat', 'twoFa']), authMiddleware, wrapAsync(userController.changePassword));
 router.post('/change-email', v(['email', 'twoFa']), authMiddleware, wrapAsync(userController.changeEmail));
 router.post('/set-2fa', v(['twoFa']), authMiddleware, wrapAsync(userController.setTwoFa));
@@ -28,7 +28,7 @@ router.get('/get-user-settings/:t', authMiddleware, wrapAsync(userController.get
 
 router.get('/search', basicAuth, wrapAsync(searchController.search))
 
-router.patch('/update-user-personal-information', authMiddleware, wrapAsync(userController.updateUserPersonalInformation));
+router.patch('/update-user-personal-information', v(['personalInformation']), authMiddleware, wrapAsync(userController.updateUserPersonalInformation));
 
 router.patch('/vote/:id/:v/:postType', authMiddleware, wrapAsync(voteController.vote))
 
