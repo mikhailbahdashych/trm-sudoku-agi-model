@@ -134,7 +134,7 @@ paths:
       description: ""
       tags:
         - GET
-  /get-questions/{by}:
+  /get-questions/{sort}:
     get:
       summary: ""
       description: ""

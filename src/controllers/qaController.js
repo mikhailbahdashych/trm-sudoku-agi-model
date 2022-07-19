@@ -42,12 +42,12 @@ exports.getQuestionBySlug = async (req, res) => {
 exports.getQuestions = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const { by } = req.params
+    const { sort } = req.params
 
-    if (!['latest', 'hottest', 'week', 'month'].includes(by))
+    if (!['latest', 'hottest', 'week', 'month'].includes(sort))
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
-    const questions = await questionService.getQuestionsBySortType({ by }, { transaction })
+    const questions = await questionService.getQuestionsBySortType({ sort }, { transaction })
 
     await transaction.commit()
     return res.status(200).json(questions)
@@ -71,7 +71,7 @@ exports.createQuestion = async (req, res) => {
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
     const createdQuestion = await questionService.createQuestion({
-      title, content, notify, slug: title.split(' ').join('-'), author_id: user.id
+      title, content, notify, slug: title.split(' ').join('-').toLowerCase(), author_id: user.id
     }, { transaction })
 
     await transaction.commit()

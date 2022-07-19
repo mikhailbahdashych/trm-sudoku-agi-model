@@ -12,9 +12,9 @@ module.exports = {
       throw Error('error-while-getting-question-by-id')
     }
   },
-  getQuestionsBySortType: async ({ by }, { transaction } = { transaction: null }) => {
+  getQuestionsBySortType: async ({ sort }, { transaction } = { transaction: null }) => {
     try {
-      return await questionRepository.getQuestionsBySortType({ by }, { transaction })
+      return await questionRepository.getQuestionsBySortType({ sort }, { transaction })
     } catch (e) {
       logger.error(`Error while getting questions by sort type: ${e.message}`)
       throw Error('error-while-getting-questions-by-sort-type')

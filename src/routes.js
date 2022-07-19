@@ -36,7 +36,7 @@ router.get('/get-question-by-slug', basicAuth, wrapAsync(questionController.getQ
 
 router.get('/get-blog-posts/:by', basicAuth, wrapAsync(blogController.getBlogPosts))
 router.get('/get-forum-threads/:by', basicAuth, wrapAsync(forumController.getForumThreads))
-router.get('/get-questions/:by', basicAuth, wrapAsync(questionController.getQuestions))
+router.get('/get-questions/:sort', basicAuth, wrapAsync(questionController.getQuestions))
 
 router.get('/get-blog-post/:id', basicAuth, wrapAsync(blogController.getBlogPostById));
 router.get('/get-forum-thread/:id', basicAuth, wrapAsync(forumController.getForumThreadById));
