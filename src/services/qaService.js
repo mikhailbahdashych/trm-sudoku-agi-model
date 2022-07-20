@@ -6,7 +6,10 @@ const logger = loggerInstance({ label: 'question-service', path: 'question' })
 module.exports = {
   getQuestion: async ({ id, slug }, { transaction } = { transaction: null }) => {
     try {
-      return await questionRepository.getQuestion({ id, slug }, { transaction })
+      const question = await questionRepository.getQuestion({ id, slug }, { transaction
+      })
+      const answers = await questionRepository.getQuestionsAnswers({ questionId: question.id }, { transaction })
+      return { question, answers }
     } catch (e) {
       logger.error(`Error while getting question by id: ${e.message}`)
       throw Error('error-while-getting-question-by-id')

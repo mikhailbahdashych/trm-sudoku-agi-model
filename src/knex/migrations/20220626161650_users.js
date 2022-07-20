@@ -5,6 +5,7 @@ exports.up = function(knex) {
     table.string('password').notNullable()
     table.string('personal_id').notNullable()
     table.string('two_fa').nullable()
+    table.boolean('notify').nullable().defaultTo(false)
     table.integer('reputation').defaultTo(0)
 
     table.boolean('changed_email').notNullable().defaultTo(false)

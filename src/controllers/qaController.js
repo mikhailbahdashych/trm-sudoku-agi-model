@@ -12,10 +12,10 @@ exports.getQuestion = async (req, res) => {
   try {
     const { slug } = req.query
 
-    const question = await questionService.getQuestion({ slug }, { transaction })
+    const { question, answers } = await questionService.getQuestion({ slug }, { transaction })
 
     await transaction.commit()
-    return res.status(200).json(question)
+    return res.status(200).json({ question, answers })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting question by slug: ${e.message}`)
@@ -49,17 +49,17 @@ exports.createQuestion = async (req, res) => {
       id: cryptoService.decrypt(req.user)
     }, { transaction })
 
-    const { title, content, notify } = req.body
+    const { title, content } = req.body
 
-    if (!title || !content || !notify)
+    if (!title || !content)
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
     const createdQuestion = await questionService.createQuestion({
-      title, content, notify, slug: title.split(' ').join('-').toLowerCase(), author_id: user.id
+      title, content, slug: title.split(' ').join('-').toLowerCase(), author_id: user.id
     }, { transaction })
 
     await transaction.commit()
-    return res.status(200).json({ status: 1, questionId: createdQuestion[0].id })
+    return res.status(200).json({ status: 1, slug: createdQuestion[0].slug })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while creating question: ${e.message}`)

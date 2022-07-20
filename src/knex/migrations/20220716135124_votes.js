@@ -20,7 +20,7 @@ exports.up = function(knex) {
       .inTable('users')
       .notNullable()
 
-
+    table.enum('vote', [0, 1]).notNullable()
 
     table.timestamp('created_at').defaultTo(knex.fn.now())
     table.timestamp('updated_at').defaultTo(knex.fn.now())
