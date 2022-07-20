@@ -66,3 +66,18 @@ exports.createQuestion = async (req, res) => {
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
+
+exports.answerQuestion = async (req, res) => {
+  const transaction = await knex.transaction()
+  try {
+    const user = await userService.getUser({
+      id: cryptoService.decrypt(req.user)
+    }, { transaction })
+
+    await transaction.commit()
+  } catch (e) {
+    await transaction.rollback()
+    logger.error(`Something went wrong while answering the question: ${e.message}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}

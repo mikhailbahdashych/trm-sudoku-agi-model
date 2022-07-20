@@ -34,6 +34,7 @@ router.patch('/vote/:id/:v/:type', authMiddleware, wrapAsync(voteController.vote
 
 router.get('/get-question', basicAuth, wrapAsync(questionController.getQuestion))
 router.get('/get-questions/:sort', basicAuth, wrapAsync(questionController.getQuestions))
+router.post('/answer-question', basicAuth, wrapAsync(questionController.answerQuestion))
 
 router.get('/get-blog-post', basicAuth, wrapAsync(blogController.getBlogPost))
 router.get('/get-blog-posts/:by', basicAuth, wrapAsync(blogController.getBlogPosts))
