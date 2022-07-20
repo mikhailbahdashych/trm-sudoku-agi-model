@@ -33,7 +33,15 @@ module.exports = {
       )
     return transaction ? result.transacting(transaction) : result
   },
-  getQuestionsBySortType: async ({ by }, { transaction } = { transaction: null }) => {
+  countQuestionsAnswers: async ({ questionsIds }, { transaction } = { transaction: null }) => {
+    const result = knex('question_answers')
+      .whereIn('question_id', questionsIds)
+      .select(['question_id'])
+      .count('question_id as count')
+      .groupBy(['question_id'])
+    return transaction ? result.transacting(transaction) : result
+  },
+  getQuestions: async ({ by }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .leftJoin('users', 'users.id', 'questions.author_id')
       .leftJoin('users_info', 'users_info.user_id','users.id')

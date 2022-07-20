@@ -31,7 +31,7 @@ exports.getQuestions = async (req, res) => {
     if (!['latest', 'hottest', 'week', 'month'].includes(sort))
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
-    const questions = await questionService.getQuestionsBySortType({ sort }, { transaction })
+    const questions = await questionService.getQuestions({ sort }, { transaction })
 
     await transaction.commit()
     return res.status(200).json(questions)

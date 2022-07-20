@@ -15,9 +15,20 @@ module.exports = {
       throw Error('error-while-getting-question-by-id')
     }
   },
-  getQuestionsBySortType: async ({ sort }, { transaction } = { transaction: null }) => {
+  getQuestions: async ({ sort }, { transaction } = { transaction: null }) => {
     try {
-      return await questionRepository.getQuestionsBySortType({ sort }, { transaction })
+      const questions = await questionRepository.getQuestions({ sort }, { transaction })
+      const questionsIds = questions.map(x => x.id)
+      const questionAnswers = await questionRepository.countQuestionsAnswers({ questionsIds }, { transaction })
+
+      questions.forEach(question => {
+        questionAnswers.forEach(answer => {
+          if (question.id === answer.question_id)
+            question.count = answer.count
+        })
+      })
+
+      return questions
     } catch (e) {
       logger.error(`Error while getting questions by sort type: ${e.message}`)
       throw Error('error-while-getting-questions-by-sort-type')
