@@ -11,6 +11,7 @@ exports.up = function(knex) {
       .notNullable()
 
     table.integer('votes').defaultTo(0)
+    table.boolean('is_answered').defaultTo(false)
 
     table.timestamp('created_at').defaultTo(knex.fn.now())
     table.timestamp('updated_at').defaultTo(knex.fn.now())

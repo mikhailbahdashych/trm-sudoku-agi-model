@@ -16,6 +16,7 @@ module.exports = {
         'slug',
         'content',
         'votes',
+        'is_answered',
         'users_info.username'
       )
     return transaction ? result.transacting(transaction) : result
@@ -26,7 +27,8 @@ module.exports = {
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .where('question_id', questionId)
       .select(
-        'answer',
+        'answer_text',
+        'is_answer',
         'users_info.username'
       )
     return transaction ? result.transacting(transaction) : result
@@ -39,7 +41,9 @@ module.exports = {
         'questions.id',
         'questions.title',
         'questions.slug',
+        'questions.votes',
         'questions.created_at',
+        'questions.is_answered',
         'users_info.username'
       )
       .orderBy('created_at')
