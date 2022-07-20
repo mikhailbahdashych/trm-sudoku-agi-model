@@ -41,5 +41,13 @@ module.exports = {
       logger.error(`Error while creating question: ${e.message}`)
       throw Error('error-while-creating-question')
     }
+  },
+  answerQuestion: async (data, { transaction } = { transaction: null }) => {
+    try {
+      return await questionRepository.answerQuestion(data, { transaction })
+    } catch (e) {
+      logger.error(`Error while answering question: ${e.message}`)
+      throw Error('error-while-answering-question')
+    }
   }
 }

@@ -61,5 +61,9 @@ module.exports = {
   createQuestion: async (data, { transaction } = { transaction: null }) => {
     const result = knex(tableName).insert(data).returning('slug')
     return transaction ? result.transacting(transaction) : result
+  },
+  answerQuestion: async (data, { transaction } = { transaction: null }) => {
+    const result = knex('question_answers').insert(data)
+    return transaction ? result.transacting(transaction) : result
   }
 }

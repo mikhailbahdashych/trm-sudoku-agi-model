@@ -10,8 +10,8 @@ exports.up = function(knex) {
       .inTable('users')
       .notNullable()
 
-    table.integer('votes').defaultTo(0)
-    table.boolean('is_answered').defaultTo(false)
+    table.integer('votes').notNullable().defaultTo(0)
+    table.boolean('is_answered').notNullable().defaultTo(false)
 
     table.timestamp('created_at').defaultTo(knex.fn.now())
     table.timestamp('updated_at').defaultTo(knex.fn.now())

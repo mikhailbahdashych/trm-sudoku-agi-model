@@ -15,7 +15,7 @@ exports.up = function(knex) {
     table.string('website_link').nullable()
     table.string('twitter').nullable()
     table.string('github').nullable()
-    table.integer('reputation').defaultTo(0)
+    table.integer('reputation').notNullable().defaultTo(0)
     table.boolean('show_email').notNullable().defaultTo(false)
 
     table.timestamp('created_at').defaultTo(knex.fn.now())

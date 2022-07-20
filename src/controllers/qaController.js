@@ -74,7 +74,15 @@ exports.answerQuestion = async (req, res) => {
       id: cryptoService.decrypt(req.user)
     }, { transaction })
 
+    const { question_id, answer_text } = req.body
+
+    if (!question_id || !answer_text)
+      return res.status(400).json({ message: 'bad-request', status: 400 })
+
+    await questionService.answerQuestion({ question_id, answer_text, author_answer_id: user.id }, { transaction })
+
     await transaction.commit()
+    return res.status(200).json({ status: 1 })
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while answering the question: ${e.message}`)

@@ -13,7 +13,7 @@ exports.up = function(knex) {
       .notNullable()
 
     table.text('answer_text').notNullable()
-    table.boolean('is_answer').defaultTo(false)
+    table.boolean('is_answer').notNullable().defaultTo(false)
 
     table.timestamp('created_at').defaultTo(knex.fn.now())
     table.timestamp('updated_at').defaultTo(knex.fn.now())
