@@ -79,6 +79,15 @@ exports.answerQuestion = async (req, res) => {
     if (!question_id || !answer_text)
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
+    const { question, answers } = await questionService.getQuestion({ id: question_id }, { transaction })
+
+    if (!question) return res.status(400).json({ message: 'bad-request', status: 400 })
+
+    for (const answer in answers) {
+      if (user.username === answer.username)
+        return res.status(409).json({ message: 'conflict', status: 409 })
+    }
+
     await questionService.answerQuestion({ question_id, answer_text, author_answer_id: user.id }, { transaction })
 
     await transaction.commit()

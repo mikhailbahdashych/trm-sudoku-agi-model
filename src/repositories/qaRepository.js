@@ -7,7 +7,7 @@ module.exports = {
       .leftJoin('users', 'users.id', 'questions.author_id')
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .modify((x) => {
-        if (id) x.where('id', id)
+        if (id) x.where('questions.id', id)
         else if (slug) x.where('slug', 'ilike',`%${slug}%`)
       })
       .first(
@@ -17,6 +17,7 @@ module.exports = {
         'content',
         'votes',
         'is_answered',
+        'questions.created_at',
         'users_info.username'
       )
     return transaction ? result.transacting(transaction) : result
@@ -29,6 +30,7 @@ module.exports = {
       .select(
         'answer_text',
         'is_answer',
+        'question_answers.created_at',
         'users_info.username'
       )
     return transaction ? result.transacting(transaction) : result

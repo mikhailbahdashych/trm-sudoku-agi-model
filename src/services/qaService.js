@@ -11,7 +11,7 @@ module.exports = {
       const answers = await questionRepository.getQuestionsAnswers({ questionId: question.id }, { transaction })
       return { question, answers }
     } catch (e) {
-      logger.error(`Error while getting question by id: ${e.message}`)
+      logger.error(`Error while getting question: ${e.message}`)
       throw Error('error-while-getting-question-by-id')
     }
   },

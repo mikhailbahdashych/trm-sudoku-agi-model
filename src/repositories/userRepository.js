@@ -14,11 +14,11 @@ module.exports = {
         'users.personal_id as personalId',
         'users.two_fa as twoFa',
         'users.id as id',
-        'users.password as password',
+        'users.password',
         'users.email',
         'users.changed_email as changedEmail',
         'users.changed_password_at as changedPasswordAt',
-        'users_info.username as username'
+        'users_info.username'
       )
     return transaction ? result.transacting(transaction) : result
   },
