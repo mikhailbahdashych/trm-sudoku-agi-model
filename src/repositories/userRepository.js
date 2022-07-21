@@ -18,6 +18,7 @@ module.exports = {
         'users.email',
         'users.changed_email as changedEmail',
         'users.changed_password_at as changedPasswordAt',
+        'users_info.reputation',
         'users_info.username'
       )
     return transaction ? result.transacting(transaction) : result
@@ -55,6 +56,7 @@ module.exports = {
         'username',
         'email',
         'users.id as id',
+        'users_info.reputation'
       )
     return transaction ? result.transacting(transaction) : result
   },

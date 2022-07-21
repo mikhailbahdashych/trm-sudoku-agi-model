@@ -43,7 +43,10 @@ exports.signIn = async (req, res) => {
     }
 
     const { refreshToken, accessToken } = await jwtService.updateTokens({
-      userId: user.id, username: user.username, personalId: user.personalId
+      userId: user.id,
+      username: user.username,
+      personalId: user.personalId,
+      reputation: user.reputation
     }, { transaction })
     logger.info(`User ${user.email} has been successfully signed in!`)
 
@@ -210,7 +213,8 @@ exports.refreshToken = async (req, res) => {
     const tokens = await jwtService.updateTokens({
       userId: cryptoService.decrypt(token.userId),
       username: user.username,
-      personalId: user.personalId
+      personalId: user.personalId,
+      reputation: user.reputation
     }, { transaction })
 
     await transaction.commit()

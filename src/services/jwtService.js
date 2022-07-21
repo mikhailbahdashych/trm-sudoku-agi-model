@@ -24,12 +24,13 @@ const jwtConfig = {
   }
 }
 
-const generateAccessToken = ({ userId, personalId, username }) => {
+const generateAccessToken = ({ userId, personalId, username, reputation }) => {
   try {
     const payload = {
       userId: cryptoService.encrypt(userId),
       username,
       personalId,
+      reputation,
       type: jwtConfig.access.type
     }
     const secret = {
@@ -86,9 +87,9 @@ module.exports = {
       throw Error('error-while-getting-token-by-id')
     }
   },
-  updateTokens: async ({ userId, username, personalId }, { transaction } = { transaction: null }) => {
+  updateTokens: async ({ userId, username, personalId, reputation }, { transaction } = { transaction: null }) => {
     try {
-      const accessToken = generateAccessToken({ userId, username, personalId })
+      const accessToken = generateAccessToken({ userId, username, personalId, reputation })
       const refreshToken = generateRefreshToken();
 
       await updateRefreshToken({

@@ -39,3 +39,15 @@ exports.createForumThread = async (req, res) => {
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
+
+exports.commentForumThread = async (req, res) => {
+  const transaction = await knex.transaction()
+  try {
+
+    await transaction.commit()
+  } catch (e) {
+    await transaction.rollback()
+    logger.error(`Something went wrong while commenting forum thread: ${e.message}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
