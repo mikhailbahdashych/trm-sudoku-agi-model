@@ -51,11 +51,15 @@ exports.createQuestion = async (req, res) => {
 
     const { title, content } = req.body
 
-    if (!title || !content)
-      return res.status(400).json({ message: 'bad-request', status: 400 })
+    const slug = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
 
     const createdQuestion = await questionService.createQuestion({
-      title, content, slug: title.split(' ').join('-').toLowerCase(), author_id: user.id
+      title, content, slug, author_id: user.id
     }, { transaction })
 
     await transaction.commit()

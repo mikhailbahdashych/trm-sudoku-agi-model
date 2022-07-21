@@ -42,8 +42,8 @@ router.get('/get-blog-posts/:by', wrapAsync(blogController.getBlogPosts))
 router.get('/get-forum-thread', wrapAsync(forumController.getForumThread))
 router.get('/get-forum-threads/:by', wrapAsync(forumController.getForumThreads))
 
-router.post('/create-blog-post', authMiddleware, wrapAsync(blogController.createBlogPost));
-router.post('/create-forum-thread', authMiddleware, wrapAsync(forumController.createForumThread));
-router.post('/create-question', authMiddleware, wrapAsync(questionController.createQuestion));
+router.post('/create-blog-post', v(['post']), authMiddleware, wrapAsync(blogController.createBlogPost));
+router.post('/create-forum-thread', v(['thread']), authMiddleware, wrapAsync(forumController.createForumThread));
+router.post('/create-question', v(['question']), authMiddleware, wrapAsync(questionController.createQuestion));
 
 module.exports = router;
