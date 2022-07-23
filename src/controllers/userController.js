@@ -312,7 +312,6 @@ exports.updateUserPersonalInformation = async (req, res) => {
   }
 }
 
-
 exports.setTwoFa = async (req, res) => {
   const transaction = await knex.transaction()
   try {
