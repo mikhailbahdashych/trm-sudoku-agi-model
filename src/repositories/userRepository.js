@@ -28,8 +28,8 @@ module.exports = {
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .where('users.personal_id', personalId)
       .first(
-        'users_info.reputation',
         'users.personal_id as personalId',
+        'users_info.reputation',
         'users_info.username',
         'users_info.first_name',
         'users_info.last_name',
@@ -39,7 +39,8 @@ module.exports = {
         'users_info.about_me',
         'users_info.website_link',
         'users_info.twitter',
-        'users_info.github'
+        'users_info.github',
+        knex.raw(`(CASE WHEN users_info.show_email IS TRUE THEN email END) as email`)
       )
     return transaction ? result.transacting(transaction) : result
   },
