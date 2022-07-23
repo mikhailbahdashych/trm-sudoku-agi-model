@@ -82,7 +82,8 @@ module.exports = {
         'about_me',
         'website_link',
         'twitter',
-        'github'
+        'github',
+        'show_email'
       )
     return transaction ? result.transacting(transaction) : result
   },
