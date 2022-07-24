@@ -33,7 +33,7 @@ module.exports = {
         'users_info.username',
         'users_info.first_name',
         'users_info.last_name',
-        'users_info.status',
+        'users_info.user_status',
         'users_info.company',
         'users_info.location',
         'users_info.about_me',
@@ -78,7 +78,7 @@ module.exports = {
       .first(
         'first_name',
         'last_name',
-        'status',
+        'user_status',
         'company',
         'location',
         'about_me',

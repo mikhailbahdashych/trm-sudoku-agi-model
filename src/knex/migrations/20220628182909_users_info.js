@@ -8,7 +8,7 @@ exports.up = function(knex) {
     table.string('username').notNullable()
     table.string('first_name').nullable()
     table.string('last_name').nullable()
-    table.string('status').nullable()
+    table.string('user_status').nullable()
     table.string('company').nullable()
     table.string('location').nullable()
     table.string('about_me').nullable()
