@@ -7,6 +7,9 @@ dotenv.config();
 const userService = require('../services/userService');
 const cryptoService = require('../services/cryptoService');
 const jwtService = require('../services/jwtService');
+const blogService = require('../services/blogService');
+const questionsService = require('../services/qaService');
+const forumService = require('../services/forumService');
 
 const loggerInstance = require('../common/logger');
 const { verifyTwoFa } = require('../common/verifyTwoFa')
@@ -249,8 +252,14 @@ exports.getLastActivity = async (req, res) => {
   try {
     const { personalId } = req.params
 
+    const user = await userService.getUserByPersonalId({ personalId }, { transaction });
+
+    const usersBlogPosts = await blogService.getUserBlogPosts({ userId: user.id }, { transaction })
+    const usersQuestions = await questionsService.getUserQuestions({ userId: user.id }, { transaction })
+    const forumPosts = await forumService.getUserForumPosts({ userId: user.id }, { transaction })
+
     await transaction.commit()
-    return res.status(200).json({ status: 1 });
+    return res.status(200).json({ forumPosts, usersQuestions, usersBlogPosts });
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting last activity : ${e}`)

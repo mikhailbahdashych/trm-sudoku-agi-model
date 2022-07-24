@@ -4,6 +4,14 @@ const loggerInstance = require('../common/logger')
 const logger = loggerInstance({ label: 'question-service', path: 'question' })
 
 module.exports = {
+  getUserQuestions: async ({ userId }, { transaction } = { transaction: null }) => {
+    try {
+      return await questionRepository.getUserQuestions({ userId }, { transaction  })
+    } catch (e) {
+      logger.error(`Error while getting user's questions: ${e.message}`)
+      throw Error('error-while-getting-users-questions')
+    }
+  },
   getQuestion: async ({ id, slug }, { transaction } = { transaction: null }) => {
     try {
       const question = await questionRepository.getQuestion({ id, slug }, { transaction

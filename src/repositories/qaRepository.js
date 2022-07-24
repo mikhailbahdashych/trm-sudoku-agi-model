@@ -2,6 +2,10 @@ const knex = require('../knex/knex')
 const tableName = 'questions'
 
 module.exports = {
+  getUserQuestions: async ({ userId }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+    return transaction ? result.transacting(transaction) : result
+  },
   getQuestion: async ({ id, slug }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .leftJoin('users', 'users.id', 'questions.author_id')
