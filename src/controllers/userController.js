@@ -196,7 +196,7 @@ exports.deleteAccount = async (req, res) => {
 exports.refreshToken = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const _rt = req.headers.cookie.split('=')[1]
+    const _rt = req.cookies['_rt'];
 
     const payload = jwtService.verifyToken({ token: _rt })
 

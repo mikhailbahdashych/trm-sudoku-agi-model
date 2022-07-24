@@ -16,11 +16,13 @@ const jwtConfig = {
   passphrase: process.env.JWT_PASSPHRASE.toString(),
   access: {
     type: 'access',
-    expiresIn: '15m'
+    // expiresIn: '15m'
+    expiresIn: '20s'
   },
   refresh: {
     type: 'refresh',
-    expiresIn: '20m'
+    // expiresIn: '20m'
+    expiresIn: '7d'
   }
 }
 
