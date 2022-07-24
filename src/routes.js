@@ -12,15 +12,15 @@ const { v } = require('./middlewares/validator');
 const authMiddleware = require('./middlewares/auth');
 const basicAuth = require('./middlewares/basicAuth');
 
-router.post('/sign-in', v(['email', 'password', 'phone', 'twoFa']), wrapAsync(userController.signIn));
-router.post('/sign-up', v(['email', 'password', 'username', 'personalInformation']), wrapAsync(userController.signUp));
+router.post('/sign-in', basicAuth, v(['email', 'password', 'phone', 'twoFa']), wrapAsync(userController.signIn));
+router.post('/sign-up', basicAuth, v(['email', 'password', 'username', 'personalInformation']), wrapAsync(userController.signUp));
 router.post('/change-password', v(['password', 'newPassword', 'newPasswordRepeat', 'twoFa']), authMiddleware, wrapAsync(userController.changePassword));
 router.post('/change-email', v(['email', 'twoFa']), authMiddleware, wrapAsync(userController.changeEmail));
 router.post('/set-2fa', v(['twoFa']), authMiddleware, wrapAsync(userController.setTwoFa));
 router.post('/disable-2fa', v(['twoFa']), authMiddleware, wrapAsync(userController.disableTwoFa));
 router.post('/delete-account', v(['password', 'twoFa']), authMiddleware, wrapAsync(userController.deleteAccount));
 
-router.get('/get-refreshed-tokens', wrapAsync(userController.refreshToken));
+router.get('/get-refreshed-tokens', basicAuth, wrapAsync(userController.refreshToken));
 
 router.get('/get-user-by-personal-id/:personalId', basicAuth, wrapAsync(userController.getUserByPersonalId));
 router.get('/get-user-last-activity/:personalId', basicAuth, wrapAsync(userController.getLastActivity));
@@ -32,18 +32,18 @@ router.patch('/update-user-personal-information', v(['personalInformation']), au
 
 router.patch('/vote/:id/:vote/:type', authMiddleware, wrapAsync(voteController.vote));
 
-router.get('/get-question', wrapAsync(questionController.getQuestion));
-router.get('/get-questions/:sort', wrapAsync(questionController.getQuestions));
+router.get('/get-question', basicAuth, wrapAsync(questionController.getQuestion));
+router.get('/get-questions/:sort', basicAuth, wrapAsync(questionController.getQuestions));
 router.post('/create-question', v(['question']), authMiddleware, wrapAsync(questionController.createQuestion));
 router.post('/answer-question', authMiddleware, wrapAsync(questionController.answerQuestion));
 
-router.get('/get-blog-post', wrapAsync(blogController.getBlogPost));
-router.get('/get-blog-posts/:sort', wrapAsync(blogController.getBlogPosts));
+router.get('/get-blog-post', basicAuth, wrapAsync(blogController.getBlogPost));
+router.get('/get-blog-posts/:sort', basicAuth, wrapAsync(blogController.getBlogPosts));
 router.post('/create-blog-post', v(['post']), authMiddleware, wrapAsync(blogController.createBlogPost));
 router.post('/comment-blog-post', authMiddleware, wrapAsync(blogController.commentBlogPost));
 
-router.get('/get-forum-thread', wrapAsync(forumController.getForumThread));
-router.get('/get-forum-threads/:sort', wrapAsync(forumController.getForumThreads));
+router.get('/get-forum-thread', basicAuth, wrapAsync(forumController.getForumThread));
+router.get('/get-forum-threads/:sort', basicAuth, wrapAsync(forumController.getForumThreads));
 router.post('/create-forum-thread', v(['thread']), authMiddleware, wrapAsync(forumController.createForumThread));
 router.post('/comment-forum-thread', authMiddleware, wrapAsync(forumController.commentForumThread))
 
