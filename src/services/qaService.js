@@ -25,7 +25,13 @@ module.exports = {
       await questionRepository.incrementViewCounter({ id, slug }, { transaction })
       const question = await questionRepository.getQuestion({ id, slug }, { transaction
       })
+      question.created_at = moment(question.created_at).format('YYYY-MM-DD HH:mm:ss')
+
       const answers = await questionRepository.getQuestionsAnswers({ questionId: question.id }, { transaction })
+      answers.forEach(answer => {
+        answer.created_at = moment(answer.created_at).format('YYYY-MM-DD HH:mm:ss')
+      })
+
       return { question, answers }
     } catch (e) {
       logger.error(`Error while getting question: ${e.message}`)

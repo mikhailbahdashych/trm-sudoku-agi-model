@@ -32,6 +32,7 @@ module.exports = {
         'content',
         'votes',
         'is_answered',
+        'views',
         'questions.created_at',
         'users_info.username'
       )
