@@ -59,7 +59,7 @@ exports.createQuestion = async (req, res) => {
       .replace(/^-+|-+$/g, '');
 
     const createdQuestion = await questionService.createQuestion({
-      title, content, slug, author_id: user.id
+      title, content, slug, user_id: user.id
     }, { transaction })
 
     await transaction.commit()

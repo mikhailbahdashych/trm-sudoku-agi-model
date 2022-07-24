@@ -5,7 +5,7 @@ exports.up = function(knex) {
     table.string('slug').unique().notNullable()
     table.text('content').notNullable()
 
-    table.uuid('author_id')
+    table.uuid('user_id')
       .references('id')
       .inTable('users')
       .notNullable()
