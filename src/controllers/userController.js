@@ -235,6 +235,7 @@ exports.getUserByPersonalId = async (req, res) => {
     const { personalId } = req.params
 
     const user = await userService.getUserByPersonalId({ personalId }, { transaction })
+    delete user.id
 
     if (!user) return res.status(403).json({ error: 'not-found', status: 403 });
 

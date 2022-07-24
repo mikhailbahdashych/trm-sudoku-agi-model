@@ -1,3 +1,5 @@
+const moment = require('moment')
+
 const questionRepository = require('../repositories/qaRepository')
 
 const loggerInstance = require('../common/logger')
@@ -6,7 +8,13 @@ const logger = loggerInstance({ label: 'question-service', path: 'question' })
 module.exports = {
   getUserQuestions: async ({ userId }, { transaction } = { transaction: null }) => {
     try {
-      return await questionRepository.getUserQuestions({ userId }, { transaction  })
+      const questions = await questionRepository.getUserQuestions({ userId }, { transaction  })
+
+      questions.forEach(question => {
+        question.created_at = moment(question.created_at).format('YYYY-MM-DD HH:mm:ss')
+      })
+
+      return questions
     } catch (e) {
       logger.error(`Error while getting user's questions: ${e.message}`)
       throw Error('error-while-getting-users-questions')
@@ -14,6 +22,7 @@ module.exports = {
   },
   getQuestion: async ({ id, slug }, { transaction } = { transaction: null }) => {
     try {
+      await questionRepository.incrementViewCounter({ id, slug }, { transaction })
       const question = await questionRepository.getQuestion({ id, slug }, { transaction
       })
       const answers = await questionRepository.getQuestionsAnswers({ questionId: question.id }, { transaction })
@@ -30,9 +39,10 @@ module.exports = {
       const questionAnswers = await questionRepository.countQuestionsAnswers({ questionsIds }, { transaction })
 
       questions.forEach(question => {
+        question.created_at = moment(question.created_at).format('YYYY-MM-DD HH:mm:ss')
         questionAnswers.forEach(answer => {
-          if (question.id === answer.question_id)
-            question.count = answer.count
+          answer.created_at = moment(answer.created_at).format('YYYY-MM-DD HH:mm:ss')
+          if (question.id === answer.question_id) question.count = answer.count
         })
       })
 
