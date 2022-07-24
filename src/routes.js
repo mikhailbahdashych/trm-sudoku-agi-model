@@ -30,7 +30,7 @@ router.get('/search', basicAuth, wrapAsync(searchController.search));
 
 router.patch('/update-user-personal-information', v(['personalInformation']), authMiddleware, wrapAsync(userController.updateUserPersonalInformation));
 
-router.patch('/vote/:id/:v/:type', authMiddleware, wrapAsync(voteController.vote));
+router.patch('/vote/:id/:vote/:type', authMiddleware, wrapAsync(voteController.vote));
 
 router.get('/get-question', wrapAsync(questionController.getQuestion));
 router.get('/get-questions/:sort', wrapAsync(questionController.getQuestions));

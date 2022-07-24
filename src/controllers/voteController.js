@@ -17,9 +17,9 @@ exports.vote = async (req, res) => {
       id: cryptoService.decrypt(req.user)
     }, { transaction })
 
-    const { id, v, type } = req.params
+    const { id, vote, type } = req.params
 
-    if (!['up', 'down'].includes(v) || !['blog', 'forum', 'question'].includes(type))
+    if (!['up', 'down'].includes(vote) || !['blog', 'forum', 'question'].includes(type))
       return res.status(400).json({ message: 'bad-request', status: 400 })
 
     switch (type) {
@@ -40,7 +40,7 @@ exports.vote = async (req, res) => {
         break;
     }
 
-    await voteService.vote({ id, v, type, userId: user.id })
+    await voteService.vote({ id, vote, type, userId: user.id })
 
     await transaction.commit()
     return res.status(200).json({ status: 1 })

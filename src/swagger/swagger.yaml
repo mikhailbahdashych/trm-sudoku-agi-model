@@ -92,7 +92,7 @@ paths:
       description: "This resource allows an individual user update user's personal information."
       tags:
         - PATCH
-  /vote/{id}/{v}/{postType}:
+  /vote/{id}/{vote}/{postType}:
     patch:
       summary: "Used to vote (up or down) for post"
       description: "Allows user to get his vote for post. For one user is allowed only one vote."
@@ -104,7 +104,7 @@ paths:
           required: true
           description: "Post ID"
         - in: path
-          name: v
+          name: vote
           required: true
           description: "Vote (up or down)"
         - in: path
