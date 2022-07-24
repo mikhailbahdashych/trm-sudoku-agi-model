@@ -111,36 +111,49 @@ paths:
           name: postType
           required: true
           description: "Type of post to define"
-  /get-question-by-slug:
+  /get-question:
     get:
-      summary: "Used to get questions by slug"
-      description: "Used to get questions by slug. Helps users to find similar posts and check for duplicates name while creating."
+      summary: "Used to get question by question ID."
+      description: "This resource allows to get forum post by post ID."
       tags:
         - GET
       parameters:
         - in: query
           name: slug
           required: true
-          description: "Slug"
-  /get-blog-posts/{by}:
-    get:
-      summary: ""
-      description: ""
-      tags:
-        - GET
-  /get-forum-threads/{by}:
-    get:
-      summary: ""
-      description: ""
-      tags:
-        - GET
+          description: "Question slug"
   /get-questions/{sort}:
     get:
-      summary: ""
-      description: ""
+      summary: "Used to sort questions."
+      description: "Used to sort questions by 4 types - latest, hottest, week, month."
       tags:
         - GET
-  /get-blog-post/{id}:
+      parameters:
+        - in: path
+          name: sort
+          required: true
+          description: "Type of sort - latest, hottest, week, month."
+  /create-question:
+    post:
+      summary: "Used to create question post"
+      description: "Allows an authorized user create question."
+      tags:
+        - POST
+  /answer-question:
+    post:
+      summary: "Used to write an answer on question post"
+      description: "Allows an authorized user to write an answer on question post."
+      tags:
+        - POST
+  /get-blog-post:
+    get:
+      summary: "Used to get blog post by ID."
+      description: "This resource allows to get blog post by ID."
+      tags:
+        - GET
+      parameters:
+        - in: query
+  /get-blog-posts/{sort}:
     get:
       summary: "Used to get blog post by post ID"
       description: "This resource allows to get blog post by post ID."
@@ -151,7 +164,25 @@ paths:
           name: id
           required: true
           description: "Blog post ID"
-  /get-forum-thread/{id}:
+  /create-blog-post:
+    post:
+      summary: "Used to create blog post"
+      description: "Allows an authorized user create blog post."
+      tags:
+        - POST
+  /comment-blog-post:
+    post:
+      summary: "Used to create blog post"
+      description: "Allows an authorized user create blog post."
+      tags:
+        - POST
+  /get-forum-thread:
+    get:
+      summary: ""
+      description: ""
+      tags:
+        - GET
+  /get-forum-thread/{sort}:
     get:
       summary: "Used to get forum thread by ID"
       description: "This resource allows to get forum thread by ID."
@@ -162,32 +193,15 @@ paths:
           name: id
           required: true
           description: "Forum thread ID"
-  /get-question/{id}:
-    get:
-      summary: "Used to get question by question ID"
-      description: "This resource allows to get forum post by post ID."
-      tags:
-        - GET
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: "Question ID"
-  /create-blog-post:
-    post:
-      summary: "Used to create blog post"
-      description: "Allows an authorized user create blog post."
-      tags:
-        - POST
   /create-forum-thread:
     post:
       summary: "Used to create forum thread"
       description: "Allows an authorized user create forum thread."
       tags:
         - POST
-  /create-question:
+  /comment-forum-thread:
     post:
-      summary: "Used to create question post"
-      description: "Allows an authorized user create question."
+      summary: "Used to create blog post"
+      description: "Allows an authorized user create blog post."
       tags:
         - POST

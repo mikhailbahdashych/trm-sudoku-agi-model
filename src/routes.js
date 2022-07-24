@@ -38,12 +38,12 @@ router.post('/create-question', v(['question']), authMiddleware, wrapAsync(quest
 router.post('/answer-question', authMiddleware, wrapAsync(questionController.answerQuestion));
 
 router.get('/get-blog-post', wrapAsync(blogController.getBlogPost));
-router.get('/get-blog-posts/:by', wrapAsync(blogController.getBlogPosts));
+router.get('/get-blog-posts/:sort', wrapAsync(blogController.getBlogPosts));
 router.post('/create-blog-post', v(['post']), authMiddleware, wrapAsync(blogController.createBlogPost));
 router.post('/comment-blog-post', authMiddleware, wrapAsync(blogController.commentBlogPost));
 
 router.get('/get-forum-thread', wrapAsync(forumController.getForumThread));
-router.get('/get-forum-threads/:by', wrapAsync(forumController.getForumThreads));
+router.get('/get-forum-threads/:sort', wrapAsync(forumController.getForumThreads));
 router.post('/create-forum-thread', v(['thread']), authMiddleware, wrapAsync(forumController.createForumThread));
 router.post('/comment-forum-thread', authMiddleware, wrapAsync(forumController.commentForumThread))
 
