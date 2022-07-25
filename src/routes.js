@@ -23,7 +23,6 @@ router.post('/delete-account', v(['password', 'twoFa']), authMiddleware, wrapAsy
 router.get('/get-refreshed-tokens', basicAuth, wrapAsync(userController.refreshToken));
 
 router.get('/get-user-by-personal-id/:personalId', basicAuth, wrapAsync(userController.getUserByPersonalId));
-router.get('/get-user-last-activity/:personalId', basicAuth, wrapAsync(userController.getLastActivity));
 router.get('/get-user-settings/:t', authMiddleware, wrapAsync(userController.getUserSettings));
 
 router.get('/search', basicAuth, wrapAsync(searchController.search));
@@ -33,6 +32,7 @@ router.patch('/update-user-personal-information', v(['personalInformation']), au
 router.patch('/vote/:id/:vote/:type', authMiddleware, wrapAsync(voteController.vote));
 
 router.get('/get-question', basicAuth, wrapAsync(questionController.getQuestion));
+router.get('/get-user-questions/:personalId/:sort', basicAuth, wrapAsync(questionController.getUserQuestions));
 router.get('/get-questions/:sort', basicAuth, wrapAsync(questionController.getQuestions));
 router.post('/create-question', v(['question']), authMiddleware, wrapAsync(questionController.createQuestion));
 router.post('/answer-question', authMiddleware, wrapAsync(questionController.answerQuestion));

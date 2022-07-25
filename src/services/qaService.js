@@ -1,25 +1,12 @@
 const moment = require('moment')
 
 const questionRepository = require('../repositories/qaRepository')
+const userRepository = require('../repositories/userRepository')
 
 const loggerInstance = require('../common/logger')
 const logger = loggerInstance({ label: 'question-service', path: 'question' })
 
 module.exports = {
-  getUserQuestions: async ({ userId }, { transaction } = { transaction: null }) => {
-    try {
-      const questions = await questionRepository.getUserQuestions({ userId }, { transaction  })
-
-      questions.forEach(question => {
-        question.created_at = moment(question.created_at).format('YYYY-MM-DD HH:mm:ss')
-      })
-
-      return questions
-    } catch (e) {
-      logger.error(`Error while getting user's questions: ${e.message}`)
-      throw Error('error-while-getting-users-questions')
-    }
-  },
   getQuestion: async ({ id, slug }, { transaction } = { transaction: null }) => {
     try {
       await questionRepository.incrementViewCounter({ id, slug }, { transaction })
@@ -38,9 +25,16 @@ module.exports = {
       throw Error('error-while-getting-question-by-id')
     }
   },
-  getQuestions: async ({ sort }, { transaction } = { transaction: null }) => {
+  getQuestions: async ({ sort, personalId }, { transaction } = { transaction: null }) => {
     try {
-      const questions = await questionRepository.getQuestions({ sort }, { transaction })
+      let questions;
+
+      if (personalId) {
+        const user = await userRepository.getUserByPersonalId({ personalId }, { transaction })
+        questions = await questionRepository.getUserQuestions({ userId: user.id }, { transaction })
+      }
+      else questions = await questionRepository.getQuestions({ sort }, { transaction })
+
       const questionsIds = questions.map(x => x.id)
       const questionAnswers = await questionRepository.countQuestionsAnswers({ questionsIds }, { transaction })
 

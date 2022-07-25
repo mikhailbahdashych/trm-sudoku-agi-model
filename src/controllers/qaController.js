@@ -42,6 +42,25 @@ exports.getQuestions = async (req, res) => {
   }
 }
 
+exports.getUserQuestions = async (req, res) => {
+  const transaction = await knex.transaction()
+  try {
+    const { sort, personalId } = req.params
+
+    if (!['latest', 'score', 'views'].includes(sort))
+      return res.status(400).json({ message: 'bad-request', status: 400 })
+
+    const questions = await questionService.getQuestions({ sort, personalId })
+
+    await transaction.commit()
+    return res.status(200).json(questions)
+  } catch (e) {
+    await transaction.rollback()
+    logger.error(`Something went wrong while getting user questions: ${e.message}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
 exports.createQuestion = async (req, res) => {
   const transaction = await knex.transaction()
   try {

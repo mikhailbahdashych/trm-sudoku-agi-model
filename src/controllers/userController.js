@@ -248,26 +248,6 @@ exports.getUserByPersonalId = async (req, res) => {
   }
 }
 
-exports.getLastActivity = async (req, res) => {
-  const transaction = await knex.transaction()
-  try {
-    const { personalId } = req.params
-
-    const user = await userService.getUserByPersonalId({ personalId }, { transaction });
-
-    const usersBlogPosts = await blogService.getUserBlogPosts({ userId: user.id }, { transaction })
-    const usersQuestions = await questionsService.getUserQuestions({ userId: user.id }, { transaction })
-    const forumPosts = await forumService.getUserForumPosts({ userId: user.id }, { transaction })
-
-    await transaction.commit()
-    return res.status(200).json({ forumPosts, usersQuestions, usersBlogPosts });
-  } catch (e) {
-    await transaction.rollback()
-    logger.error(`Something went wrong while getting last activity : ${e}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
-  }
-}
-
 exports.getUserSettings = async (req, res) => {
   const transaction = await knex.transaction()
   try {

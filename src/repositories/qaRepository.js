@@ -11,12 +11,6 @@ module.exports = {
       .increment('views', 1)
     return transaction ? result.transacting(transaction) : result
   },
-  getUserQuestions: async ({ userId }, { transaction } = { transaction: null }) => {
-    const result = knex(tableName)
-      .where('user_id', userId)
-      .select('title', 'slug','votes', 'created_at', 'is_answered')
-    return transaction ? result.transacting(transaction) : result
-  },
   getQuestion: async ({ id, slug }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .leftJoin('users', 'users.id', 'questions.user_id')
@@ -44,6 +38,12 @@ module.exports = {
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .where('question_id', questionId)
       .select('answer_text', 'is_answer', 'question_answers.created_at', 'users_info.username')
+    return transaction ? result.transacting(transaction) : result
+  },
+  getUserQuestions: async ({ userId }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+      .where('user_id', userId)
+      .select('id', 'title', 'slug','votes', 'created_at', 'is_answered', 'views')
     return transaction ? result.transacting(transaction) : result
   },
   countQuestionsAnswers: async ({ questionsIds }, { transaction } = { transaction: null }) => {

@@ -58,17 +58,6 @@ paths:
           name: personalId
           required: true
           description: "The user's personal ID"
-  /get-user-last-activity/{personalId}:
-    get:
-      summary: "Used to get user's last activity"
-      description: "Used to get user's last activity on site such as last forum/blog posts and asked questions. <br />Visible on public data on user's profile page."
-      tags:
-        - GET
-      parameters:
-        - in: path
-          name: personalId
-          required: true
-          description: "The user's personal ID"
   /get-user-settings/{t}:
     get:
       summary: "Used to get user's settings to edit"
