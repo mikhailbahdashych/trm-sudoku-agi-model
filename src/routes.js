@@ -24,6 +24,7 @@ router.post('/delete-account', v(['password', 'twoFa']), authMiddleware, wrapAsy
 
 router.post('/bookmark', authMiddleware, wrapAsync(userController.addBookmark));
 router.get('/get-bookmarks', authMiddleware, wrapAsync(userController.getBookmarks))
+router.delete('/delete-bookmark/:id', authMiddleware, wrapAsync(userController.deleteBookmark))
 
 router.get('/get-refreshed-tokens', basicAuth, wrapAsync(userController.refreshToken));
 
