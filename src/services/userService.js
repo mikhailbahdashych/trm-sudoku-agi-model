@@ -127,8 +127,8 @@ module.exports = {
   },
   addBookmark: async ({ id, type, userId }, { transaction } = { transaction: null }) => {
     try {
-      const postType = await postTypeRepository.getPostTypeIdByType({ type })
-      return await bookmarksRepository.addBookmark({ post_id: id, post_type_id: postType.id, user_id: userId })
+      const postType = await postTypeRepository.getPostTypeIdByType({ type }, { transaction })
+      return await bookmarksRepository.addBookmark({ post_id: id, post_type_id: postType.id, user_id: userId }, { transaction })
     } catch (e) {
       logger.error(`Error while adding bookmark: ${e.message}`)
       throw Error('error-while-adding-bookmark')

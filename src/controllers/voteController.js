@@ -5,6 +5,9 @@ const cryptoService = require('../services/cryptoService')
 const voteService = require('../services/voteService')
 
 const loggerInstance = require('../common/logger')
+const blogService = require('../services/blogService')
+const forumService = require('../services/forumService')
+const questionsService = require('../services/qaService')
 const logger = loggerInstance({ label: 'vote-controller', path: 'vote' })
 
 exports.vote = async (req, res) => {
@@ -18,6 +21,19 @@ exports.vote = async (req, res) => {
 
     if (!['up', 'down'].includes(vote) || !['blog', 'forum', 'question'].includes(type))
       return res.status(400).json({ message: 'bad-request', status: 400 })
+
+    switch (type) {
+      case 'blog':
+        const blog = await blogService.getBlogPost({ id }, { transaction })
+        if (!blog) return res.status(400).json({ message: 'bad-request', status: 400 })
+        break
+      case 'question':
+        const question = await questionsService.getQuestion({ id }, { transaction })
+        if (!question) return res.status(400).json({ message: 'bad-request', status: 400 })
+        break
+      default:
+        return res.status(400).json({ message: 'bad-request', status: 400 })
+    }
 
     await voteService.vote({ id, vote, type, userId: user.id })
 

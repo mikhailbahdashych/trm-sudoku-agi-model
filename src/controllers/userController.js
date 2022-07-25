@@ -360,11 +360,29 @@ exports.addBookmark = async (req, res) => {
     const user = await userService.getUser({
       id: cryptoService.decrypt(req.user)
     }, { transaction })
-    await transaction.commit()
 
     const { type, id } = req.body
 
+    switch (type) {
+      case 'blog':
+        const blog = await blogService.getBlogPost({ id }, { transaction })
+        if (!blog) return res.status(400).json({ message: 'bad-request', status: 400 })
+        break
+      case 'forum':
+        const thread = await forumService.getForumThread({ id }, { transaction })
+        if (!thread) return res.status(400).json({ message: 'bad-request', status: 400 })
+        break
+      case 'question':
+        const question = await questionsService.getQuestion({ id }, { transaction })
+        if (!question) return res.status(400).json({ message: 'bad-request', status: 400 })
+        break
+      default:
+        return res.status(400).json({ message: 'bad-request', status: 400 })
+    }
+
     await userService.addBookmark({ type, id, userId: user.id })
+
+    await transaction.commit()
     return res.status(200).json({ status: 1 })
   } catch (e) {
     await transaction.rollback()
