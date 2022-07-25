@@ -1,5 +1,5 @@
 exports.seed = function(knex) {
-  return knex('table_name').del()
+  return knex('post_types').del()
     .then(function () {
       return knex('post_types').insert([
         {type: 'question'},
