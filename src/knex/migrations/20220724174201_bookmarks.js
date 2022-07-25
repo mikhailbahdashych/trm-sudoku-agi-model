@@ -7,6 +7,12 @@ exports.up = function(knex) {
       .inTable('users')
       .notNullable()
 
+    table.uuid('post_id').notNullable()
+    table.uuid('post_type_id')
+      .references('id')
+      .inTable('post_types')
+      .notNullable()
+
     table.timestamp('created_at').defaultTo(knex.fn.now())
     table.timestamp('updated_at').defaultTo(knex.fn.now())
   })

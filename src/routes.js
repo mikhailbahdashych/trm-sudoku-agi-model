@@ -12,6 +12,8 @@ const { v } = require('./middlewares/validator');
 const authMiddleware = require('./middlewares/auth');
 const basicAuth = require('./middlewares/basicAuth');
 
+// @TODO Do research about white-space: pre-line and VueEditor
+
 router.post('/sign-in', basicAuth, v(['email', 'password', 'phone', 'twoFa']), wrapAsync(userController.signIn));
 router.post('/sign-up', basicAuth, v(['email', 'password', 'username', 'personalInformation']), wrapAsync(userController.signUp));
 router.post('/change-password', v(['password', 'newPassword', 'newPasswordRepeat', 'twoFa']), authMiddleware, wrapAsync(userController.changePassword));
@@ -19,6 +21,9 @@ router.post('/change-email', v(['email', 'twoFa']), authMiddleware, wrapAsync(us
 router.post('/set-2fa', v(['twoFa']), authMiddleware, wrapAsync(userController.setTwoFa));
 router.post('/disable-2fa', v(['twoFa']), authMiddleware, wrapAsync(userController.disableTwoFa));
 router.post('/delete-account', v(['password', 'twoFa']), authMiddleware, wrapAsync(userController.deleteAccount));
+
+router.post('/bookmark', authMiddleware, wrapAsync(userController.addBookmark));
+router.get('/get-bookmarks', authMiddleware, wrapAsync(userController.getBookmarks))
 
 router.get('/get-refreshed-tokens', basicAuth, wrapAsync(userController.refreshToken));
 

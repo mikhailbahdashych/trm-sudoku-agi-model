@@ -40,9 +40,14 @@ module.exports = {
       .select('answer_text', 'is_answer', 'question_answers.created_at', 'users_info.username')
     return transaction ? result.transacting(transaction) : result
   },
-  getUserQuestions: async ({ userId }, { transaction } = { transaction: null }) => {
+  getUserQuestions: async ({ userId, sort }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('user_id', userId)
+      .modify(x => {
+        if (sort === 'score') {
+          x.orderBy('votes', 'desc')
+        }
+      })
       .select('id', 'title', 'slug','votes', 'created_at', 'is_answered', 'views')
     return transaction ? result.transacting(transaction) : result
   },

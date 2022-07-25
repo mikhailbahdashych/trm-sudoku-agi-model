@@ -322,6 +322,7 @@ exports.setTwoFa = async (req, res) => {
     await transaction.commit()
     return res.status(200).json({ status: 1 })
   } catch (e) {
+    await transaction.rollback()
     logger.error(`Something went wrong while setting 2FA : ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
@@ -347,7 +348,45 @@ exports.disableTwoFa = async (req, res) => {
     await transaction.commit()
     return res.status(200).json({ status: 1 })
   } catch (e) {
+    await transaction.rollback()
     logger.error(`Something went wrong while disabling 2FA : ${e}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
+exports.addBookmark = async (req, res) => {
+  const transaction = await knex.transaction()
+  try {
+    const user = await userService.getUser({
+      id: cryptoService.decrypt(req.user)
+    }, { transaction })
+    await transaction.commit()
+
+    const { type, id } = req.body
+
+    await userService.addBookmark({ type, id, userId: user.id })
+    return res.status(200).json({ status: 1 })
+  } catch (e) {
+    await transaction.rollback()
+    logger.error(`Something went wrong while adding bookmark: ${e}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
+exports.getBookmarks = async (req, res) => {
+  const transaction = await knex.transaction()
+  try {
+    const user = await userService.getUser({
+      id: cryptoService.decrypt(req.user)
+    }, { transaction })
+
+    const bookmarks = await userService.getBookmarks({ userId: user.id }, { transaction })
+
+    await transaction.commit()
+    return res.status(200).json(bookmarks)
+  } catch (e) {
+    await transaction.rollback()
+    logger.error(`Something went wrong while getting bookmarks: ${e}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }

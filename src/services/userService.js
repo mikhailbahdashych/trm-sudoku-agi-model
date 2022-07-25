@@ -3,6 +3,8 @@ const moment = require('moment')
 dotenv.config()
 
 const userRepository = require('../repositories/userRepository');
+const bookmarksRepository = require('../repositories/bookmarkRepository');
+const postTypeRepository = require('../repositories/postTypeRepository');
 const cryptoService = require('./cryptoService');
 
 const loggerInstance = require('../common/logger');
@@ -121,6 +123,23 @@ module.exports = {
     } catch (e) {
       logger.error(`Error while disabling 2FA: ${e.message}`)
       throw Error('error-while-disabling-2fa')
+    }
+  },
+  addBookmark: async ({ id, type, userId }, { transaction } = { transaction: null }) => {
+    try {
+      const postType = await postTypeRepository.getPostTypeIdByType({ type })
+      return await bookmarksRepository.addBookmark({ post_id: id, post_type_id: postType.id, user_id: userId })
+    } catch (e) {
+      logger.error(`Error while adding bookmark: ${e.message}`)
+      throw Error('error-while-adding-bookmark')
+    }
+  },
+  getBookmarks: async ({ userId }, { transaction } = { transaction: null }) => {
+    try {
+      return await bookmarksRepository.getBookmarks({ userId }, { transaction })
+    } catch (e) {
+      logger.error(`Error while adding bookmark: ${e.message}`)
+      throw Error('error-while-adding-bookmark')
     }
   }
 }

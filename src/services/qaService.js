@@ -31,9 +31,11 @@ module.exports = {
 
       if (personalId) {
         const user = await userRepository.getUserByPersonalId({ personalId }, { transaction })
-        questions = await questionRepository.getUserQuestions({ userId: user.id }, { transaction })
+        questions = await questionRepository.getUserQuestions({ userId: user.id, sort }, { transaction })
       }
-      else questions = await questionRepository.getQuestions({ sort }, { transaction })
+      else {
+        questions = await questionRepository.getQuestions({ sort }, { transaction })
+      }
 
       const questionsIds = questions.map(x => x.id)
       const questionAnswers = await questionRepository.countQuestionsAnswers({ questionsIds }, { transaction })
