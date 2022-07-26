@@ -374,7 +374,8 @@ exports.addBookmark = async (req, res) => {
         if (!post) return res.status(400).json({ message: 'bad-request', status: 400 })
         break
       case 'question':
-        post = await questionsService.getQuestion({ id }, { transaction })
+        const { question } = await questionsService.getQuestion({ id }, { transaction })
+        post = question
         if (!post) return res.status(400).json({ message: 'bad-request', status: 400 })
         break
       default:
