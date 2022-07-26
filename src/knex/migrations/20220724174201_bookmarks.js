@@ -12,6 +12,8 @@ exports.up = function(knex) {
       .references('id')
       .inTable('post_types')
       .notNullable()
+    table.string('post_title')
+    table.string('post_slug')
 
     table.timestamp('created_at').defaultTo(knex.fn.now())
     table.timestamp('updated_at').defaultTo(knex.fn.now())

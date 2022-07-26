@@ -12,7 +12,7 @@ exports.getQuestion = async (req, res) => {
   try {
     const { slug } = req.query
 
-    const { question, answers } = await questionService.getQuestion({ slug }, { transaction })
+    const { question, answers } = await questionService.getQuestion({ slug, view: true }, { transaction })
 
     await transaction.commit()
     return res.status(200).json({ question, answers })

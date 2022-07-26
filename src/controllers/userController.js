@@ -362,25 +362,32 @@ exports.addBookmark = async (req, res) => {
     }, { transaction })
 
     const { type, id } = req.body
+    let post
 
     switch (type) {
       case 'blog':
-        const blog = await blogService.getBlogPost({ id }, { transaction })
-        if (!blog) return res.status(400).json({ message: 'bad-request', status: 400 })
+        post = await blogService.getBlogPost({ id }, { transaction })
+        if (!post) return res.status(400).json({ message: 'bad-request', status: 400 })
         break
       case 'forum':
-        const thread = await forumService.getForumThread({ id }, { transaction })
-        if (!thread) return res.status(400).json({ message: 'bad-request', status: 400 })
+        post = await forumService.getForumThread({ id }, { transaction })
+        if (!post) return res.status(400).json({ message: 'bad-request', status: 400 })
         break
       case 'question':
-        const question = await questionsService.getQuestion({ id }, { transaction })
-        if (!question) return res.status(400).json({ message: 'bad-request', status: 400 })
+        post = await questionsService.getQuestion({ id }, { transaction })
+        if (!post) return res.status(400).json({ message: 'bad-request', status: 400 })
         break
       default:
         return res.status(400).json({ message: 'bad-request', status: 400 })
     }
 
-    await userService.addBookmark({ type, id, userId: user.id })
+    await userService.addBookmark({
+      type,
+      id,
+      userId: user.id,
+      postTitle: post.title,
+      postSlug: post.slug
+    })
 
     await transaction.commit()
     return res.status(200).json({ status: 1 })

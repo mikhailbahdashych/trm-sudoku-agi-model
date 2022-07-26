@@ -7,9 +7,9 @@ const loggerInstance = require('../common/logger')
 const logger = loggerInstance({ label: 'question-service', path: 'question' })
 
 module.exports = {
-  getQuestion: async ({ id, slug }, { transaction } = { transaction: null }) => {
+  getQuestion: async ({ id, slug, view }, { transaction } = { transaction: null }) => {
     try {
-      await questionRepository.incrementViewCounter({ id, slug }, { transaction })
+      if (view) await questionRepository.incrementViewCounter({ id, slug }, { transaction })
       const question = await questionRepository.getQuestion({ id, slug }, { transaction
       })
       question.created_at = moment(question.created_at).format('YYYY-MM-DD HH:mm:ss')

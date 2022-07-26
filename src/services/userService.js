@@ -125,10 +125,16 @@ module.exports = {
       throw Error('error-while-disabling-2fa')
     }
   },
-  addBookmark: async ({ id, type, userId }, { transaction } = { transaction: null }) => {
+  addBookmark: async ({ id, type, userId, postTitle, postSlug }, { transaction } = { transaction: null }) => {
     try {
       const postType = await postTypeRepository.getPostTypeIdByType({ type }, { transaction })
-      return await bookmarksRepository.addBookmark({ post_id: id, post_type_id: postType.id, user_id: userId }, { transaction })
+      return await bookmarksRepository.addBookmark({
+        post_id: id,
+        post_type_id: postType.id,
+        user_id: userId,
+        post_title: postTitle,
+        post_slug: postSlug
+      }, { transaction })
     } catch (e) {
       logger.error(`Error while adding bookmark: ${e.message}`)
       throw Error('error-while-adding-bookmark')

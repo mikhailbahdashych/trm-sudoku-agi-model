@@ -9,6 +9,7 @@ module.exports = {
   getBookmarks: async ({ userId }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('user_id', userId)
+      .select('id', 'post_title', 'post_slug', 'created_at')
     return transaction ? result.transacting(transaction) : result
   },
   deleteBookmark: async ({ id, userId }, { transaction } = { transaction: null }) => {
