@@ -13,8 +13,7 @@ const authMiddleware = require('./middlewares/auth');
 const basicAuth = require('./middlewares/basicAuth');
 
 // @TODO Do research about white-space: pre-line and VueEditor
-// @TODO return this.$router.go(0)
-// @TODO Look at refresh token endpoint one more time
+
 router.post('/sign-in', basicAuth, v(['email', 'password', 'phone', 'twoFa']), wrapAsync(userController.signIn));
 router.post('/sign-up', basicAuth, v(['email', 'password', 'username', 'personalInformation']), wrapAsync(userController.signUp));
 router.post('/change-password', v(['password', 'newPassword', 'newPasswordRepeat', 'twoFa']), authMiddleware, wrapAsync(userController.changePassword));
