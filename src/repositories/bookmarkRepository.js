@@ -11,9 +11,11 @@ module.exports = {
       .where('user_id', userId)
     return transaction ? result.transacting(transaction) : result
   },
-  deleteBookmark: async ({ id }) => {
+  deleteBookmark: async ({ id, userId }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
-      .where('id', id).del()
+      .where('id', id)
+      .andWhere('user_id', userId)
+      .del()
     return transaction ? result.transacting(transaction) : result
   }
 }

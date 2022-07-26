@@ -418,7 +418,7 @@ exports.deleteBookmark = async (req, res) => {
 
     const { id } = req.params
 
-    await userService.deleteBookmark({ id }, { transaction })
+    await userService.deleteBookmark({ id, userId: user.id }, { transaction })
 
     await transaction.commit()
     return res.status(200).json({ status: 1 })

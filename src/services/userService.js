@@ -142,9 +142,9 @@ module.exports = {
       throw Error('error-while-getting-bookmark')
     }
   },
-  deleteBookmark: async ({ id }, { transaction } = { transaction: null }) => {
+  deleteBookmark: async ({ id, userId }, { transaction } = { transaction: null }) => {
     try {
-      return await bookmarksRepository.deleteBookmark({ id }, { transaction })
+      return await bookmarksRepository.deleteBookmark({ id, userId }, { transaction })
     } catch (e) {
       logger.error(`Error while deleting bookmark: ${e.message}`)
       throw Error('error-while-deleting-bookmark')
