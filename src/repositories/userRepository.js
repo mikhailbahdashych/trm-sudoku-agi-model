@@ -140,5 +140,17 @@ module.exports = {
       .where('id', userId)
       .update({ two_fa: null })
     return transaction ? result.transacting(transaction) : result
+  },
+  setMobilePhone: async ({ phone, userId }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+      .where('id', userId)
+      .update({ phone })
+    return transaction ? result.transacting(transaction) : result
+  },
+  disableMobilePhone: async ({ userId }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+      .where('id', userId)
+      .update({ phone: null })
+    return transaction ? result.transacting(transaction) : result
   }
 }

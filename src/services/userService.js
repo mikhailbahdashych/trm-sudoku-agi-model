@@ -133,9 +133,9 @@ module.exports = {
       throw Error('error-while-setting-mobile-phone')
     }
   },
-  disableMobilePhone: async ({ transaction } = { transaction: null }) => {
+  disableMobilePhone: async ({ userId }, { transaction } = { transaction: null }) => {
     try {
-
+      return await userRepository.disableMobilePhone({ userId }, { transaction })
     } catch (e) {
       logger.error(`Error while disabling mobile phone: ${e.message}`)
       throw Error('error-while-disabling-mobile-phone')

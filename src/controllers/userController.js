@@ -302,38 +302,6 @@ exports.updateUserPersonalInformation = async (req, res) => {
   }
 }
 
-exports.setMobilePhone = async (req, res) => {
-  const transaction = await knex.transaction()
-  try {
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(req.user)
-    }, { transaction })
-
-    const { phone, twoFa } = req.body
-    await transaction.commit()
-  } catch (e) {
-    await transaction.rollback()
-    logger.error(`Something went wrong while setting mobile phone: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
-  }
-}
-
-exports.disableMobilePhone = async (req, res) => {
-  const transaction = await knex.transaction()
-  try {
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(req.user)
-    }, { transaction })
-
-    const { twoFa } = req.body
-    await transaction.commit()
-  } catch (e) {
-    await transaction.rollback()
-    logger.error(`Something went wrong while disabling mobile phone: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
-  }
-}
-
 exports.setTwoFa = async (req, res) => {
   const transaction = await knex.transaction()
   try {
@@ -382,6 +350,45 @@ exports.disableTwoFa = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while disabling 2FA : ${e.message}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
+exports.setMobilePhone = async (req, res) => {
+  const transaction = await knex.transaction()
+  try {
+    const user = await userService.getUser({
+      id: cryptoService.decrypt(req.user)
+    }, { transaction })
+
+    const { phone, twoFa } = req.body
+
+    await userService.setMobilePhone({ phone, userId: user.id })
+
+    await transaction.commit()
+    return res.status(200).json({ status: 1 });
+  } catch (e) {
+    await transaction.rollback()
+    logger.error(`Something went wrong while setting mobile phone: ${e.message}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
+exports.disableMobilePhone = async (req, res) => {
+  const transaction = await knex.transaction()
+  try {
+    const user = await userService.getUser({
+      id: cryptoService.decrypt(req.user)
+    }, { transaction })
+
+    const { twoFa } = req.body
+
+    await userService.disableMobilePhone({ userId: user.id })
+
+    await transaction.commit()
+  } catch (e) {
+    await transaction.rollback()
+    logger.error(`Something went wrong while disabling mobile phone: ${e.message}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
