@@ -18,6 +18,8 @@ router.post('/sign-in', basicAuth, v(['email', 'password', 'phone', 'twoFa']), w
 router.post('/sign-up', basicAuth, v(['email', 'password', 'username', 'personalInformation']), wrapAsync(userController.signUp));
 router.post('/change-password', v(['password', 'newPassword', 'newPasswordRepeat', 'twoFa']), authMiddleware, wrapAsync(userController.changePassword));
 router.post('/change-email', v(['email', 'twoFa']), authMiddleware, wrapAsync(userController.changeEmail));
+router.post('/set-mobile-phone', v(['twoFa']), authMiddleware, wrapAsync(userController.setMobilePhone));
+router.post('/disable-mobile-phone', v(['twoFa']), authMiddleware, wrapAsync(userController.disableMobilePhone));
 router.post('/set-2fa', v(['twoFa']), authMiddleware, wrapAsync(userController.setTwoFa));
 router.post('/disable-2fa', v(['twoFa']), authMiddleware, wrapAsync(userController.disableTwoFa));
 router.post('/delete-account', v(['password', 'twoFa']), authMiddleware, wrapAsync(userController.deleteAccount));
