@@ -305,6 +305,11 @@ exports.updateUserPersonalInformation = async (req, res) => {
 exports.setMobilePhone = async (req, res) => {
   const transaction = await knex.transaction()
   try {
+    const user = await userService.getUser({
+      id: cryptoService.decrypt(req.user)
+    }, { transaction })
+
+    const { phone, twoFa } = req.body
     await transaction.commit()
   } catch (e) {
     await transaction.rollback()
@@ -316,6 +321,11 @@ exports.setMobilePhone = async (req, res) => {
 exports.disableMobilePhone = async (req, res) => {
   const transaction = await knex.transaction()
   try {
+    const user = await userService.getUser({
+      id: cryptoService.decrypt(req.user)
+    }, { transaction })
+
+    const { twoFa } = req.body
     await transaction.commit()
   } catch (e) {
     await transaction.rollback()
@@ -338,7 +348,7 @@ exports.setTwoFa = async (req, res) => {
     if (!resultTwoFa) return res.status(403).json({ status: -1, message: 'access-forbidden' })
     if (resultTwoFa.delta !== 0) return res.status(403).json({ status: -1, message: 'access-forbidden' })
 
-    await userService.setTwoFa({ twoFaToken, id: user.id }, { transaction })
+    await userService.setTwoFa({ twoFaToken, userId: user.id }, { transaction })
     logger.info(`2FA was successfully created for user with id: ${ user.id }`)
 
     await transaction.commit()
@@ -364,7 +374,7 @@ exports.disableTwoFa = async (req, res) => {
     if (!result2Fa) return res.status(403).json({ status: -1, message: 'access-forbidden' })
     if (result2Fa.delta !== 0) return res.status(403).json({ status: -1, message: 'access-forbidden' })
 
-    await userService.disableTwoFa({ id: user.id }, { transaction })
+    await userService.disableTwoFa({ userId: user.id }, { transaction })
     logger.info(`2FA was successfully disabled for user with id: ${user.id}`)
 
     await transaction.commit()

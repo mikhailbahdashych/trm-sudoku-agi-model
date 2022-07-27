@@ -128,16 +128,16 @@ module.exports = {
       .update({ email, password })
     return transaction ? result.transacting(transaction) : result
   },
-  setTwoFa: async ({ twoFaToken, id }, { transaction } = { transaction: null }) => {
+  setTwoFa: async ({ twoFaToken, userId }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
-      .where('id', id)
+      .where('id', userId)
       .update({ two_fa: twoFaToken })
     return transaction ? result.transacting(transaction) : result
 
   },
-  disableTwoFa: async ({ id }, { transaction } = { transaction: null }) => {
+  disableTwoFa: async ({ userId }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
-      .where('id', id)
+      .where('id', userId)
       .update({ two_fa: null })
     return transaction ? result.transacting(transaction) : result
   }

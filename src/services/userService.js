@@ -109,20 +109,36 @@ module.exports = {
       throw Error('error-while-reopening-account')
     }
   },
-  setTwoFa: async ({ twoFaToken, id }, { transaction } = { transaction: null }) => {
+  setTwoFa: async ({ twoFaToken, userId }, { transaction } = { transaction: null }) => {
     try {
-      return await userRepository.setTwoFa({ twoFaToken, id }, { transaction })
+      return await userRepository.setTwoFa({ twoFaToken, userId }, { transaction })
     } catch (e) {
       logger.error(`Error while setting 2FA: ${e.message}`)
       throw Error('error-while-setting-2fa')
     }
   },
-  disableTwoFa: async ({ id }, { transaction } = { transaction: null }) => {
+  disableTwoFa: async ({ userId }, { transaction } = { transaction: null }) => {
     try {
-      return await userRepository.disableTwoFa({ id }, { transaction })
+      return await userRepository.disableTwoFa({ userId }, { transaction })
     } catch (e) {
       logger.error(`Error while disabling 2FA: ${e.message}`)
       throw Error('error-while-disabling-2fa')
+    }
+  },
+  setMobilePhone: async({ phone, userId }, { transaction } = { transaction: null }) => {
+    try {
+      return await userRepository.setMobilePhone({ phone, userId }, { transaction })
+    } catch (e) {
+      logger.error(`Error while setting mobile phone: ${e.message}`)
+      throw Error('error-while-setting-mobile-phone')
+    }
+  },
+  disableMobilePhone: async ({ transaction } = { transaction: null }) => {
+    try {
+
+    } catch (e) {
+      logger.error(`Error while disabling mobile phone: ${e.message}`)
+      throw Error('error-while-disabling-mobile-phone')
     }
   },
   addBookmark: async ({ id, type, userId, postTitle, postSlug }, { transaction } = { transaction: null }) => {
