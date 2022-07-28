@@ -394,13 +394,23 @@ exports.disableMobilePhone = async (req, res) => {
 
     const { twoFa } = req.body
 
-    const code = (seedrandom(Date.now()).quick() * 1e6).toFixed(0)
-    await smsService.sendSmsCode({ phone: user.phone, code })
-    await userService.addCode({ userId: user.id, code })
+    if (!twoFa) {
+      const validSms = await userService.getLastValidSmsCode({ userId: user.id })
+      if (!validSms) {
+        const code = (seedrandom(Date.now()).quick() * 1e6).toFixed(0)
+        await smsService.sendSmsCode({ phone: user.phone, code })
+        await userService.addCode({ userId: user.id, code })
+        return res.status(200).json({ status: 0 })
+      }
+    } else {
+      const validSms = await userService.getLastValidSmsCode({ userId: user.id })
+      if (!validSms || twoFa !== validSms) return res.status(200).json({ status: 0 })
+    }
 
     await userService.disableMobilePhone({ userId: user.id })
 
     await transaction.commit()
+    return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while disabling mobile phone: ${e.message}`)
