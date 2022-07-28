@@ -141,6 +141,22 @@ module.exports = {
       throw Error('error-while-disabling-mobile-phone')
     }
   },
+  getLastValidSmsCode: async ({ userId }, { transaction } = { transaction: null }) => {
+    try {
+      return await userRepository.getLastValidSmsCode({ userId }, { transaction })
+    } catch (e) {
+      logger.error(`Error while getting last valid sms code: ${e.message}`)
+      throw Error('error-while-getting-last-valid-sms-code')
+    }
+  },
+  addCode: async ({ userId, code }, { transaction } = { transaction: null }) => {
+    try {
+      return await userRepository.addCode({ userId, code }, { transaction })
+    } catch (e) {
+      logger.error(`Error while adding sms code: ${e.message}`)
+      throw Error('error-while-adding-sms-code')
+    }
+  },
   addBookmark: async ({ id, type, userId, postTitle, postSlug }, { transaction } = { transaction: null }) => {
     try {
       const postType = await postTypeRepository.getPostTypeIdByType({ type }, { transaction })

@@ -10,6 +10,7 @@ const jwtService = require('../services/jwtService');
 const blogService = require('../services/blogService');
 const questionsService = require('../services/qaService');
 const forumService = require('../services/forumService');
+const smsService = require('../services/smsSerivce');
 
 const loggerInstance = require('../common/logger');
 const { verifyTwoFa } = require('../common/verifyTwoFa')
@@ -362,6 +363,16 @@ exports.setMobilePhone = async (req, res) => {
     }, { transaction })
 
     const { phone, twoFa } = req.body
+
+    if (!twoFa) return res.status(200).json({ status: 0 })
+
+    const code = (seedrandom(Date.now()).quick() * 1e6).toFixed(0)
+    await smsService.sendSmsCode({ phone, code })
+    await userService.addCode({ userId: user.id, code })
+
+    const validSms = await userService.getLastValidSmsCode({ userId: user.id })
+
+    if (validSms !== twoFa) return res.status(200).json({ status: -1 })
 
     await userService.setMobilePhone({ phone, userId: user.id })
 

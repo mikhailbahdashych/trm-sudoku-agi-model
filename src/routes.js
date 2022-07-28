@@ -22,7 +22,7 @@ router.patch('/user/password', v(['password', 'newPassword', 'newPasswordRepeat'
 router.patch('/user/email', v(['email', 'twoFa']), authMiddleware, wrapAsync(userController.changeEmail));
 router.patch('/user/2fa/set', v(['twoFa']), authMiddleware, wrapAsync(userController.setTwoFa));
 router.patch('/user/2fa/disable', v(['twoFa']), authMiddleware, wrapAsync(userController.disableTwoFa));
-router.patch('/user/mobile-phone/set', v(['twoFa']), authMiddleware, wrapAsync(userController.setMobilePhone));
+router.patch('/user/mobile-phone/set', v(['phone', 'twoFa']), authMiddleware, wrapAsync(userController.setMobilePhone));
 router.patch('/user/mobile-phone/disable', v(['twoFa']), authMiddleware, wrapAsync(userController.disableMobilePhone));
 router.patch('/user/delete-account', v(['password', 'twoFa']), authMiddleware, wrapAsync(userController.deleteAccount));
 router.patch('/user/personal-information', v(['personalInformation']), authMiddleware, wrapAsync(userController.updateUserPersonalInformation));

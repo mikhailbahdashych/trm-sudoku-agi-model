@@ -152,5 +152,13 @@ module.exports = {
       .where('id', userId)
       .update({ phone: null })
     return transaction ? result.transacting(transaction) : result
+  },
+  getLastValidSmsCode: async ({ userId }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+    return transaction ? result.transacting(transaction) : result
+  },
+  addCode: async ({ userId, code }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+    return transaction ? result.transacting(transaction) : result
   }
 }
