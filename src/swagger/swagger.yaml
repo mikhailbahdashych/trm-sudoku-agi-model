@@ -1,53 +1,17 @@
 paths:
-  /sign-in:
+  /user/sign-in:
     post:
       summary: "Used to sign in user"
       description: "This resource allows an individual user to sign in the system."
       tags:
         - POST
-  /sign-up:
+  /user/sign-up:
     post:
       summary: "Used to sign up user"
       description: "This resource allows an individual user to sign up in the system."
       tags:
         - POST
-  /change-password:
-    post:
-      summary: "Used to change user's password"
-      description: "This resource allows an individual user to change password for his account. <br />Operation is available only one time in 48 hours."
-      tags:
-        - POST
-  /change-email:
-    post:
-      summary: "Used to change user's email"
-      description: "This resource allows an individual user to change email for his account. <br />Operation is available only one time per individual user."
-      tags:
-        - POST
-  /set-2fa:
-    post:
-      summary: "Used to set two-factor authentication"
-      description: "This resource allows an individual user to set up 2FA for account."
-      tags:
-        - POST
-  /disable-2fa:
-    post:
-      summary: "Used to disable two-factor authentication"
-      description: "This resource allows an individual user to disable 2FA for account."
-      tags:
-        - POST
-  /delete-account:
-    post:
-      summary: "Used to delete account"
-      description: "This resource allows an individual user to delete his account. <br />Operation makes account unavailable for normal user. <br />All public information become hidden from other users. <br />Account can be restored by sign in system during 6 months."
-      tags:
-        - POST
-  /get-refreshed-tokens:
-    get:
-      summary: "User to refresh user's access token by using refresh token"
-      description: "Implementation of JWT works depending on 2 kind of tokens - refresh and access token. Access token used to allow user to get access to services that require that. In purpose of security, access token has short time of living (15m) while refresh token has more (20m) to be able to refresh access token."
-      tags:
-        - GET
-  /get-user-by-personal-id/{personalId}:
+  /user/{personalId}:
     get:
       summary: "Used to get user by personal ID"
       description: "Personal ID is 10 digits random generated number unique for each user (public ID). <br />Can be changed by user from personal settings."
@@ -58,7 +22,7 @@ paths:
           name: personalId
           required: true
           description: "The user's personal ID"
-  /get-user-settings/{t}:
+  /user/settings/{t}:
     get:
       summary: "Used to get user's settings to edit"
       description: "Endpoint used to get user's settings (personal, security or notification)"
@@ -69,18 +33,84 @@ paths:
           name: t
           required: true
           description: "Type of settings (personal, security or notification)"
+  /user/password:
+    patch:
+      summary: "Used to change user's password"
+      description: "This resource allows an individual user to change password for his account. <br />Operation is available only one time in 48 hours."
+      tags:
+        - PATCH
+  /user/email:
+    patch:
+      summary: "Used to change user's email"
+      description: "This resource allows an individual user to change email for his account. <br />Operation is available only one time per individual user."
+      tags:
+        - PATCH
+  /user/2fa/set:
+    patch:
+      summary: "Used to set two-factor authentication"
+      description: "This resource allows an individual user to set up 2FA for account."
+      tags:
+        - PATCH
+  /user/2fa/disable:
+    patch:
+      summary: "Used to disable two-factor authentication"
+      description: "This resource allows an individual user to disable 2FA for account."
+      tags:
+        - PATCH
+  /user/mobile-phone/set:
+    patch:
+      summary: "Used to set two-factor authentication as phone number"
+      description: "This resource allows an individual user to set 2FA for account as phone number."
+      tags:
+        - PATCH
+  /user/mobile-phone/disable:
+    patch:
+      summary: "Used to disable two-factor authentication as phone number"
+      description: "This resource allows an individual user to disable 2FA for account as phone number."
+      tags:
+        - PATCH
+  /user/delete-account:
+    patch:
+      summary: "Used to delete account"
+      description: "This resource allows an individual user to delete his account. <br />Operation makes account unavailable for normal user. <br />All public information become hidden from other users. <br />Account can be restored by sign in system during 6 months."
+      tags:
+        - PATCH
+  /user/personal-information:
+    patch:
+      summary: "Used to update user's personal information"
+      description: "This resource allows an individual user update user's personal information."
+      tags:
+        - PATCH
+  /bookmark:
+    post:
+      summary: "Used to create bookmark"
+      description: "This resource allows an individual user to create bookmark."
+      tags:
+        - POST
+  /bookmarks:
+    get:
+      summary: "Used to get bookmarks"
+      description: "This resource allows to get bookmarks."
+      tags:
+        - GET
+  /bookmark/{id}:
+    delete:
+      summary: "Used to get delete bookmark"
+      description: "This resource allows an individual user to delete bookmark."
+      tags:
+        - DELETE
+  /refresh-tokens:
+    get:
+      summary: "User to refresh user's access token by using refresh token"
+      description: "Implementation of JWT works depending on 2 kind of tokens - refresh and access token. Access token used to allow user to get access to services that require that. In purpose of security, access token has short time of living (15m) while refresh token has more (20m) to be able to refresh access token."
+      tags:
+        - GET
   /search:
     get:
       summary: "Used to find posts and users"
       description: "Used to find posts and users. Placed in header."
       tags:
         - GET
-  /update-user-personal-information:
-    patch:
-      summary: "Used to update user's personal information"
-      description: "This resource allows an individual user update user's personal information."
-      tags:
-        - PATCH
   /vote/{id}/{vote}/{postType}:
     patch:
       summary: "Used to vote (up or down) for post"
@@ -100,7 +130,7 @@ paths:
           name: postType
           required: true
           description: "Type of post to define"
-  /get-question:
+  /question:
     get:
       summary: "Used to get question by question ID."
       description: "This resource allows to get forum post by post ID."
@@ -111,7 +141,7 @@ paths:
           name: slug
           required: true
           description: "Question slug"
-  /get-questions/{sort}:
+  /question/{sort}:
     get:
       summary: "Used to sort questions."
       description: "Used to sort questions by 4 types - latest, hottest, week, month."
