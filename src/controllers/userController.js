@@ -394,6 +394,10 @@ exports.disableMobilePhone = async (req, res) => {
 
     const { twoFa } = req.body
 
+    const code = (seedrandom(Date.now()).quick() * 1e6).toFixed(0)
+    await smsService.sendSmsCode({ phone: user.phone, code })
+    await userService.addCode({ userId: user.id, code })
+
     await userService.disableMobilePhone({ userId: user.id })
 
     await transaction.commit()

@@ -41,6 +41,7 @@ module.exports = {
   getUserSecuritySettings: async ({ id }, { transaction } = { transaction: null }) => {
     try {
       const userSecuritySettings = await userRepository.getUserSecuritySettings({ id }, { transaction })
+      userSecuritySettings.phone = userSecuritySettings.phone !== null
       userSecuritySettings.twoFa = userSecuritySettings.twoFa !== null
       userSecuritySettings.changedPasswordAt = moment(userSecuritySettings.changedPasswordAt) >= moment().subtract(2, 'days')
 

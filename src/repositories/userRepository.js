@@ -16,6 +16,7 @@ module.exports = {
         'users.id as id',
         'users.password',
         'users.email',
+        'users.phone',
         'users.changed_email as changedEmail',
         'users.changed_password_at as changedPasswordAt',
         'users_info.reputation',
@@ -67,6 +68,7 @@ module.exports = {
     const result = knex(tableName)
       .where('id', id)
       .first(
+        'phone',
         'two_fa as twoFa',
         'changed_email as changedEmail',
         'changed_password_at as changedPasswordAt'
