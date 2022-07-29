@@ -98,15 +98,13 @@ exports.signUp = async (req, res) => {
 exports.logout = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    const _rt = req.cookies['_rt'];
-    const payload = jwtService.verifyToken({ token: _rt })
-
-    await jwtService.deleteRefreshToken({ tokenId: payload.id }, { transaction })
+    console.log('req.user', req.user)
+    await jwtService.deleteRefreshToken({ userId: req.user }, { transaction })
     await transaction.commit()
     return res.status(200).json({ status: 1 })
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while changing password : ${e.message}`)
+    logger.error(`Something went wrong while logout : ${e.message}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }

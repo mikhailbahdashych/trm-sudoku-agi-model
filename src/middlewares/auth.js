@@ -10,6 +10,7 @@ module.exports = async (req, res, next) => {
     const token = req.headers.authorization.split(' ')[1]
     const payload = jwtService.verifyToken({ token })
 
+    // @TODO Fix here. If token is corrupted, refresh is triggered.
     if (payload.type !== 'access')
       return res.status(401).json({ message: 'unauthorized', status: 401 })
 

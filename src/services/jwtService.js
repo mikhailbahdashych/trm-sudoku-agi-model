@@ -15,7 +15,7 @@ const jwtConfig = {
   passphrase: process.env.JWT_PASSPHRASE.toString(),
   access: {
     type: 'access',
-    expiresIn: '15m'
+    expiresIn: '15s'
   },
   refresh: {
     type: 'refresh',
@@ -78,9 +78,9 @@ const updateRefreshToken = async ({ tokenId, userId }, { transaction } = { trans
   }
 }
 
-const deleteRefreshToken = async ({ tokenId }, { transaction } = { transaction: null }) => {
+const deleteRefreshToken = async ({ userId }, { transaction } = { transaction: null }) => {
   try {
-    return await jwtRepository.deleteRefreshToken({ tokenId }, { transaction })
+    return await jwtRepository.deleteRefreshToken({ userId }, { transaction })
   } catch (e) {
     throw Error('error-while-updating-deleting-token')
   }
@@ -109,9 +109,9 @@ module.exports = {
       throw Error('error-while-updating-tokens')
     }
   },
-  deleteRefreshToken: async ({ tokenId }, { transaction } = { transaction: null }) => {
+  deleteRefreshToken: async ({ userId }, { transaction } = { transaction: null }) => {
     try {
-      return await deleteRefreshToken({ tokenId }, { transaction })
+      return await deleteRefreshToken({ userId }, { transaction })
     } catch (e) {
       throw Error('error-while-deleting-tokens')
     }
