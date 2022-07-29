@@ -6,22 +6,50 @@ const bookmarksRepository = require('../repositories/bookmarkRepository');
 const postTypeRepository = require('../repositories/postTypeRepository');
 const cryptoService = require('./cryptoService');
 const emailService = require('./emailService');
+const jwtService = require('./jwtService')
 
 const loggerInstance = require('../common/logger');
 const logger = loggerInstance({ label: 'user-service', path: 'user' });
 
 const ApiError = require('../exceptions/apiError');
+const { verifyTwoFa } = require('../common/verifyTwoFa')
 
 module.exports = {
-  getUserToSignIn: async ({ email, password }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.getUserToSignIn({
-        email,
-        password: cryptoService.hashPassword(password)
-      }, { transaction })
-    } catch (e) {
-      logger.error(`Error while getting user to sign in: ${e.message}`)
-      throw ApiError.BadRequest()
+  getUserToSignIn: async ({ email, password, twoFa, phone }, { transaction } = { transaction: null }) => {
+    let reopen = false
+    logger.info(`Sign in user with email: ${email}`)
+
+    const user = await userRepository.getUserToSignIn({
+      email,
+      password: cryptoService.hashPassword(password)
+    }, { transaction })
+
+    if (!user) {
+      logger.info(`Wrong data while sign in for user with email: ${email}`)
+      throw ApiError.UnauthorizedError({ statusCode: -1 })
+    }
+
+    if (user.closeAccount) {
+      logger.info(`User has deleted account, reopening...`)
+      await userRepository.reopenAccount({ id: user.id }, { transaction })
+      reopen = true
+    }
+
+    if (user.twoFa) {
+      const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
+      if (!twoFaResult) throw ApiError.AccessForbidden({ statusCode: -2 })
+    }
+
+    const { refreshToken, accessToken } = await jwtService.updateTokens({
+      userId: user.id,
+      username: user.username,
+      personalId: user.personalId,
+      reputation: user.reputation
+    }, { transaction })
+    logger.info(`User ${user.email} has been successfully signed in!`)
+
+    return {
+      _at: accessToken, _rt: refreshToken, reopening: reopen ? user.username : null
     }
   },
   getUser: async ({ id, email, username, activationLink }, { transaction } = { transaction: null }) => {

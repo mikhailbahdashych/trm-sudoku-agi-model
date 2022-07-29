@@ -19,45 +19,14 @@ const logger = loggerInstance({ label: 'user-controller', path: 'user' });
 exports.signIn = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
-    let { email, password, twoFa, phone } = req.body
-    let reopening = false
+    const { email, password, twoFa, phone } = req.body
 
-    const user = await userService.getUserToSignIn({ email, password }, { transaction })
-    logger.info(`Sign in user with email: ${email}`)
-
-    if (!user) {
-      logger.info(`Wrong data while sign in for user with email: ${email}`)
-      return res.status(401).json({ message: 'unauthorized', status: -1 })
-    }
-
-    if (user.closeAccount) {
-      logger.info(`User has deleted account, reopening...`)
-      await userService.reopenAccount({
-        id: user.id,
-        },{ transaction })
-      reopening = true
-    }
-
-    if (user.twoFa) {
-      const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
-      if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
-    }
-
-    const { refreshToken, accessToken } = await jwtService.updateTokens({
-      userId: user.id,
-      username: user.username,
-      personalId: user.personalId,
-      reputation: user.reputation
-    }, { transaction })
-    logger.info(`User ${user.email} has been successfully signed in!`)
+    const result = await userService.getUserToSignIn({ email, password, twoFa, phone }, { transaction })
 
     await transaction.commit()
-    return res
-      .status(200)
-      .json({ _at: accessToken, _rt: refreshToken, reopening: reopening ? user.username : null })
+    return res.status(200).json(result)
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while sign in : ${e.message}`)
     next(e)
   }
 }
