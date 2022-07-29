@@ -20,7 +20,7 @@ module.exports = class ApiError extends Error {
     return new ApiError(403, 'access-forbidden', error)
   }
 
-  static Conflict() {
-    return new ApiError(409, 'conflict')
+  static Conflict(error = null) {
+    return new ApiError(409, 'conflict', error)
   }
 }

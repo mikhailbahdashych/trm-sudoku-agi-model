@@ -1,5 +1,6 @@
 require('dotenv').config()
 const moment = require('moment')
+const seedrandom = require('seedrandom')
 
 const userRepository = require('../repositories/userRepository');
 const bookmarksRepository = require('../repositories/bookmarkRepository');
@@ -15,7 +16,7 @@ const ApiError = require('../exceptions/apiError');
 const { verifyTwoFa } = require('../common/verifyTwoFa')
 
 module.exports = {
-  getUserToSignIn: async ({ email, password, twoFa, phone }, { transaction } = { transaction: null }) => {
+  signIn: async ({ email, password, twoFa, phone }, { transaction } = { transaction: null }) => {
     let reopen = false
     logger.info(`Sign in user with email: ${email}`)
 
@@ -51,6 +52,40 @@ module.exports = {
     return {
       _at: accessToken, _rt: refreshToken, reopening: reopen ? user.username : null
     }
+  },
+  signUp: async ({ email, password, username, personalInformation },  { transaction } = { transaction: null }) => {
+    const sameEmailUser = await userRepository.getUser({ email }, { transaction })
+    logger.info(`Registration user with email: ${email}`)
+
+    if (sameEmailUser) {
+      logger.warn(`User with email ${email} already exists`)
+      throw ApiError.Conflict({ statusCode: -1 })
+    }
+
+    const sameUsernameUser = await userRepository.getUser({ username }, { transaction })
+
+    if (sameUsernameUser) {
+      logger.warn(`User with nickname - ${username} - already exists`)
+      throw ApiError.Conflict({ statusCode: -2 })
+    }
+
+    const personalId = (seedrandom(email).quick() * 1e10).toFixed(0)
+    const createdUser = await userRepository.createUser({
+      email,
+      password: cryptoService.hashPassword(password),
+      personal_id: personalId
+    }, { transaction })
+    await userRepository.createUserInfo({
+      user_id: createdUser[0].id, username, ...personalInformation
+    }, { transaction })
+    logger.info(`User with email ${email} has been successfully created!`)
+
+    // const activationLink = ''
+    // await emailService.sendVerificationEmail({ email, activationLink })
+    // await userRepository.createConfirmationRequest({ userId: createdUser[0].user_id, activationLink }, { transaction })
+    // logger.info(`Confirmation email has been successfully sent to user ${email}!`)
+
+    return { message: 'success', statusCode: 1 }
   },
   getUser: async ({ id, email, username, activationLink }, { transaction } = { transaction: null }) => {
     try {
@@ -89,31 +124,6 @@ module.exports = {
       throw ApiError.BadRequest()
     }
   },
-  createUser: async ({ email, password, personalId, username, personalInformation }, { transaction } = { transaction: null }) => {
-    try {
-      const createdUser = await userRepository.createUser({
-        email,
-        password: cryptoService.hashPassword(password),
-        personal_id: personalId
-      }, { transaction })
-      return await userRepository.createUserInfo({
-        user_id: createdUser[0].id, username, ...personalInformation
-      }, { transaction })
-    } catch (e) {
-      logger.error(`Error while creating user: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
-  },
-  createConfirmationRequest: async ({ email, userId }, { transaction } = { transaction: null }) => {
-    try {
-      const activationLink = ''
-      await emailService.sendVerificationEmail({ email, activationLink })
-      return await userRepository.createConfirmationRequest({ userId, activationLink }, { transaction })
-    } catch (e) {
-      logger.error(`Error while creating confirmation request: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
-  },
   confirmAccount: async ({ userId }, { transaction } = { transaction: null }) => {
     try {
       return await userRepository.confirmAccount({ userId }, { transaction })
@@ -148,14 +158,6 @@ module.exports = {
     } catch (e) {
       logger.error(`Error white deleting account: ${e.message}`)
       throw Error('error-while-deleting-account')
-    }
-  },
-  reopenAccount: async ({ id }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.reopenAccount({ id }, { transaction })
-    } catch (e) {
-      logger.error(`Error while reopening account: ${e.message}`)
-      throw ApiError.BadRequest()
     }
   },
   setTwoFa: async ({ twoFaToken, userId }, { transaction } = { transaction: null }) => {

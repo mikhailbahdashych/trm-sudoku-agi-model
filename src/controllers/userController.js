@@ -21,7 +21,7 @@ exports.signIn = async (req, res, next) => {
   try {
     const { email, password, twoFa, phone } = req.body
 
-    const result = await userService.getUserToSignIn({ email, password, twoFa, phone }, { transaction })
+    const result = await userService.signIn({ email, password, twoFa, phone }, { transaction })
 
     await transaction.commit()
     return res.status(200).json(result)
@@ -34,35 +34,14 @@ exports.signIn = async (req, res, next) => {
 exports.signUp = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
-    let { email, password, username, personalInformation } = req.body
+    const { email, password, username, personalInformation } = req.body
 
-    const sameEmailUser = await userService.getUser({ email }, { transaction })
-    logger.info(`Registration user with email: ${email}`)
-
-    if (sameEmailUser) {
-      logger.warn(`User with email ${email} already exists`)
-      return res.status(409).json({ message: 'conflict', status: -1 })
-    }
-
-    const sameUsernameUser = await userService.getUser({ username }, { transaction })
-
-    if (sameUsernameUser) {
-      logger.warn(`User with nickname - ${username} - already exists`)
-      return res.status(409).json({ message: 'conflict', status: -2 })
-    }
-
-    const personalId = (seedrandom(email).quick() * 1e10).toFixed(0)
-    const user = await userService.createUser({ email, password, personalId, username, personalInformation }, { transaction })
-    logger.info(`User with email ${email} has been successfully created!`)
-
-    await userService.createConfirmationRequest({ email, userId: user[0].user_id }, { transaction })
-    logger.info(`Confirmation email has been successfully sent to user ${email}!`)
+    const result = await userService.signUp({ email, password, username, personalInformation }, { transaction })
 
     await transaction.commit()
-    return res.status(200).json({ message: 'success', status: 1 })
+    return res.status(200).json(result)
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while sign up : ${e.message}`)
     next(e)
   }
 }
