@@ -10,6 +10,8 @@ const emailService = require('./emailService');
 const loggerInstance = require('../common/logger');
 const logger = loggerInstance({ label: 'user-service', path: 'user' });
 
+const ApiError = require('../exceptions/apiError');
+
 module.exports = {
   getUserToSignIn: async ({ email, password }, { transaction } = { transaction: null }) => {
     try {
@@ -19,7 +21,7 @@ module.exports = {
       }, { transaction })
     } catch (e) {
       logger.error(`Error while getting user to sign in: ${e.message}`)
-      throw Error('error-while-getting-user-to-sign-in')
+      throw ApiError.BadRequest()
     }
   },
   getUser: async ({ id, email, username, activationLink }, { transaction } = { transaction: null }) => {
@@ -27,7 +29,7 @@ module.exports = {
       return await userRepository.getUser({ id, email, username, activationLink }, { transaction })
     } catch (e) {
       logger.error(`Error while getting user by id: ${e.message}`)
-      throw Error('error-while-getting-user-by-id')
+      throw ApiError.BadRequest()
     }
   },
   getUserByPersonalId: async ({ personalId }, { transaction } = { transaction: null }) => {
@@ -35,7 +37,7 @@ module.exports = {
       return await userRepository.getUserByPersonalId({ personalId }, { transaction })
     } catch (e) {
       logger.error(`Error while getting user by personal ID: ${e.message}`)
-      throw Error('error-while-getting-user-by-personal-id')
+      throw ApiError.BadRequest()
     }
   },
   getUserSecuritySettings: async ({ id }, { transaction } = { transaction: null }) => {
@@ -48,7 +50,7 @@ module.exports = {
       return userSecuritySettings
     } catch (e) {
       logger.error(`Error while getting user settings: ${e.message}`)
-      throw Error('error-while-getting-user-settings')
+      throw ApiError.BadRequest()
     }
   },
   getUserPersonalSettings: async ({ id }, { transaction } = { transaction: null }) => {
@@ -56,7 +58,7 @@ module.exports = {
       return await userRepository.getUserPersonalSettings({ id }, { transaction })
     } catch (e) {
       logger.error(`Error while getting user personal settings: ${e.message}`)
-      throw Error('error-while-getting-user-personal-settings')
+      throw ApiError.BadRequest()
     }
   },
   createUser: async ({ email, password, personalId, username, personalInformation }, { transaction } = { transaction: null }) => {
@@ -71,7 +73,7 @@ module.exports = {
       }, { transaction })
     } catch (e) {
       logger.error(`Error while creating user: ${e.message}`)
-      throw Error('error-while-creating-user')
+      throw ApiError.BadRequest()
     }
   },
   createConfirmationRequest: async ({ email, userId }, { transaction } = { transaction: null }) => {
@@ -81,7 +83,7 @@ module.exports = {
       return await userRepository.createConfirmationRequest({ userId, activationLink }, { transaction })
     } catch (e) {
       logger.error(`Error while creating confirmation request: ${e.message}`)
-      throw Error('error-while-creating-confirmation-request')
+      throw ApiError.BadRequest()
     }
   },
   confirmAccount: async ({ userId }, { transaction } = { transaction: null }) => {
@@ -89,7 +91,7 @@ module.exports = {
       return await userRepository.confirmAccount({ userId }, { transaction })
     } catch (e) {
       logger.error(`Error while confirmation account: ${e.message}`)
-      throw Error('error-while-confirmation-account')
+      throw ApiError.BadRequest()
     }
   },
   updateUserPersonalInformation: async ({ information, userId }, { transaction } = { transaction: null }) => {
@@ -97,7 +99,7 @@ module.exports = {
       return await userRepository.updateUserPersonalInformation({ information, userId }, { transaction })
     } catch (e) {
       logger.error(`Error while updating user personal information: ${e.message}`)
-      throw Error('error-while-updating-user-personal-information')
+      throw ApiError.BadRequest()
     }
   },
   changePassword: async ({ id, newPassword }, { transaction } = { transaction: null }) => {
@@ -109,7 +111,7 @@ module.exports = {
       }, { transaction })
     } catch (e) {
       logger.error(`Error while changing password: ${e.message}`)
-      throw Error('error-while-changing-password')
+      throw ApiError.BadRequest()
     }
   },
   deleteAccount: async ({ id }, { transaction } = { transaction: null }) => {
@@ -125,7 +127,7 @@ module.exports = {
       return await userRepository.reopenAccount({ id }, { transaction })
     } catch (e) {
       logger.error(`Error while reopening account: ${e.message}`)
-      throw Error('error-while-reopening-account')
+      throw ApiError.BadRequest()
     }
   },
   setTwoFa: async ({ twoFaToken, userId }, { transaction } = { transaction: null }) => {
@@ -133,7 +135,7 @@ module.exports = {
       return await userRepository.setTwoFa({ twoFaToken, userId }, { transaction })
     } catch (e) {
       logger.error(`Error while setting 2FA: ${e.message}`)
-      throw Error('error-while-setting-2fa')
+      throw ApiError.BadRequest()
     }
   },
   disableTwoFa: async ({ userId }, { transaction } = { transaction: null }) => {
@@ -149,7 +151,7 @@ module.exports = {
       return await userRepository.setMobilePhone({ phone, userId }, { transaction })
     } catch (e) {
       logger.error(`Error while setting mobile phone: ${e.message}`)
-      throw Error('error-while-setting-mobile-phone')
+      throw ApiError.BadRequest()
     }
   },
   disableMobilePhone: async ({ userId }, { transaction } = { transaction: null }) => {
@@ -165,7 +167,7 @@ module.exports = {
       return await userRepository.getLastValidSmsCode({ userId }, { transaction })
     } catch (e) {
       logger.error(`Error while getting last valid sms code: ${e.message}`)
-      throw Error('error-while-getting-last-valid-sms-code')
+      throw ApiError.BadRequest()
     }
   },
   addCode: async ({ userId, code }, { transaction } = { transaction: null }) => {
@@ -173,7 +175,7 @@ module.exports = {
       return await userRepository.addCode({ userId, code }, { transaction })
     } catch (e) {
       logger.error(`Error while adding sms code: ${e.message}`)
-      throw Error('error-while-adding-sms-code')
+      throw ApiError.BadRequest()
     }
   },
   addBookmark: async ({ id, type, userId, postTitle, postSlug }, { transaction } = { transaction: null }) => {
@@ -188,7 +190,7 @@ module.exports = {
       }, { transaction })
     } catch (e) {
       logger.error(`Error while adding bookmark: ${e.message}`)
-      throw Error('error-while-adding-bookmark')
+      throw ApiError.BadRequest()
     }
   },
   getBookmarks: async ({ userId }, { transaction } = { transaction: null }) => {
@@ -196,7 +198,7 @@ module.exports = {
       return await bookmarksRepository.getBookmarks({ userId }, { transaction })
     } catch (e) {
       logger.error(`Error while getting bookmark: ${e.message}`)
-      throw Error('error-while-getting-bookmark')
+      throw ApiError.BadRequest()
     }
   },
   deleteBookmark: async ({ id, userId }, { transaction } = { transaction: null }) => {
@@ -204,7 +206,7 @@ module.exports = {
       return await bookmarksRepository.deleteBookmark({ id, userId }, { transaction })
     } catch (e) {
       logger.error(`Error while deleting bookmark: ${e.message}`)
-      throw Error('error-while-deleting-bookmark')
+      throw ApiError.BadRequest()
     }
   }
 }

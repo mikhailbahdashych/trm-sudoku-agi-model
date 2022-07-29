@@ -16,7 +16,7 @@ const { verifyTwoFa } = require('../common/verifyTwoFa')
 const twoFactorService = require('node-2fa');
 const logger = loggerInstance({ label: 'user-controller', path: 'user' });
 
-exports.signIn = async (req, res) => {
+exports.signIn = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     let { email, password, twoFa, phone } = req.body
@@ -58,11 +58,11 @@ exports.signIn = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while sign in : ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.signUp = async (req, res) => {
+exports.signUp = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     let { email, password, username, personalInformation } = req.body
@@ -94,11 +94,11 @@ exports.signUp = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while sign up : ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.logout = async (req, res) => {
+exports.logout = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     await jwtService.deleteRefreshToken({ userId: req.user }, { transaction })
@@ -108,11 +108,11 @@ exports.logout = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while logout: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.confirmAccount = async (req, res) => {
+exports.confirmAccount = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const { activationLink } = req.body
@@ -128,11 +128,11 @@ exports.confirmAccount = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while account confirmation: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.changePassword = async (req, res) => {
+exports.changePassword = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
@@ -168,11 +168,11 @@ exports.changePassword = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while changing password : ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.changeEmail = async (req, res) => {
+exports.changeEmail = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
@@ -195,11 +195,11 @@ exports.changeEmail = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while changing email : ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.deleteAccount = async (req, res) => {
+exports.deleteAccount = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
@@ -225,11 +225,11 @@ exports.deleteAccount = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while deleting account : ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.refreshToken = async (req, res) => {
+exports.refreshToken = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const _rt = req.cookies['_rt'];
@@ -258,11 +258,11 @@ exports.refreshToken = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while token refreshing : ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.getUserByPersonalId = async (req, res) => {
+exports.getUserByPersonalId = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const { personalId } = req.params
@@ -277,11 +277,11 @@ exports.getUserByPersonalId = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting user by personal Id : ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.getUserSettings = async (req, res) => {
+exports.getUserSettings = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
@@ -309,11 +309,11 @@ exports.getUserSettings = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting user's settings : ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.updateUserPersonalInformation = async (req, res) => {
+exports.updateUserPersonalInformation = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
@@ -331,11 +331,11 @@ exports.updateUserPersonalInformation = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while updating user personal information : ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.setTwoFa = async (req, res) => {
+exports.setTwoFa = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const { twoFaCode, twoFaToken } = req.body
@@ -357,11 +357,11 @@ exports.setTwoFa = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while setting 2FA : ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.disableTwoFa = async (req, res) => {
+exports.disableTwoFa = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
@@ -383,11 +383,11 @@ exports.disableTwoFa = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while disabling 2FA : ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.setMobilePhone = async (req, res) => {
+exports.setMobilePhone = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
@@ -413,11 +413,11 @@ exports.setMobilePhone = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while setting mobile phone: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.disableMobilePhone = async (req, res) => {
+exports.disableMobilePhone = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
@@ -446,11 +446,11 @@ exports.disableMobilePhone = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while disabling mobile phone: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.addBookmark = async (req, res) => {
+exports.addBookmark = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
@@ -491,11 +491,11 @@ exports.addBookmark = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while adding bookmark: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.getBookmarks = async (req, res) => {
+exports.getBookmarks = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
@@ -509,11 +509,11 @@ exports.getBookmarks = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while getting bookmarks: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.deleteBookmark = async (req, res) => {
+exports.deleteBookmark = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const user = await userService.getUser({
@@ -529,6 +529,6 @@ exports.deleteBookmark = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while deleting bookmark: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
