@@ -80,14 +80,13 @@ exports.changePassword = async (req, res, next) => {
     const { password, newPassword, newPasswordRepeat, twoFa } = req.body
 
     const result = await userService.changePassword({
-      id: req.user, password, newPassword, newPasswordRepeat, twoFa
-    })
+      userId: req.user, password, newPassword, newPasswordRepeat, twoFa
+    }, { transaction })
 
     await transaction.commit()
     return res.status(200).json(result);
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while changing password : ${e.message}`)
     next(e)
   }
 }
@@ -114,7 +113,6 @@ exports.changeEmail = async (req, res, next) => {
     return res.status(200).json({ status: 1 });
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while changing email : ${e.message}`)
     next(e)
   }
 }
@@ -122,29 +120,16 @@ exports.changeEmail = async (req, res, next) => {
 exports.deleteAccount = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(req.user)
-    }, { transaction })
-
     const { password, twoFa } = req.body
 
-    if (user.twoFa) {
-      const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
-      if (!twoFaResult) return res.status(403).json({ status: -2, message: 'access-forbidden' })
-    }
-
-    if (user.password !== cryptoService.hashPassword(password)) return res.status(401).json({ error: 'unauthorized', status: -3 });
-
-    await userService.deleteAccount({
-      id: user.id,
+    const result = await userService.deleteAccount({
+      userId: req.user, password, twoFa
     }, { transaction })
-    logger.info(`Account has been successfully deleted for user with email ${user.email}`)
 
     await transaction.commit()
-    return res.status(200).json({ status: 1 });
+    return res.status(200).json(result);
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while deleting account : ${e.message}`)
     next(e)
   }
 }
@@ -154,30 +139,12 @@ exports.refreshToken = async (req, res, next) => {
   try {
     const _rt = req.cookies['_rt'];
 
-    const payload = jwtService.verifyToken({ token: _rt })
-
-    if (payload.type !== 'refresh')
-      return res.status(401).json({ message: 'unauthorized', status: 401 })
-
-    const token = await jwtService.getTokenByTokenId({ tokenId: payload.id }, { transaction })
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(token.userId)
-    }, { transaction })
-
-    if (!token) return res.status(401).json({ message: 'unauthorized', status: 401 })
-
-    const tokens = await jwtService.updateTokens({
-      userId: cryptoService.decrypt(token.userId),
-      username: user.username,
-      personalId: user.personalId,
-      reputation: user.reputation
-    }, { transaction })
+    const result = await userService.refreshToken({ _rt }, { transaction })
 
     await transaction.commit()
-    return res.status(200).json({ _at: tokens.accessToken, _rt: tokens.refreshToken })
+    return res.status(200).json(result)
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while token refreshing : ${e.message}`)
     next(e)
   }
 }
@@ -236,21 +203,16 @@ exports.getUserSettings = async (req, res, next) => {
 exports.updateUserPersonalInformation = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(req.user)
+    const information = req.body
+
+    const result = await userService.updateUserPersonalInformation({
+      information, userId: req.user
     }, { transaction })
 
-    await userService.updateUserPersonalInformation({
-      information: req.body,
-      userId: user.id
-    }, { transaction })
-
-    logger.info(`Personal settings has been successfully updated for user`)
     await transaction.commit()
-    return res.status(200).json({ status: 1 });
+    return res.status(200).json(result);
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while updating user personal information : ${e.message}`)
     next(e)
   }
 }
@@ -259,21 +221,13 @@ exports.setTwoFa = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const { twoFaCode, twoFaToken } = req.body
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(req.user)
+
+    const result = await userService.setTwoFa({
+      twoFaCode, twoFaToken, userId: req.user
     }, { transaction })
 
-    const resultTwoFa = twoFactorService.verifyToken(twoFaToken, twoFaCode);
-    logger.info(`Setting 2FA for user with id: ${user.id}`)
-
-    if (!resultTwoFa) return res.status(403).json({ status: -1, message: 'access-forbidden' })
-    if (resultTwoFa.delta !== 0) return res.status(403).json({ status: -1, message: 'access-forbidden' })
-
-    await userService.setTwoFa({ twoFaToken, userId: user.id }, { transaction })
-    logger.info(`2FA was successfully created for user with id: ${ user.id }`)
-
     await transaction.commit()
-    return res.status(200).json({ status: 1 })
+    return res.status(200).json(result)
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while setting 2FA : ${e.message}`)
@@ -284,25 +238,16 @@ exports.setTwoFa = async (req, res, next) => {
 exports.disableTwoFa = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(req.user)
-    }, { transaction })
-
     const { twoFa } = req.body
 
-    const result2Fa = twoFactorService.verifyToken(user.twoFa, twoFa)
-
-    if (!result2Fa) return res.status(403).json({ status: -1, message: 'access-forbidden' })
-    if (result2Fa.delta !== 0) return res.status(403).json({ status: -1, message: 'access-forbidden' })
-
-    await userService.disableTwoFa({ userId: user.id }, { transaction })
-    logger.info(`2FA was successfully disabled for user with id: ${user.id}`)
+    const result = await userService.disableTwoFa({
+      twoFa, userId: req.user
+    }, { transaction })
 
     await transaction.commit()
-    return res.status(200).json({ status: 1 })
+    return res.status(200).json(result)
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while disabling 2FA : ${e.message}`)
     next(e)
   }
 }

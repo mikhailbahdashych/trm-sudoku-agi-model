@@ -14,6 +14,7 @@ const logger = loggerInstance({ label: 'user-service', path: 'user' });
 
 const ApiError = require('../exceptions/apiError');
 const { verifyTwoFa } = require('../common/verifyTwoFa')
+const twoFactorService = require('node-2fa')
 
 module.exports = {
   signIn: async ({ email, password, twoFa, phone }, { transaction } = { transaction: null }) => {
@@ -134,16 +135,20 @@ module.exports = {
     return { status: 1 }
   },
   updateUserPersonalInformation: async ({ information, userId }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.updateUserPersonalInformation({ information, userId }, { transaction })
-    } catch (e) {
-      logger.error(`Error while updating user personal information: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
-  },
-  changePassword: async ({ id, password, newPassword, newPasswordRepeat, twoFa }, { transaction } = { transaction: null }) => {
+    const decryptedUserId = cryptoService.decrypt(userId)
+    const user = await userRepository.getUser({
+      id: decryptedUserId
+    })
 
-    const decryptedUserId = cryptoService.decrypt(id)
+    if (!user) throw ApiError.BadRequest()
+
+    await userRepository.updateUserPersonalInformation({ information, userId: decryptedUserId }, { transaction })
+    logger.info(`Personal settings has been successfully updated for user: ${user.email}`)
+
+    return { statusCode: 1 }
+  },
+  changePassword: async ({ userId, password, newPassword, newPasswordRepeat, twoFa }, { transaction } = { transaction: null }) => {
+    const decryptedUserId = cryptoService.decrypt(userId)
     const user = await userRepository.getUser({
       id: decryptedUserId
     })
@@ -172,31 +177,85 @@ module.exports = {
     }, { transaction })
     logger.info(`Password has been successfully changed for user with email ${user.email}`)
 
-    return { status: 1 }
+    return { statusCode: 1 }
   },
-  deleteAccount: async ({ id }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.deleteAccount({ id }, { transaction })
-    } catch (e) {
-      logger.error(`Error white deleting account: ${e.message}`)
-      throw Error('error-while-deleting-account')
+  deleteAccount: async ({ userId, password, twoFa }, { transaction } = { transaction: null }) => {
+    const decryptedUserId = cryptoService.decrypt(userId)
+    const user = await userRepository.getUser({
+      id: decryptedUserId
+    })
+
+    if (user.twoFa) {
+      const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
+      if (!twoFaResult) throw ApiError.AccessForbidden({ statusCode: -2 })
     }
+
+    if (user.password !== cryptoService.hashPassword(password))  throw ApiError.UnauthorizedError({ statusCode: -3 })
+
+    await userRepository.deleteAccount({
+      id: decryptedUserId
+    }, { transaction })
+    logger.info(`Account has been successfully deleted for user with email ${user.email}`)
+
+    return { statusCode: 1 }
   },
-  setTwoFa: async ({ twoFaToken, userId }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.setTwoFa({ twoFaToken, userId }, { transaction })
-    } catch (e) {
-      logger.error(`Error while setting 2FA: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
+  refreshToken: async ({ _rt }, { transaction } = { transaction: null }) => {
+    const payload = jwtService.verifyToken({ token: _rt })
+
+    if (payload.type !== 'refresh') throw ApiError.UnauthorizedError()
+
+    const token = await jwtService.getTokenByTokenId({ tokenId: payload.id }, { transaction })
+
+    if (!token) throw ApiError.UnauthorizedError()
+
+    const user = await userRepository.getUser({
+      id: cryptoService.decrypt(token.userId)
+    }, { transaction })
+
+    const tokens = await jwtService.updateTokens({
+      userId: cryptoService.decrypt(token.userId),
+      username: user.username,
+      personalId: user.personalId,
+      reputation: user.reputation
+    }, { transaction })
+
+    return { _at: tokens.accessToken, _rt: tokens.refreshToken }
   },
-  disableTwoFa: async ({ userId }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.disableTwoFa({ userId }, { transaction })
-    } catch (e) {
-      logger.error(`Error while disabling 2FA: ${e.message}`)
-      throw Error('error-while-disabling-2fa')
-    }
+  setTwoFa: async ({ twoFaCode, twoFaToken, userId }, { transaction } = { transaction: null }) => {
+    const decryptedUserId = cryptoService.decrypt(userId)
+    const user = await userRepository.getUser({
+      id: decryptedUserId
+    })
+
+    if (!user) throw ApiError.BadRequest()
+
+    const resultTwoFa = twoFactorService.verifyToken(twoFaToken, twoFaCode);
+
+    if (!resultTwoFa) throw ApiError.AccessForbidden({ statusCode: -1 })
+    if (resultTwoFa.delta !== 0) throw ApiError.AccessForbidden({ statusCode: -1 })
+
+    await userRepository.setTwoFa({ twoFaToken, userId: decryptedUserId }, { transaction })
+    logger.info(`2FA was successfully created for user with id: ${ user.id }`)
+
+    return { statusCode: 1 }
+  },
+  disableTwoFa: async ({ twoFa, userId }, { transaction } = { transaction: null }) => {
+    const decryptedUserId = cryptoService.decrypt(userId)
+    const user = await userRepository.getUser({
+      id: decryptedUserId
+    })
+
+    const result2Fa = twoFactorService.verifyToken(user.twoFa, twoFa)
+
+    if (!result2Fa) throw ApiError.AccessForbidden({ statusCode: -1 })
+    if (result2Fa.delta !== 0) throw ApiError.AccessForbidden({ statusCode: -1 })
+
+    if (!user) throw ApiError.BadRequest()
+
+    await userRepository.disableTwoFa({ userId: decryptedUserId }, { transaction });
+    logger.info(`2FA was successfully disabled for user with id: ${user.id}`)
+
+    return { statusCode: 1 }
   },
   setMobilePhone: async({ phone, userId }, { transaction } = { transaction: null }) => {
     try {

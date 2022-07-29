@@ -15,7 +15,7 @@ const jwtConfig = {
   passphrase: process.env.JWT_PASSPHRASE.toString(),
   access: {
     type: 'access',
-    expiresIn: '15s'
+    expiresIn: '15m'
   },
   refresh: {
     type: 'refresh',
