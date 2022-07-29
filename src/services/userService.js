@@ -124,13 +124,14 @@ module.exports = {
       throw ApiError.BadRequest()
     }
   },
-  confirmAccount: async ({ userId }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.confirmAccount({ userId }, { transaction })
-    } catch (e) {
-      logger.error(`Error while confirmation account: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
+  confirmAccount: async ({ activationLink }, { transaction } = { transaction: null }) => {
+    const user = await userRepository.getUser({ activationLink }, { transaction })
+
+    if (!user) throw ApiError.BadRequest()
+
+    await userRepository.confirmAccount({ userId: user.id }, { transaction })
+
+    return { status: 1 }
   },
   updateUserPersonalInformation: async ({ information, userId }, { transaction } = { transaction: null }) => {
     try {
@@ -140,17 +141,38 @@ module.exports = {
       throw ApiError.BadRequest()
     }
   },
-  changePassword: async ({ id, newPassword }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.changePassword({
-        id,
-        changePasswordAt: moment(),
-        newPassword: cryptoService.hashPassword(newPassword)
-      }, { transaction })
-    } catch (e) {
-      logger.error(`Error while changing password: ${e.message}`)
-      throw ApiError.BadRequest()
+  changePassword: async ({ id, password, newPassword, newPasswordRepeat, twoFa }, { transaction } = { transaction: null }) => {
+
+    const decryptedUserId = cryptoService.decrypt(id)
+    const user = await userRepository.getUser({
+      id: decryptedUserId
+    })
+
+    if (newPassword !== newPasswordRepeat) throw ApiError.BadRequest()
+    if (user.password !== cryptoService.hashPassword(password)) throw ApiError.UnauthorizedError({ statusCode: -2 })
+    if (password === newPassword) throw ApiError.Conflict({ statusCode: -4 })
+
+    if (user.twoFa) {
+      const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
+      if (!twoFaResult) throw ApiError.AccessForbidden({ statusCode: -3 })
     }
+
+    if (
+      user.changedPasswordAt &&
+      moment(user.changedPasswordAt).format('YYYY-MM-DD HH:mm:ss') >=
+      moment().subtract(2, 'days').format('YYYY-MM-DD HH:mm:ss')
+    ) {
+      return { status: -5 }
+    }
+
+    await userRepository.changePassword({
+      id: decryptedUserId,
+      changePasswordAt: moment(),
+      newPassword: cryptoService.hashPassword(newPassword)
+    }, { transaction })
+    logger.info(`Password has been successfully changed for user with email ${user.email}`)
+
+    return { status: 1 }
   },
   deleteAccount: async ({ id }, { transaction } = { transaction: null }) => {
     try {

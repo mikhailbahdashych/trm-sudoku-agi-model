@@ -55,7 +55,6 @@ exports.logout = async (req, res, next) => {
     return res.status(200).json({ status: 1 })
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while logout: ${e.message}`)
     next(e)
   }
 }
@@ -65,17 +64,12 @@ exports.confirmAccount = async (req, res, next) => {
   try {
     const { activationLink } = req.body
 
-    const user = await userService.getUser({ activationLink }, { transaction })
-
-    if (!user) return res.status(400).json({ message: 'bad-request', status: 400 })
-
-    await userService.confirmAccount({ userId: user.id }, { transaction })
+    const result = await userService.confirmAccount({ activationLink }, { transaction })
 
     await transaction.commit()
-    return res.status(200).json({ status: 1 })
+    return res.status(200).json(result)
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while account confirmation: ${e.message}`)
     next(e)
   }
 }
@@ -83,36 +77,14 @@ exports.confirmAccount = async (req, res, next) => {
 exports.changePassword = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(req.user)
-    }, { transaction })
-
     const { password, newPassword, newPasswordRepeat, twoFa } = req.body
 
-    if (newPasswordRepeat !== newPassword) return res.status(400).json({ message: 'bad-request', status: 400 })
-    if (user.password !== cryptoService.hashPassword(password)) return res.status(401).json({ error: 'unauthorized', status: -2 });
-    if (password === newPassword) return res.status(409).json({ message: 'conflict', status: -4 })
-
-    if (user.twoFa) {
-      const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
-      if (!twoFaResult) return res.status(403).json({ status: -3, message: 'access-forbidden' })
-    }
-
-    if (
-      user.changedPasswordAt &&
-      moment(user.changedPasswordAt).format('YYYY-MM-DD HH:mm:ss') >=
-      moment().subtract(2, 'days').format('YYYY-MM-DD HH:mm:ss')
-    ) {
-      return res.status(200).json({ status: -5 })
-    }
-
-    await userService.changePassword({
-      id: user.id, newPassword
-    }, { transaction })
-    logger.info(`Password has been successfully changed for user with email ${user.email}`)
+    const result = await userService.changePassword({
+      id: req.user, password, newPassword, newPasswordRepeat, twoFa
+    })
 
     await transaction.commit()
-    return res.status(200).json({ status: 1 });
+    return res.status(200).json(result);
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while changing password : ${e.message}`)
