@@ -7,6 +7,7 @@ const bookmarksRepository = require('../repositories/bookmarkRepository');
 const postTypeRepository = require('../repositories/postTypeRepository');
 const cryptoService = require('./cryptoService');
 const emailService = require('./emailService');
+const smsService = require('./smsSerivce')
 const jwtService = require('./jwtService')
 
 const loggerInstance = require('../common/logger');
@@ -138,11 +139,11 @@ module.exports = {
     const decryptedUserId = cryptoService.decrypt(userId)
     const user = await userRepository.getUser({
       id: decryptedUserId
-    })
+    }, { transaction })
 
     if (!user) throw ApiError.BadRequest()
 
-    await userRepository.updateUserPersonalInformation({ information, userId: decryptedUserId }, { transaction })
+    await userRepository.updateUserPersonalInformation({ information, userId: user.id }, { transaction })
     logger.info(`Personal settings has been successfully updated for user: ${user.email}`)
 
     return { statusCode: 1 }
@@ -151,7 +152,7 @@ module.exports = {
     const decryptedUserId = cryptoService.decrypt(userId)
     const user = await userRepository.getUser({
       id: decryptedUserId
-    })
+    }, { transaction })
 
     if (newPassword !== newPasswordRepeat) throw ApiError.BadRequest()
     if (user.password !== cryptoService.hashPassword(password)) throw ApiError.UnauthorizedError({ statusCode: -2 })
@@ -171,7 +172,7 @@ module.exports = {
     }
 
     await userRepository.changePassword({
-      id: decryptedUserId,
+      id: user.id,
       changePasswordAt: moment(),
       newPassword: cryptoService.hashPassword(newPassword)
     }, { transaction })
@@ -183,7 +184,7 @@ module.exports = {
     const decryptedUserId = cryptoService.decrypt(userId)
     const user = await userRepository.getUser({
       id: decryptedUserId
-    })
+    }, { transaction })
 
     if (user.twoFa) {
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
@@ -193,7 +194,7 @@ module.exports = {
     if (user.password !== cryptoService.hashPassword(password))  throw ApiError.UnauthorizedError({ statusCode: -3 })
 
     await userRepository.deleteAccount({
-      id: decryptedUserId
+      id: user.id
     }, { transaction })
     logger.info(`Account has been successfully deleted for user with email ${user.email}`)
 
@@ -225,7 +226,7 @@ module.exports = {
     const decryptedUserId = cryptoService.decrypt(userId)
     const user = await userRepository.getUser({
       id: decryptedUserId
-    })
+    }, { transaction })
 
     if (!user) throw ApiError.BadRequest()
 
@@ -234,7 +235,7 @@ module.exports = {
     if (!resultTwoFa) throw ApiError.AccessForbidden({ statusCode: -1 })
     if (resultTwoFa.delta !== 0) throw ApiError.AccessForbidden({ statusCode: -1 })
 
-    await userRepository.setTwoFa({ twoFaToken, userId: decryptedUserId }, { transaction })
+    await userRepository.setTwoFa({ twoFaToken, userId: user.id }, { transaction })
     logger.info(`2FA was successfully created for user with id: ${ user.id }`)
 
     return { statusCode: 1 }
@@ -243,7 +244,9 @@ module.exports = {
     const decryptedUserId = cryptoService.decrypt(userId)
     const user = await userRepository.getUser({
       id: decryptedUserId
-    })
+    }, { transaction })
+
+    if (!user) throw ApiError.BadRequest()
 
     const result2Fa = twoFactorService.verifyToken(user.twoFa, twoFa)
 
@@ -257,21 +260,47 @@ module.exports = {
 
     return { statusCode: 1 }
   },
-  setMobilePhone: async({ phone, userId }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.setMobilePhone({ phone, userId }, { transaction })
-    } catch (e) {
-      logger.error(`Error while setting mobile phone: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
+  setMobilePhone: async({ phone, userId, twoFa }, { transaction } = { transaction: null }) => {
+    const decryptedUserId = cryptoService.decrypt(userId)
+    const user = await userRepository.getUser({
+      id: decryptedUserId
+    }, { transaction })
+
+    if (!user) throw ApiError.BadRequest()
+    if (!twoFa) return { statusCode: 0 }
+
+    const code = (seedrandom(Date.now()).quick() * 1e6).toFixed(0)
+    await smsService.sendSmsCode({ phone, code })
+    await userRepository.addCode({ userId: user.id, code })
+
+    const validSms = await userRepository.getLastValidSmsCode({ userId: user.id })
+
+    if (validSms !== twoFa) return { statusCode: -1 }
+
+    await userRepository.setMobilePhone({ phone, userId }, { transaction })
+    return { statusCode: 1 }
   },
-  disableMobilePhone: async ({ userId }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.disableMobilePhone({ userId }, { transaction })
-    } catch (e) {
-      logger.error(`Error while disabling mobile phone: ${e.message}`)
-      throw Error('error-while-disabling-mobile-phone')
+  disableMobilePhone: async ({ userId, twoFa }, { transaction } = { transaction: null }) => {
+    const decryptedUserId = cryptoService.decrypt(userId)
+    const user = await userRepository.getUser({
+      id: decryptedUserId
+    }, { transaction })
+
+    if (!twoFa) {
+      const validSms = await userRepository.getLastValidSmsCode({ userId: user.id })
+      if (!validSms) {
+        const code = (seedrandom(Date.now()).quick() * 1e6).toFixed(0)
+        await smsService.sendSmsCode({ phone: user.phone, code })
+        await userRepository.addCode({ userId: user.id, code })
+        return { statusCode: 0 }
+      }
+    } else {
+      const validSms = await userRepository.getLastValidSmsCode({ userId: user.id })
+      if (!validSms || twoFa !== validSms) return { statusCode: 0 }
     }
+
+    await userRepository.disableMobilePhone({ userId }, { transaction })
+    return { statusCode: 1 }
   },
   getLastValidSmsCode: async ({ userId }, { transaction } = { transaction: null }) => {
     try {

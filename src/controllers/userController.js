@@ -230,7 +230,6 @@ exports.setTwoFa = async (req, res, next) => {
     return res.status(200).json(result)
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while setting 2FA : ${e.message}`)
     next(e)
   }
 }
@@ -255,29 +254,16 @@ exports.disableTwoFa = async (req, res, next) => {
 exports.setMobilePhone = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(req.user)
-    }, { transaction })
-
     const { phone, twoFa } = req.body
 
-    if (!twoFa) return res.status(200).json({ status: 0 })
-
-    const code = (seedrandom(Date.now()).quick() * 1e6).toFixed(0)
-    await smsService.sendSmsCode({ phone, code })
-    await userService.addCode({ userId: user.id, code })
-
-    const validSms = await userService.getLastValidSmsCode({ userId: user.id })
-
-    if (validSms !== twoFa) return res.status(200).json({ status: -1 })
-
-    await userService.setMobilePhone({ phone, userId: user.id })
+    const result = await userService.setMobilePhone({
+      phone, twoFa, userId: req.user
+    }, { transaction })
 
     await transaction.commit()
-    return res.status(200).json({ status: 1 });
+    return res.status(200).json(result);
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while setting mobile phone: ${e.message}`)
     next(e)
   }
 }
@@ -285,32 +271,16 @@ exports.setMobilePhone = async (req, res, next) => {
 exports.disableMobilePhone = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(req.user)
-    }, { transaction })
-
     const { twoFa } = req.body
 
-    if (!twoFa) {
-      const validSms = await userService.getLastValidSmsCode({ userId: user.id })
-      if (!validSms) {
-        const code = (seedrandom(Date.now()).quick() * 1e6).toFixed(0)
-        await smsService.sendSmsCode({ phone: user.phone, code })
-        await userService.addCode({ userId: user.id, code })
-        return res.status(200).json({ status: 0 })
-      }
-    } else {
-      const validSms = await userService.getLastValidSmsCode({ userId: user.id })
-      if (!validSms || twoFa !== validSms) return res.status(200).json({ status: 0 })
-    }
-
-    await userService.disableMobilePhone({ userId: user.id })
+    const result = await userService.disableMobilePhone({
+      twoFa, userId: req.user
+    })
 
     await transaction.commit()
-    return res.status(200).json({ status: 1 });
+    return res.status(200).json(result);
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while disabling mobile phone: ${e.message}`)
     next(e)
   }
 }
