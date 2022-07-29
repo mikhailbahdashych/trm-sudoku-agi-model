@@ -17,6 +17,7 @@ const basicAuth = require('./middlewares/basicAuth');
 router.post('/user/sign-in', basicAuth, v(['email', 'password', 'phone', 'twoFa']), wrapAsync(userController.signIn));
 router.post('/user/sign-up', basicAuth, v(['email', 'password', 'username', 'personalInformation']), wrapAsync(userController.signUp));
 router.post('/user/logout', authMiddleware, wrapAsync(userController.logout));
+router.post('/user/confirm-account', basicAuth, wrapAsync(userController.confirmAccount))
 router.get('/user/:personalId', basicAuth, wrapAsync(userController.getUserByPersonalId));
 router.get('/user/settings/:t', authMiddleware, wrapAsync(userController.getUserSettings));
 router.patch('/user/password', v(['password', 'newPassword', 'newPasswordRepeat', 'twoFa']), authMiddleware, wrapAsync(userController.changePassword));

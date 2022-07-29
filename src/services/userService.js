@@ -5,6 +5,7 @@ const userRepository = require('../repositories/userRepository');
 const bookmarksRepository = require('../repositories/bookmarkRepository');
 const postTypeRepository = require('../repositories/postTypeRepository');
 const cryptoService = require('./cryptoService');
+const emailService = require('./emailService');
 
 const loggerInstance = require('../common/logger');
 const logger = loggerInstance({ label: 'user-service', path: 'user' });
@@ -21,9 +22,9 @@ module.exports = {
       throw Error('error-while-getting-user-to-sign-in')
     }
   },
-  getUser: async ({ id, email, username }, { transaction } = { transaction: null }) => {
+  getUser: async ({ id, email, username, activationLink }, { transaction } = { transaction: null }) => {
     try {
-      return await userRepository.getUser({ id, email, username }, { transaction })
+      return await userRepository.getUser({ id, email, username, activationLink }, { transaction })
     } catch (e) {
       logger.error(`Error while getting user by id: ${e.message}`)
       throw Error('error-while-getting-user-by-id')
@@ -71,6 +72,24 @@ module.exports = {
     } catch (e) {
       logger.error(`Error while creating user: ${e.message}`)
       throw Error('error-while-creating-user')
+    }
+  },
+  createConfirmationRequest: async ({ email, userId }, { transaction } = { transaction: null }) => {
+    try {
+      const activationLink = ''
+      await emailService.sendVerificationEmail({ email, activationLink })
+      return await userRepository.createConfirmationRequest({ userId, activationLink }, { transaction })
+    } catch (e) {
+      logger.error(`Error while creating confirmation request: ${e.message}`)
+      throw Error('error-while-creating-confirmation-request')
+    }
+  },
+  confirmAccount: async ({ userId }, { transaction } = { transaction: null }) => {
+    try {
+      return await userRepository.confirmAccount({ userId }, { transaction })
+    } catch (e) {
+      logger.error(`Error while confirmation account: ${e.message}`)
+      throw Error('error-while-confirmation-account')
     }
   },
   updateUserPersonalInformation: async ({ information, userId }, { transaction } = { transaction: null }) => {

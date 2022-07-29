@@ -2,13 +2,14 @@ const knex = require('../knex/knex');
 const tableName = 'users'
 
 module.exports = {
-  getUser: async ({ id, email, username }, { transaction } = { transaction: null }) => {
+  getUser: async ({ id, email, username, activationLink }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .modify((x) => {
         if (id) x.where('users.id', id)
         else if (email) x.where('users.email', email)
         else if (username) x.where('users_info.username', username)
+        else if (activationLink) x.where('activation_link', activationLink)
       })
       .first(
         'users.personal_id as personalId',
@@ -96,7 +97,22 @@ module.exports = {
     return transaction ? result.transacting(transaction) : result
   },
   createUserInfo: async (data, { transaction } = { transaction: null }) => {
-    const result = knex('users_info').insert(data)
+    const result = knex('users_info').insert(data).returning('user_id')
+    return transaction ? result.transacting(transaction) : result
+  },
+  createConfirmationRequest: async ({ userId, activationLink }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+      .where('user_id', userId)
+      .update({ activation_link: activationLink })
+    return transaction ? result.transacting(transaction) : result
+  },
+  confirmAccount: async ({ userId }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+      .where('user_id', userId)
+      .update({
+        activation_link: null,
+        is_activated: true
+      })
     return transaction ? result.transacting(transaction) : result
   },
   updateUserPersonalInformation: async ({ information, userId }, { transaction } = { transaction: null }) => {

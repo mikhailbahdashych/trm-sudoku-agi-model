@@ -8,6 +8,8 @@ exports.up = function(knex) {
     table.string('phone').nullable()
     table.boolean('notify').notNullable().defaultTo(false)
     table.boolean('close_account').notNullable().defaultTo(false)
+
+    table.string('activation_link').nullable()
     table.boolean('is_activated').notNullable().defaultTo(false)
 
     table.boolean('changed_email').notNullable().defaultTo(false)

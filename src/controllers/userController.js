@@ -83,8 +83,11 @@ exports.signUp = async (req, res) => {
     }
 
     const personalId = (seedrandom(email).quick() * 1e10).toFixed(0)
-    await userService.createUser({ email, password, personalId, username, personalInformation }, { transaction })
+    const user = await userService.createUser({ email, password, personalId, username, personalInformation }, { transaction })
     logger.info(`User with email ${email} has been successfully created!`)
+
+    await userService.createConfirmationRequest({ email, userId: user[0].user_id }, { transaction })
+    logger.info(`Confirmation email has been successfully sent to user ${email}!`)
 
     await transaction.commit()
     return res.status(200).json({ message: 'success', status: 1 })
@@ -98,13 +101,33 @@ exports.signUp = async (req, res) => {
 exports.logout = async (req, res) => {
   const transaction = await knex.transaction()
   try {
-    console.log('req.user', req.user)
     await jwtService.deleteRefreshToken({ userId: req.user }, { transaction })
+
     await transaction.commit()
     return res.status(200).json({ status: 1 })
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while logout : ${e.message}`)
+    logger.error(`Something went wrong while logout: ${e.message}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
+exports.confirmAccount = async (req, res) => {
+  const transaction = await knex.transaction()
+  try {
+    const { activationLink } = req.body
+
+    const user = await userService.getUser({ activationLink }, { transaction })
+
+    if (!user) return res.status(400).json({ message: 'bad-request', status: 400 })
+
+    await userService.confirmAccount({ userId: user.id }, { transaction })
+
+    await transaction.commit()
+    return res.status(200).json({ status: 1 })
+  } catch (e) {
+    await transaction.rollback()
+    logger.error(`Something went wrong while account confirmation: ${e.message}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }

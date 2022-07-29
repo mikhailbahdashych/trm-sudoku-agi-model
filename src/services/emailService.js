@@ -2,7 +2,7 @@ require('dotenv').config()
 const nodemailer = require('nodemailer')
 
 module.exports = {
-  sendVerificationEmail: async ({ email, message }) => {
+  sendVerificationEmail: async ({ email, activationLink }) => {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
@@ -17,7 +17,7 @@ module.exports = {
       from: process.env.SMTP_USER,
       to: email,
       subject: 'PNB - Account activation',
-      html: `${message}`
+      html: `${activationLink}`
     })
   }
 }
