@@ -7,6 +7,7 @@ const forumController = require('./controllers/forumController');
 const questionController = require('./controllers/qaController');
 const voteController = require('./controllers/voteController');
 const searchController = require('./controllers/searchController');
+const bookmarkController = require('./controllers/bookmarkController');
 
 const { v } = require('./middlewares/validator');
 const authMiddleware = require('./middlewares/auth');
@@ -30,9 +31,9 @@ router.patch('/user/mobile-phone/disable', v(['twoFa']), authMiddleware, wrapAsy
 router.patch('/user/delete-account', v(['password', 'twoFa']), authMiddleware, wrapAsync(userController.deleteAccount));
 router.patch('/user/personal-information', v(['personalInformation']), authMiddleware, wrapAsync(userController.updateUserPersonalInformation));
 
-router.post('/bookmark', authMiddleware, wrapAsync(userController.addBookmark));
-router.get('/bookmark', authMiddleware, wrapAsync(userController.getBookmarks))
-router.delete('/bookmark/:id', authMiddleware, wrapAsync(userController.deleteBookmark))
+router.post('/bookmark', authMiddleware, wrapAsync(bookmarkController.addBookmark));
+router.get('/bookmark', authMiddleware, wrapAsync(bookmarkController.getBookmarks))
+router.delete('/bookmark/:id', authMiddleware, wrapAsync(bookmarkController.deleteBookmark))
 
 router.get('/refresh-tokens', basicAuth, wrapAsync(userController.refreshToken));
 

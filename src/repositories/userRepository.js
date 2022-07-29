@@ -130,6 +130,12 @@ module.exports = {
       })
     return transaction ? result.transacting(transaction) : result
   },
+  changeEmail: async ({ id, email }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+      .where('id', id)
+      .update({ email})
+    return transaction ? result.transacting(transaction) : result
+  },
   deleteAccount: async ({ id }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('id', id)

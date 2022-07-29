@@ -154,6 +154,8 @@ module.exports = {
       id: decryptedUserId
     }, { transaction })
 
+    if (!user) throw ApiError.BadRequest()
+
     if (newPassword !== newPasswordRepeat) throw ApiError.BadRequest()
     if (user.password !== cryptoService.hashPassword(password)) throw ApiError.UnauthorizedError({ statusCode: -2 })
     if (password === newPassword) throw ApiError.Conflict({ statusCode: -4 })
@@ -177,6 +179,28 @@ module.exports = {
       newPassword: cryptoService.hashPassword(newPassword)
     }, { transaction })
     logger.info(`Password has been successfully changed for user with email ${user.email}`)
+
+    return { statusCode: 1 }
+  },
+  changeEmail: async ({ userId, email, twoFa }, { transaction } = { transaction: null }) => {
+    const decryptedUserId = cryptoService.decrypt(userId)
+    const user = await userRepository.getUser({
+      id: decryptedUserId
+    }, { transaction })
+
+    if (!user) throw ApiError.BadRequest()
+
+    if (user.twoFa) {
+      const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
+      if (!twoFaResult) throw ApiError.AccessForbidden({ statusCode: -2 })
+    }
+
+    if (user.changedEmail) return { statusCode: -1 }
+
+    await userRepository.changeEmail({
+      id: user.id, email
+    }, { transaction })
+    logger.info(`Email has been successfully changed for user with email`)
 
     return { statusCode: 1 }
   },
@@ -301,22 +325,6 @@ module.exports = {
 
     await userRepository.disableMobilePhone({ userId }, { transaction })
     return { statusCode: 1 }
-  },
-  getLastValidSmsCode: async ({ userId }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.getLastValidSmsCode({ userId }, { transaction })
-    } catch (e) {
-      logger.error(`Error while getting last valid sms code: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
-  },
-  addCode: async ({ userId, code }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.addCode({ userId, code }, { transaction })
-    } catch (e) {
-      logger.error(`Error while adding sms code: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
   },
   addBookmark: async ({ id, type, userId, postTitle, postSlug }, { transaction } = { transaction: null }) => {
     try {
