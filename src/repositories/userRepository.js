@@ -50,10 +50,9 @@ module.exports = {
     const result = knex(tableName)
       .where('email', email)
       .andWhere('password', password)
-      .orWhere('email', email + '_del')
-      .andWhere('password', password + '_del')
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .first(
+        'close_account as closeAccount',
         'personal_id as personalId',
         'two_fa as twoFa',
         'password',
@@ -115,19 +114,16 @@ module.exports = {
       })
     return transaction ? result.transacting(transaction) : result
   },
-  deleteAccount: async ({ id, email, password }, { transaction } = { transaction: null }) => {
+  deleteAccount: async ({ id }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('id', id)
-      .update({
-        email: `${email}_del`,
-        password: `${password}_del`
-      })
+      .update({ close_account: true })
     return transaction ? result.transacting(transaction) : result
   },
   reopenAccount: async ({ id, email, password }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .where('id', id)
-      .update({ email, password })
+      .update({ close_account: false })
     return transaction ? result.transacting(transaction) : result
   },
   setTwoFa: async ({ twoFaToken, userId }, { transaction } = { transaction: null }) => {

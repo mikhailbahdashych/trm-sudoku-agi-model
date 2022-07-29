@@ -6,7 +6,9 @@ exports.up = function(knex) {
     table.string('personal_id').notNullable()
     table.string('two_fa').nullable()
     table.string('phone').nullable()
-    table.boolean('notify').nullable().defaultTo(false)
+    table.boolean('notify').notNullable().defaultTo(false)
+    table.boolean('close_account').notNullable().defaultTo(false)
+    table.boolean('is_activated').notNullable().defaultTo(false)
 
     table.boolean('changed_email').notNullable().defaultTo(false)
     table.timestamp('changed_password_at').nullable().defaultTo(null)

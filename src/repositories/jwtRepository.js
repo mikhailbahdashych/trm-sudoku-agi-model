@@ -16,10 +16,10 @@ module.exports = {
       })
     return transaction ? result.transacting(transaction) : result
   },
-  deleteRefreshToken: async ({ userId }, { transaction } = { transaction: null }) => {
+  deleteRefreshToken: async ({ tokenId }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
-      .where('user_id', userId)
-      .delete()
+      .where('token_id', tokenId)
+      .del()
     return transaction ? result.transacting(transaction) : result
   }
 }

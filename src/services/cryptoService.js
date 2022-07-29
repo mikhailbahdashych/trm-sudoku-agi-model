@@ -1,6 +1,5 @@
 const crypto = require('crypto')
-const dotenv = require('dotenv')
-dotenv.config()
+require('dotenv').config()
 
 const key = process.env.CRYPTO_KEY.toString()
 const iv = process.env.CRYPTO_IV.toString()

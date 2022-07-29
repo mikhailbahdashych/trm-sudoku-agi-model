@@ -1,9 +1,8 @@
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
-const dotenv = require('dotenv');
-const uuid = require('uuid')
-dotenv.config();
+const uuid = require('uuid');
+require('dotenv').config();
 
 const privateKey = fs.readFileSync(path.resolve(__dirname + '../../../keys/private.pem'));
 const publicKey = fs.readFileSync(path.resolve(__dirname + '../../../keys/public.pem'));
@@ -79,6 +78,14 @@ const updateRefreshToken = async ({ tokenId, userId }, { transaction } = { trans
   }
 }
 
+const deleteRefreshToken = async ({ tokenId }, { transaction } = { transaction: null }) => {
+  try {
+    return await jwtRepository.deleteRefreshToken({ tokenId }, { transaction })
+  } catch (e) {
+    throw Error('error-while-updating-deleting-token')
+  }
+}
+
 module.exports = {
   getTokenByTokenId: async ({ tokenId }, { transaction } = { transaction: null }) => {
     try {
@@ -100,6 +107,13 @@ module.exports = {
       return { accessToken, refreshToken: refreshToken.token }
     } catch (e) {
       throw Error('error-while-updating-tokens')
+    }
+  },
+  deleteRefreshToken: async ({ tokenId }, { transaction } = { transaction: null }) => {
+    try {
+      return await deleteRefreshToken({ tokenId }, { transaction })
+    } catch (e) {
+      throw Error('error-while-deleting-tokens')
     }
   },
   verifyToken: ({ token }) => {

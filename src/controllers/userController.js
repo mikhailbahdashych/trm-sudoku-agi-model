@@ -1,8 +1,7 @@
 const seedrandom = require('seedrandom');
 const moment = require('moment');
 const knex = require('../knex/knex');
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 
 const userService = require('../services/userService');
 const cryptoService = require('../services/cryptoService');
@@ -31,12 +30,10 @@ exports.signIn = async (req, res) => {
       return res.status(401).json({ message: 'unauthorized', status: -1 })
     }
 
-    if (user.email.slice(-4) === '_del') {
+    if (user.closeAccount) {
       logger.info(`User has deleted account, reopening...`)
       await userService.reopenAccount({
         id: user.id,
-        email: user.email.split('_del')[0],
-        password: user.password.split('_del')[0]
         },{ transaction })
       reopening = true
     }
@@ -94,6 +91,22 @@ exports.signUp = async (req, res) => {
   } catch (e) {
     await transaction.rollback()
     logger.error(`Something went wrong while sign up : ${e.message}`)
+    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+  }
+}
+
+exports.logout = async (req, res) => {
+  const transaction = await knex.transaction()
+  try {
+    const _rt = req.cookies['_rt'];
+    const payload = jwtService.verifyToken({ token: _rt })
+
+    await jwtService.deleteRefreshToken({ tokenId: payload.id }, { transaction })
+    await transaction.commit()
+    return res.status(200).json({ status: 1 })
+  } catch (e) {
+    await transaction.rollback()
+    logger.error(`Something went wrong while changing password : ${e.message}`)
     return res.status(500).json({ message: 'something-went-wrong', status: 500 })
   }
 }
@@ -183,8 +196,6 @@ exports.deleteAccount = async (req, res) => {
 
     await userService.deleteAccount({
       id: user.id,
-      email: user.email,
-      password: user.password
     }, { transaction })
     logger.info(`Account has been successfully deleted for user with email ${user.email}`)
 

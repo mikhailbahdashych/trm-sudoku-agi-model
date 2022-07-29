@@ -1,6 +1,4 @@
 const jwtService = require('../services/jwtService');
-const userService = require('../services/userService')
-const cryptoService = require('../services/cryptoService')
 
 module.exports = async (req, res, next) => {
   try {
@@ -15,15 +13,7 @@ module.exports = async (req, res, next) => {
     if (payload.type !== 'access')
       return res.status(401).json({ message: 'unauthorized', status: 401 })
 
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(payload.userId)
-    })
-
-    if (!user)
-      return res.status(401).json({ message: 'unauthorized', status: 401 })
-
     req.user = payload.userId
-
     next();
   } catch (e) {
     return res.status(401).json({ message: 'unauthorized', status: 401 })

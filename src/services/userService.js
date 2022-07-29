@@ -1,6 +1,5 @@
-const dotenv = require('dotenv')
+require('dotenv').config()
 const moment = require('moment')
-dotenv.config()
 
 const userRepository = require('../repositories/userRepository');
 const bookmarksRepository = require('../repositories/bookmarkRepository');
@@ -94,17 +93,17 @@ module.exports = {
       throw Error('error-while-changing-password')
     }
   },
-  deleteAccount: async ({ id, email, password }, { transaction } = { transaction: null }) => {
+  deleteAccount: async ({ id }, { transaction } = { transaction: null }) => {
     try {
-      return await userRepository.deleteAccount({ id, email, password }, { transaction })
+      return await userRepository.deleteAccount({ id }, { transaction })
     } catch (e) {
       logger.error(`Error white deleting account: ${e.message}`)
       throw Error('error-while-deleting-account')
     }
   },
-  reopenAccount: async ({ id, email, password }, { transaction } = { transaction: null }) => {
+  reopenAccount: async ({ id }, { transaction } = { transaction: null }) => {
     try {
-      return await userRepository.reopenAccount({ id, email, password }, { transaction })
+      return await userRepository.reopenAccount({ id }, { transaction })
     } catch (e) {
       logger.error(`Error while reopening account: ${e.message}`)
       throw Error('error-while-reopening-account')

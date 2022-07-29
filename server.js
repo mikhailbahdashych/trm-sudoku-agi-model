@@ -1,7 +1,7 @@
 const app = require("express")();
-const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+require("dotenv").config();;
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsDocs = require("swagger-jsdoc");
@@ -18,8 +18,6 @@ const swaggerOptions = {
   apis: ["./src/swagger/swagger.yaml"]
 };
 const swaggerDocs = swaggerJsDocs(swaggerOptions);
-
-dotenv.config();
 
 const server = require("http").createServer(app);
 

@@ -1,7 +1,6 @@
 const pkg = require('winston');
 const DailyRotateFile = require('winston-daily-rotate-file');
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 
 const { createLogger, format, transports } = pkg;
 
