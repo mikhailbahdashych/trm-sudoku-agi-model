@@ -116,10 +116,14 @@ module.exports = {
       throw Error('error-while-deleting-tokens')
     }
   },
+  // @TODO Verify refresh and access tokens with 2 different functions and 2 different keys
   verifyToken: ({ token }) => {
     try {
       return jwt.verify(token, publicKey)
     } catch (e) {
+      // @TODO Divide it on 2 different response messages
+      // In case of expired-token - try to refresh it
+      // Else invalid-token - not refresh
       if (e instanceof jwt.TokenExpiredError || e instanceof jwt.JsonWebTokenError)
         return { message: 'invalid-token' }
     }
