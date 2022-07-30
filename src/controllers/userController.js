@@ -6,7 +6,6 @@ const cryptoService = require('../services/cryptoService');
 const jwtService = require('../services/jwtService');
 
 const loggerInstance = require('../common/logger');
-const { verifyTwoFa } = require('../common/verifyTwoFa')
 const logger = loggerInstance({ label: 'user-controller', path: 'user' });
 
 exports.signIn = async (req, res, next) => {

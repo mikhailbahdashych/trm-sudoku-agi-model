@@ -3,8 +3,6 @@ const moment = require('moment')
 const seedrandom = require('seedrandom')
 
 const userRepository = require('../repositories/userRepository');
-const bookmarksRepository = require('../repositories/bookmarkRepository');
-const postTypeRepository = require('../repositories/postTypeRepository');
 const cryptoService = require('./cryptoService');
 const emailService = require('./emailService');
 const smsService = require('./smsSerivce')
@@ -325,36 +323,5 @@ module.exports = {
 
     await userRepository.disableMobilePhone({ userId }, { transaction })
     return { statusCode: 1 }
-  },
-  addBookmark: async ({ id, type, userId, postTitle, postSlug }, { transaction } = { transaction: null }) => {
-    try {
-      const postType = await postTypeRepository.getPostTypeIdByType({ type }, { transaction })
-      return await bookmarksRepository.addBookmark({
-        post_id: id,
-        post_type_id: postType.id,
-        user_id: userId,
-        post_title: postTitle,
-        post_slug: postSlug
-      }, { transaction })
-    } catch (e) {
-      logger.error(`Error while adding bookmark: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
-  },
-  getBookmarks: async ({ userId }, { transaction } = { transaction: null }) => {
-    try {
-      return await bookmarksRepository.getBookmarks({ userId }, { transaction })
-    } catch (e) {
-      logger.error(`Error while getting bookmark: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
-  },
-  deleteBookmark: async ({ id, userId }, { transaction } = { transaction: null }) => {
-    try {
-      return await bookmarksRepository.deleteBookmark({ id, userId }, { transaction })
-    } catch (e) {
-      logger.error(`Error while deleting bookmark: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
   }
 }
