@@ -122,8 +122,9 @@ module.exports = {
 
         settings.phone = settings.phone !== null
         settings.twoFa = settings.twoFa !== null
-        // @TODO Test it one more time
-        settings.changedPasswordAt = moment(settings.changedPasswordAt) >= moment().subtract(2, 'days')
+
+        if (settings.changedPasswordAt)
+          settings.changedPasswordAt = moment(settings.changedPasswordAt) >= moment().subtract(2, 'days')
 
         break
       case 'personal':
