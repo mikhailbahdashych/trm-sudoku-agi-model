@@ -6,6 +6,9 @@ const userRepository = require('../repositories/userRepository')
 
 const ApiError = require('../exceptions/apiError')
 
+const loggerInstance = require('../common/logger')
+const logger = loggerInstance({ label: 'questions-service', path: 'questions' })
+
 module.exports = {
   getQuestion: async ({ id, slug, view }, { transaction } = { transaction: null }) => {
     if (view) await questionRepository.incrementViewCounter({ id, slug }, { transaction })
@@ -26,7 +29,6 @@ module.exports = {
     const sorts = ['latest', 'hottest', 'week', 'month']
     if (!sorts.includes(sort)) throw ApiError.BadRequest()
 
-    // @TODO Maybe change this getUserByPersonalId function somehow to make it not to get user id
     if (personalId) {
       const userSorts = ['latest', 'score', 'views']
       if (!userSorts.includes(sort)) throw ApiError.BadRequest()

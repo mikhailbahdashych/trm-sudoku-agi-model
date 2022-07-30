@@ -96,6 +96,7 @@ module.exports = {
   },
   getUserByPersonalId: async ({ personalId }, { transaction } = { transaction: null }) => {
     const user = await userRepository.getUserByPersonalId({ personalId }, { transaction })
+    delete user.id
 
     if (!user) throw ApiError.BadRequest()
 

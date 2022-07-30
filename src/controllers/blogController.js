@@ -1,9 +1,5 @@
 const knex = require('../knex/knex');
 
-// @TODO Don't forget for logger instance
-// const loggerInstance = require('../common/logger');
-// const logger = loggerInstance({ label: 'blog-controller', path: 'blog' });
-
 exports.getBlogPost = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {

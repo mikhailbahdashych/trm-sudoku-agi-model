@@ -8,6 +8,9 @@ const questionRepository = require('../repositories/qaRepository')
 
 const ApiError = require('../exceptions/apiError')
 
+const loggerInstance = require('../common/logger')
+const logger = loggerInstance({ label: 'votes-service', path: 'votes' })
+
 module.exports = {
   vote: async ({ id, vote, type, userId }, { transaction } = { transaction: null }) => {
     const decryptedUserId = cryptoService.decrypt(userId)

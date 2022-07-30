@@ -14,7 +14,6 @@ const authMiddleware = require('./middlewares/auth');
 const basicAuth = require('./middlewares/basicAuth');
 
 // @TODO Do research about white-space: pre-line and VueEditor
-// @TODO Set logger in right places
 
 router.post('/user/sign-in', basicAuth, v(['email', 'password', 'phone', 'twoFa']), wrapAsync(userController.signIn));
 router.post('/user/sign-up', basicAuth, v(['email', 'password', 'username', 'personalInformation']), wrapAsync(userController.signUp));
