@@ -28,7 +28,7 @@ module.exports = {
 
     if (!user) {
       logger.info(`Wrong data while sign in for user with email: ${email}`)
-      throw ApiError.UnauthorizedError({ statusCode: -1 })
+      throw ApiError.UnauthorizedError({ errorMessage: 'wrong-credentials' })
     }
 
     if (user.closeAccount) {
@@ -38,8 +38,11 @@ module.exports = {
     }
 
     if (user.twoFa) {
+
+      if (!twoFa) return { twoFa: true }
+
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
-      if (!twoFaResult) throw ApiError.AccessForbidden({ statusCode: -2 })
+      if (!twoFaResult) throw ApiError.AccessForbidden({ errorMessage: 'wrong-2fa' })
     }
 
     const { refreshToken, accessToken } = await jwtService.updateTokens({
@@ -60,14 +63,14 @@ module.exports = {
 
     if (sameEmailUser) {
       logger.warn(`User with email ${email} already exists`)
-      throw ApiError.Conflict({ statusCode: -1 })
+      throw ApiError.Conflict({ errorMessage: 'email-exists' })
     }
 
     const sameUsernameUser = await userRepository.getUser({ username }, { transaction })
 
     if (sameUsernameUser) {
       logger.warn(`User with nickname - ${username} - already exists`)
-      throw ApiError.Conflict({ statusCode: -2 })
+      throw ApiError.Conflict({ errorMessage: 'nickname-exists' })
     }
 
     const personalId = (seedrandom(email).quick() * 1e10).toFixed(0)
@@ -86,15 +89,10 @@ module.exports = {
     // await userRepository.createConfirmationRequest({ userId: createdUser[0].user_id, activationLink }, { transaction })
     // logger.info(`Confirmation email has been successfully sent to user ${email}!`)
 
-    return { message: 'success', statusCode: 1 }
+    return { message: 'success' }
   },
-  getUser: async ({ id, email, username, activationLink }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.getUser({ id, email, username, activationLink }, { transaction })
-    } catch (e) {
-      logger.error(`Error while getting user by id: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
+  getUser: async ({ username }, { transaction } = { transaction: null }) => {
+    return await userRepository.getUser({ username }, { transaction })
   },
   getUserByPersonalId: async ({ personalId }, { transaction } = { transaction: null }) => {
     const user = await userRepository.getUserByPersonalId({ personalId }, { transaction })
@@ -159,7 +157,7 @@ module.exports = {
     await userRepository.updateUserPersonalInformation({ information, userId: user.id }, { transaction })
     logger.info(`Personal settings has been successfully updated for user: ${user.email}`)
 
-    return { statusCode: 1 }
+    return { message: 'success' }
   },
   changePassword: async ({ userId, password, newPassword, newPasswordRepeat, twoFa }, { transaction } = { transaction: null }) => {
     const decryptedUserId = cryptoService.decrypt(userId)
@@ -170,12 +168,12 @@ module.exports = {
     if (!user) throw ApiError.BadRequest()
 
     if (newPassword !== newPasswordRepeat) throw ApiError.BadRequest()
-    if (user.password !== cryptoService.hashPassword(password)) throw ApiError.UnauthorizedError({ statusCode: -2 })
-    if (password === newPassword) throw ApiError.Conflict({ statusCode: -4 })
+    if (user.password !== cryptoService.hashPassword(password)) throw ApiError.UnauthorizedError({ errorMessage: 'passwords-dont-match' })
+    if (password === newPassword) throw ApiError.Conflict({ errorMessage: 'same-password' })
 
     if (user.twoFa) {
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
-      if (!twoFaResult) throw ApiError.AccessForbidden({ statusCode: -3 })
+      if (!twoFaResult) throw ApiError.AccessForbidden({ errorMessage: 'wrong-2fa' })
     }
 
     if (
@@ -183,7 +181,7 @@ module.exports = {
       moment(user.changedPasswordAt).format('YYYY-MM-DD HH:mm:ss') >=
       moment().subtract(2, 'days').format('YYYY-MM-DD HH:mm:ss')
     ) {
-      return { status: -5 }
+      return { errorMessage: 'last-change' }
     }
 
     await userRepository.changePassword({
@@ -193,7 +191,7 @@ module.exports = {
     }, { transaction })
     logger.info(`Password has been successfully changed for user with email ${user.email}`)
 
-    return { statusCode: 1 }
+    return { message: 'success' }
   },
   changeEmail: async ({ userId, email, twoFa }, { transaction } = { transaction: null }) => {
     const decryptedUserId = cryptoService.decrypt(userId)
@@ -205,17 +203,17 @@ module.exports = {
 
     if (user.twoFa) {
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
-      if (!twoFaResult) throw ApiError.AccessForbidden({ statusCode: -2 })
+      if (!twoFaResult) throw ApiError.AccessForbidden({ errorMessage: 'wrong-2fa' })
     }
 
-    if (user.changedEmail) return { statusCode: -1 }
+    if (user.changedEmail) throw ApiError.AccessForbidden({ errorMessage: 'email-already-changed' })
 
     await userRepository.changeEmail({
       id: user.id, email
     }, { transaction })
     logger.info(`Email has been successfully changed for user with email`)
 
-    return { statusCode: 1 }
+    return { message: 'success' }
   },
   deleteAccount: async ({ userId, password, twoFa }, { transaction } = { transaction: null }) => {
     const decryptedUserId = cryptoService.decrypt(userId)
@@ -225,17 +223,17 @@ module.exports = {
 
     if (user.twoFa) {
       const twoFaResult = verifyTwoFa(user.twoFa, twoFa)
-      if (!twoFaResult) throw ApiError.AccessForbidden({ statusCode: -2 })
+      if (!twoFaResult) throw ApiError.AccessForbidden({ errorMessage: 'wrong-2fa' })
     }
 
-    if (user.password !== cryptoService.hashPassword(password))  throw ApiError.UnauthorizedError({ statusCode: -3 })
+    if (user.password !== cryptoService.hashPassword(password))  throw ApiError.UnauthorizedError({ errorMessage: 'passwords-dont-match' })
 
     await userRepository.deleteAccount({
       id: user.id
     }, { transaction })
     logger.info(`Account has been successfully deleted for user with email ${user.email}`)
 
-    return { statusCode: 1 }
+    return { message: 'success' }
   },
   refreshToken: async ({ _rt }, { transaction } = { transaction: null }) => {
     const payload = jwtService.verifyToken({ token: _rt })
@@ -269,13 +267,13 @@ module.exports = {
 
     const resultTwoFa = twoFactorService.verifyToken(twoFaToken, twoFaCode);
 
-    if (!resultTwoFa) throw ApiError.AccessForbidden({ statusCode: -1 })
-    if (resultTwoFa.delta !== 0) throw ApiError.AccessForbidden({ statusCode: -1 })
+    if (!resultTwoFa) throw ApiError.AccessForbidden({ errorMessage: 'wrong-2fa' })
+    if (resultTwoFa.delta !== 0) throw ApiError.AccessForbidden({ errorMessage: 'wrong-2fa' })
 
     await userRepository.setTwoFa({ twoFaToken, userId: user.id }, { transaction })
     logger.info(`2FA was successfully created for user with id: ${ user.id }`)
 
-    return { statusCode: 1 }
+    return { message: 'success' }
   },
   disableTwoFa: async ({ twoFa, userId }, { transaction } = { transaction: null }) => {
     const decryptedUserId = cryptoService.decrypt(userId)
@@ -287,15 +285,15 @@ module.exports = {
 
     const result2Fa = twoFactorService.verifyToken(user.twoFa, twoFa)
 
-    if (!result2Fa) throw ApiError.AccessForbidden({ statusCode: -1 })
-    if (result2Fa.delta !== 0) throw ApiError.AccessForbidden({ statusCode: -1 })
+    if (!result2Fa) throw ApiError.AccessForbidden({ errorMessage: 'wrong-2fa' })
+    if (result2Fa.delta !== 0) throw ApiError.AccessForbidden({ errorMessage: 'wrong-2fa' })
 
     if (!user) throw ApiError.BadRequest()
 
     await userRepository.disableTwoFa({ userId: user.id }, { transaction });
     logger.info(`2FA was successfully disabled for user with id: ${user.id}`)
 
-    return { statusCode: 1 }
+    return { message: 'success' }
   },
   setMobilePhone: async({ phone, userId, twoFa }, { transaction } = { transaction: null }) => {
     const decryptedUserId = cryptoService.decrypt(userId)
@@ -304,7 +302,7 @@ module.exports = {
     }, { transaction })
 
     if (!user) throw ApiError.BadRequest()
-    if (!twoFa) return { statusCode: 0 }
+    if (!twoFa) return { message: 0 }
 
     const code = (seedrandom(Date.now()).quick() * 1e6).toFixed(0)
     await smsService.sendSmsCode({ phone, code })
@@ -312,10 +310,10 @@ module.exports = {
 
     const validSms = await userRepository.getLastValidSmsCode({ userId: user.id })
 
-    if (validSms !== twoFa) return { statusCode: -1 }
+    if (validSms !== twoFa) return { errorMessage: 'wrong-2fa' }
 
     await userRepository.setMobilePhone({ phone, userId }, { transaction })
-    return { statusCode: 1 }
+    return { message: 'success' }
   },
   disableMobilePhone: async ({ userId, twoFa }, { transaction } = { transaction: null }) => {
     const decryptedUserId = cryptoService.decrypt(userId)
@@ -329,14 +327,14 @@ module.exports = {
         const code = (seedrandom(Date.now()).quick() * 1e6).toFixed(0)
         await smsService.sendSmsCode({ phone: user.phone, code })
         await userRepository.addCode({ userId: user.id, code })
-        return { statusCode: 0 }
+        return { message: 0 }
       }
     } else {
       const validSms = await userRepository.getLastValidSmsCode({ userId: user.id })
-      if (!validSms || twoFa !== validSms) return { statusCode: 0 }
+      if (!validSms || twoFa !== validSms) return { message: 0 }
     }
 
     await userRepository.disableMobilePhone({ userId }, { transaction })
-    return { statusCode: 1 }
+    return { message: 'success' }
   }
 }

@@ -70,7 +70,7 @@ module.exports = {
       title, content, slug, user_id: user.id
     }, { transaction })
 
-    return { statusCode: 1, slug: createdQuestion[0].slug }
+    return { message: 'success', slug: createdQuestion[0].slug }
   },
   answerQuestion: async ({ questionId, answerText, userId }, { transaction } = { transaction: null }) => {
     // @TODO Check for input fields in validator middleware
@@ -96,6 +96,6 @@ module.exports = {
       author_answer_id: user.id
     }, { transaction })
 
-    return { statusCode: 1 }
+    return { message: 'success' }
   }
 }

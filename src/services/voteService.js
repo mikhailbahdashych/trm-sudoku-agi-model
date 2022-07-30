@@ -38,6 +38,6 @@ module.exports = {
 
     await voteRepository.vote({ post_id: id, post_type_id: postType.id, vote, user_id: user.id }, { transaction })
 
-    return { statusCode: 1 }
+    return { message: 'success' }
   }
 }

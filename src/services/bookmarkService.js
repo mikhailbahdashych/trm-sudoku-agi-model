@@ -47,7 +47,7 @@ module.exports = {
       post_slug: post.postSlug
     }, { transaction })
 
-    return { statusCode: 1 }
+    return { message: 'success' }
   },
   getBookmarks: async ({ userId }, { transaction } = { transaction: null }) => {
     const decryptedUserId = cryptoService.decrypt(userId)
@@ -73,6 +73,6 @@ module.exports = {
       id, userId: user.id
     })
 
-    return { statusCode: 1 }
+    return { message: 'success' }
   }
 }

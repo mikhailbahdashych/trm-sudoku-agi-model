@@ -1,22 +1,21 @@
+const ApiError = require('../exceptions/apiError')
+
 const jwtService = require('../services/jwtService');
 
 module.exports = async (req, res, next) => {
   try {
     const auth = req.headers.authorization;
-
-    if (!auth)
-      return res.status(401).json({ message: 'unauthorized', status: 401 })
+    if (!auth) return next(ApiError.UnauthorizedError())
 
     const token = req.headers.authorization.split(' ')[1]
-    const payload = jwtService.verifyToken({ token })
+    if (!token) next(ApiError.UnauthorizedError())
 
-    // @TODO Fix here. If token is corrupted, refresh is still triggered.
-    if (payload.type !== 'access')
-      return res.status(401).json({ message: 'unauthorized', status: 401 })
+    const payload = jwtService.verifyToken({ token })
+    if (payload.type !== 'access') return next(ApiError.UnauthorizedError())
 
     req.user = payload.userId
     next();
   } catch (e) {
-    return res.status(401).json({ message: 'unauthorized', status: 401 })
+    return next(ApiError.UnauthorizedError())
   }
 }
