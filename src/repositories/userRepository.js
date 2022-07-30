@@ -30,7 +30,6 @@ module.exports = {
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .where('users.personal_id', personalId)
       .first(
-        'users.id',
         'users.personal_id as personalId',
         'users_info.reputation',
         'users_info.username',

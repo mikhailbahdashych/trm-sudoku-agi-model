@@ -2,11 +2,7 @@ const knex = require('../knex/knex');
 require('dotenv').config();
 
 const userService = require('../services/userService');
-const cryptoService = require('../services/cryptoService');
 const jwtService = require('../services/jwtService');
-
-const loggerInstance = require('../common/logger');
-const logger = loggerInstance({ label: 'user-controller', path: 'user' });
 
 exports.signIn = async (req, res, next) => {
   const transaction = await knex.transaction()
@@ -138,15 +134,11 @@ exports.getUserByPersonalId = async (req, res, next) => {
     const { personalId } = req.params
 
     const user = await userService.getUserByPersonalId({ personalId }, { transaction })
-    delete user.id
-
-    if (!user) return res.status(403).json({ error: 'not-found', status: 403 });
 
     await transaction.commit()
     return res.status(200).json(user)
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while getting user by personal Id : ${e.message}`)
     next(e)
   }
 }
@@ -154,31 +146,15 @@ exports.getUserByPersonalId = async (req, res, next) => {
 exports.getUserSettings = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
-    const user = await userService.getUser({
-      id: cryptoService.decrypt(req.user)
-    }, { transaction })
-
     const { t } = req.params
 
-    if (!t || !['security', 'personal', 'notifications'].includes(t)) return res.status(400).json({ message: 'bad-request', status: 400 })
+    const result = await userService.getUserSettings({
+      userId: req.user, type: t
+    }, { transaction })
 
-    switch (t) {
-      case 'security':
-        const securitySettings = await userService.getUserSecuritySettings({ id: user.id }, { transaction });
-
-        await transaction.commit();
-        return res.status(200).json(securitySettings);
-      case 'personal':
-        const personalSettings = await userService.getUserPersonalSettings({ id: user.id }, { transaction });
-
-        await transaction.commit();
-        return res.status(200).json(personalSettings);
-      case 'notifications':
-        break
-    }
+    return res.status(200).json(result)
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while getting user's settings : ${e.message}`)
     next(e)
   }
 }

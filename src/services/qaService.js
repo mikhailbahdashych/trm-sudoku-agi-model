@@ -29,6 +29,7 @@ module.exports = {
     try {
       let questions;
 
+      // @TODO Maybe change this getUserByPersonalId function somehow to make it not to get user id
       if (personalId) {
         const user = await userRepository.getUserByPersonalId({ personalId }, { transaction })
         questions = await questionRepository.getUserQuestions({ userId: user.id, sort }, { transaction })

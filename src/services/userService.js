@@ -96,33 +96,47 @@ module.exports = {
     }
   },
   getUserByPersonalId: async ({ personalId }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.getUserByPersonalId({ personalId }, { transaction })
-    } catch (e) {
-      logger.error(`Error while getting user by personal ID: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
-  },
-  getUserSecuritySettings: async ({ id }, { transaction } = { transaction: null }) => {
-    try {
-      const userSecuritySettings = await userRepository.getUserSecuritySettings({ id }, { transaction })
-      userSecuritySettings.phone = userSecuritySettings.phone !== null
-      userSecuritySettings.twoFa = userSecuritySettings.twoFa !== null
-      userSecuritySettings.changedPasswordAt = moment(userSecuritySettings.changedPasswordAt) >= moment().subtract(2, 'days')
+    const user = await userRepository.getUserByPersonalId({ personalId }, { transaction })
 
-      return userSecuritySettings
-    } catch (e) {
-      logger.error(`Error while getting user settings: ${e.message}`)
-      throw ApiError.BadRequest()
-    }
+    if (!user) throw ApiError.BadRequest()
+
+    return user
   },
-  getUserPersonalSettings: async ({ id }, { transaction } = { transaction: null }) => {
-    try {
-      return await userRepository.getUserPersonalSettings({ id }, { transaction })
-    } catch (e) {
-      logger.error(`Error while getting user personal settings: ${e.message}`)
-      throw ApiError.BadRequest()
+  getUserSettings: async ({ userId, type }, { transaction } = { transaction: null }) => {
+    const decryptedUserId = cryptoService.decrypt(userId)
+    const user = await userRepository.getUser({
+      id: decryptedUserId
+    }, { transaction })
+
+    if (!user) throw ApiError.BadRequest()
+
+    const settingsType = ['security', 'personal', 'notifications']
+    if (!type || !settingsType.includes(type)) throw ApiError.BadRequest()
+
+    let settings
+    switch (type) {
+      case 'security':
+        settings = await userRepository.getUserSecuritySettings({ id: user.id }, { transaction });
+
+        if (!settings) throw ApiError.BadRequest()
+
+        settings.phone = settings.phone !== null
+        settings.twoFa = settings.twoFa !== null
+        // @TODO Test it one more time
+        settings.changedPasswordAt = moment(settings.changedPasswordAt) >= moment().subtract(2, 'days')
+
+        break
+      case 'personal':
+        settings = await userRepository.getUserPersonalSettings({ id: user.id }, { transaction });
+
+        if (!settings) throw ApiError.BadRequest()
+
+        break
+      case 'notifications':
+        break
     }
+
+    return settings
   },
   confirmAccount: async ({ activationLink }, { transaction } = { transaction: null }) => {
     const user = await userRepository.getUser({ activationLink }, { transaction })
