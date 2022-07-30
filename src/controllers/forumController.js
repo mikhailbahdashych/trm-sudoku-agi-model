@@ -1,9 +1,6 @@
 const knex = require('../knex/knex');
 
-const loggerInstance = require('../common/logger');
-const logger = loggerInstance({ label: 'forum-controller', path: 'forum' });
-
-exports.getForumThread = async (req, res) => {
+exports.getForumThread = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const { slug } = req.query
@@ -11,43 +8,39 @@ exports.getForumThread = async (req, res) => {
     await transaction.commit()
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while getting forum thread by id: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.getForumThreads = async (req, res) => {
+exports.getForumThreads = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
 
     await transaction.commit()
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while getting forum threads: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.createForumThread = async (req, res) => {
+exports.createForumThread = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
 
     await transaction.commit()
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while creating forum thread: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.commentForumThread = async (req, res) => {
+exports.commentForumThread = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
 
     await transaction.commit()
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while commenting forum thread: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }

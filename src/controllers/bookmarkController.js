@@ -1,4 +1,5 @@
 const knex = require('../knex/knex')
+
 const bookmarkService = require('../services/bookmarkService')
 
 exports.addBookmark = async (req, res, next) => {

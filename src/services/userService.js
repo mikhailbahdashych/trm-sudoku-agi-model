@@ -3,6 +3,7 @@ const moment = require('moment')
 const seedrandom = require('seedrandom')
 
 const userRepository = require('../repositories/userRepository');
+
 const cryptoService = require('./cryptoService');
 const emailService = require('./emailService');
 const smsService = require('./smsSerivce')
@@ -291,7 +292,7 @@ module.exports = {
 
     if (!user) throw ApiError.BadRequest()
 
-    await userRepository.disableTwoFa({ userId: decryptedUserId }, { transaction });
+    await userRepository.disableTwoFa({ userId: user.id }, { transaction });
     logger.info(`2FA was successfully disabled for user with id: ${user.id}`)
 
     return { statusCode: 1 }

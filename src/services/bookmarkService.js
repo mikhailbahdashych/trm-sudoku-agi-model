@@ -1,6 +1,6 @@
 const cryptoService = require('./cryptoService')
-const userRepository = require('../repositories/userRepository')
 
+const userRepository = require('../repositories/userRepository')
 const postTypeRepository = require('../repositories/postTypeRepository')
 const bookmarksRepository = require('../repositories/bookmarkRepository')
 const blogRepository = require('../repositories/blogRepository')
@@ -58,7 +58,7 @@ module.exports = {
     if (!user) throw ApiError.BadRequest()
 
     return await bookmarksRepository.getBookmarks({
-      userId: decryptedUserId
+      userId: user.id
     }, { transaction })
   },
   deleteBookmark: async ({ id, userId }, { transaction } = { transaction: null }) => {
@@ -70,7 +70,7 @@ module.exports = {
     if (!user) throw ApiError.BadRequest()
 
     await bookmarksRepository.deleteBookmark({
-      id, userId: decryptedUserId
+      id, userId: user.id
     })
 
     return { statusCode: 1 }

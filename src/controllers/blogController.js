@@ -1,9 +1,10 @@
 const knex = require('../knex/knex');
 
-const loggerInstance = require('../common/logger');
-const logger = loggerInstance({ label: 'blog-controller', path: 'blog' });
+// @TODO Don't forget for logger instance
+// const loggerInstance = require('../common/logger');
+// const logger = loggerInstance({ label: 'blog-controller', path: 'blog' });
 
-exports.getBlogPost = async (req, res) => {
+exports.getBlogPost = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const { slug } = req.query
@@ -11,43 +12,39 @@ exports.getBlogPost = async (req, res) => {
     await transaction.commit()
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while getting blog post by id: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.getBlogPosts = async (req, res) => {
+exports.getBlogPosts = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
 
     await transaction.commit()
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while getting blog posts: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.createBlogPost = async (req, res) => {
+exports.createBlogPost = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
 
     await transaction.commit()
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while creating blog post: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }
 
-exports.commentBlogPost = async (req, res) => {
+exports.commentBlogPost = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
 
     await transaction.commit()
   } catch (e) {
     await transaction.rollback()
-    logger.error(`Something went wrong while commenting blog post: ${e.message}`)
-    return res.status(500).json({ message: 'something-went-wrong', status: 500 })
+    next(e)
   }
 }

@@ -1,5 +1,4 @@
 const knex = require('../knex/knex');
-require('dotenv').config();
 
 const userService = require('../services/userService');
 const jwtService = require('../services/jwtService');
