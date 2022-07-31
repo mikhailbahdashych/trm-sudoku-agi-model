@@ -67,12 +67,10 @@ exports.createQuestion = async (req, res, next) => {
 exports.answerQuestion = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
-    const { question_id, answer_text } = req.body
+    const { questionId, answerText } = req.body
 
     const result = await questionService.answerQuestion({
-      questionId: question_id,
-      answerText: answer_text,
-      userId: req.user
+      questionId, answerText, userId: req.user
     })
 
     await transaction.commit()

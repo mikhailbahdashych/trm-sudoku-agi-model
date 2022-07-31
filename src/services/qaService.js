@@ -75,7 +75,6 @@ module.exports = {
     return { message: 'success', slug: createdQuestion[0].slug }
   },
   answerQuestion: async ({ questionId, answerText, userId }, { transaction } = { transaction: null }) => {
-    // @TODO Check for input fields in validator middleware
     const decryptedUserId = cryptoService.decrypt(userId)
     const user = await userRepository.getUser({
       id: decryptedUserId
