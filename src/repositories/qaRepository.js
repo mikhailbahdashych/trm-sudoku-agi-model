@@ -2,31 +2,20 @@ const knex = require('../knex/knex')
 const tableName = 'questions'
 
 module.exports = {
-  getTags: async ({ tags }, { transaction } = { transaction: null }) => {
-    const result = knex('tags')
-      .whereIn('tag', tags)
-      .select('tag', 'quantity')
-    return transaction ? result.transacting(transaction) : result
-  },
-  createTags: async (tags, { transaction } = { transaction: null }) => {
-    const result = knex('tags').insert(tags)
-    return transaction ? result.transacting(transaction) : result
-  },
-  updateQuantityOfQuestionsTags: async ({ tags }, { transaction } = { transaction: null }) => {
-    const result = knex('tags')
-      .whereIn('tag', tags)
-      .update({
-        quantity: knex.raw('quantity + 1')
-      })
-    return transaction ? result.transacting(transaction) : result
-  },
   incrementViewCounter: async ({ id, slug }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .modify((x) => {
         if (id) x.where('questions.id', id)
-        else if (slug) x.where('slug', 'ilike',`%${slug}%`)
+        else if (slug) x.where('slug', 'like',`%${slug}%`)
       })
       .increment('views', 1)
+    return transaction ? result.transacting(transaction) : result
+  },
+  getSimilarQuestions: async ({ keywords }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+      .where('tags', 'like', `%${keywords}%`)
+      .orderBy('votes', 'desc')
+      .limit(10)
     return transaction ? result.transacting(transaction) : result
   },
   getQuestion: async ({ id, slug }, { transaction } = { transaction: null }) => {
@@ -35,7 +24,7 @@ module.exports = {
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .modify((x) => {
         if (id) x.where('questions.id', id)
-        else if (slug) x.where('slug',`${slug}`)
+        else if (slug) x.where('slug', slug)
       })
       .first(
         'questions.id',

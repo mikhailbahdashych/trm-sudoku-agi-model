@@ -24,7 +24,7 @@ module.exports = {
     return { question, answers }
   },
   getSimilarQuestions: async ({ keywords }, { transaction } = { transaction: null }) => {
-
+    return await questionRepository.getSimilarQuestions({ keywords }, { transaction })
   },
   getQuestions: async ({ sort, personalId }, { transaction } = { transaction: null }) => {
     let questions;
@@ -71,24 +71,8 @@ module.exports = {
       .replace(/[\s_-]+/g, '-')
       .replace(/^-+|-+$/g, '');
 
-    const newTags = []
-    const questionTags = await questionRepository.getTags({
-      tags: slug.split('-')
-    }, { transaction })
-    const extractedTags = questionTags.map(x => x.tag)
-
-    slug.split('-').forEach(tag => {
-      if (!extractedTags.includes(tag)) newTags.push({ tag })
-    })
-
-    if (newTags.length) await questionRepository.createTags(newTags, { transaction })
-
-    await questionRepository.updateQuantityOfQuestionsTags({
-      tags: extractedTags
-    }, { transaction })
-
     const createdQuestion = await questionRepository.createQuestion({
-      title, content, slug, user_id: user.id
+      title, content, slug, user_id: user.id, tags: slug.split('-').sort().join(',')
     }, { transaction })
 
     return { message: 'success', slug: createdQuestion[0].slug }
