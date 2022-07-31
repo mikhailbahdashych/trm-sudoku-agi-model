@@ -11,7 +11,7 @@ module.exports = async (req, res, next) => {
     if (!token) next(ApiError.UnauthorizedError())
 
     const payload = jwtService.verifyToken({ token })
-    if (payload.type !== 'access') return next(ApiError.UnauthorizedError())
+    if (payload.type !== 'access') return next(ApiError.UnauthorizedError({ errorMessage: payload.message }))
 
     req.user = payload.userId
     next();
