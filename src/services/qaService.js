@@ -75,15 +75,16 @@ module.exports = {
     const questionTags = await questionRepository.getTags({
       tags: slug.split('-')
     }, { transaction })
+    const extractedTags = questionTags.map(x => x.tag)
 
     slug.split('-').forEach(tag => {
-      if (!(tag in questionTags)) newTags.push({ tag })
+      if (!extractedTags.includes(tag)) newTags.push({ tag })
     })
 
     if (newTags.length) await questionRepository.createTags(newTags, { transaction })
 
     await questionRepository.updateQuantityOfQuestionsTags({
-      tags: questionTags
+      tags: extractedTags
     }, { transaction })
 
     const createdQuestion = await questionRepository.createQuestion({
