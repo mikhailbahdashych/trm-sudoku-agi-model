@@ -1,5 +1,8 @@
 const knex = require('../knex/knex');
 
+const loggerInstance = require('../common/logger')
+const logger = loggerInstance({ label: 'forum-controller', path: 'forum' })
+
 exports.getForumThread = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {

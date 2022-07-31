@@ -3,6 +3,9 @@ const knex = require('../knex/knex');
 const userService = require('../services/userService');
 const jwtService = require('../services/jwtService');
 
+const loggerInstance = require('../common/logger')
+const logger = loggerInstance({ label: 'user-controller', path: 'user' })
+
 exports.signIn = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {

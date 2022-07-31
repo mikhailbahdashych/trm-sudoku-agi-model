@@ -2,6 +2,9 @@ const knex = require('../knex/knex');
 
 const questionService = require('../services/qaService')
 
+const loggerInstance = require('../common/logger')
+const logger = loggerInstance({ label: 'questions-controller', path: 'questions' })
+
 exports.getQuestion = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {

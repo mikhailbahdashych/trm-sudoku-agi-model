@@ -2,6 +2,9 @@ const knex = require('../knex/knex')
 
 const bookmarkService = require('../services/bookmarkService')
 
+const loggerInstance = require('../common/logger')
+const logger = loggerInstance({ label: 'bookmarks-controller', path: 'bookmarks' })
+
 exports.addBookmark = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
