@@ -23,6 +23,9 @@ module.exports = {
 
     return { question, answers }
   },
+  getSimilarQuestions: async ({ keywords }, { transaction } = { transaction: null }) => {
+
+  },
   getQuestions: async ({ sort, personalId }, { transaction } = { transaction: null }) => {
     let questions;
 
@@ -67,6 +70,14 @@ module.exports = {
       .replace(/[^\w\s-]/g, '')
       .replace(/[\s_-]+/g, '-')
       .replace(/^-+|-+$/g, '');
+
+    const questionTags = await questionRepository.getTags({
+      tags: slug.split('-')
+    }, { transaction })
+
+    await questionRepository.updateQuantityOfQuestionsTags({
+      tags: questionTags
+    }, { transaction })
 
     const createdQuestion = await questionRepository.createQuestion({
       title, content, slug, user_id: user.id

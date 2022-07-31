@@ -13,8 +13,6 @@ const { v } = require('./middlewares/validator');
 const authMiddleware = require('./middlewares/auth');
 const basicAuth = require('./middlewares/basicAuth');
 
-// @TODO Do research about white-space: pre-line and VueEditor
-
 router.post('/user/sign-in', basicAuth, v(['email', 'password', 'phone', 'twoFa']), wrapAsync(userController.signIn));
 router.post('/user/sign-up', basicAuth, v(['email', 'password', 'username', 'personalInformation']), wrapAsync(userController.signUp));
 router.post('/user/logout', authMiddleware, wrapAsync(userController.logout));
@@ -41,6 +39,7 @@ router.get('/search', basicAuth, wrapAsync(searchController.search));
 router.patch('/vote/:id/:vote/:type', authMiddleware, wrapAsync(voteController.vote));
 
 router.get('/question', basicAuth, wrapAsync(questionController.getQuestion));
+router.get('/question/similar', basicAuth, wrapAsync(questionController.getSimilarQuestions));
 router.get('/question/:sort', basicAuth, wrapAsync(questionController.getQuestions));
 router.get('/user/:personalId/question/:sort', basicAuth, wrapAsync(questionController.getUserQuestions));
 router.post('/question', v(['question']), authMiddleware, wrapAsync(questionController.createQuestion));

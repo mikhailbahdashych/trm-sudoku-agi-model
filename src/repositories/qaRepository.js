@@ -11,6 +11,20 @@ module.exports = {
       .increment('views', 1)
     return transaction ? result.transacting(transaction) : result
   },
+  getTags: async ({ tags }, { transaction } = { transaction: null }) => {
+    const result = knex('tags')
+      .whereIn('tag', tags)
+      .select('tag', 'quantity')
+    return transaction ? result.transacting(transaction) : result
+  },
+  updateQuantityOfQuestionsTags: async ({ tags }, { transaction } = { transaction: null }) => {
+    const result = knex('tags')
+      .whereIn('tag', tags)
+      .update({
+        quantity: knex.raw('quantity + 1')
+      })
+    return transaction ? result.transacting(transaction) : result
+  },
   getQuestion: async ({ id, slug }, { transaction } = { transaction: null }) => {
     const result = knex(tableName)
       .leftJoin('users', 'users.id', 'questions.user_id')

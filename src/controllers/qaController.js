@@ -17,6 +17,23 @@ exports.getQuestion = async (req, res, next) => {
   }
 }
 
+exports.getSimilarQuestions = async (req, res, next) => {
+  const transaction = await knex.transaction()
+  try {
+    const { keywords } = req.query
+
+    const similarQuestions = await questionService.getSimilarQuestions({
+      keywords: keywords.split('-')
+    }, { transaction })
+
+    await transaction.commit()
+    return res.status(200).json(similarQuestions)
+  } catch (e) {
+    await transaction.rollback()
+    next(e)
+  }
+}
+
 exports.getQuestions = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
