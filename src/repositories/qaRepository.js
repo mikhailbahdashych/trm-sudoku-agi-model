@@ -35,7 +35,7 @@ module.exports = {
       .leftJoin('users_info', 'users_info.user_id', 'users.id')
       .modify((x) => {
         if (id) x.where('questions.id', id)
-        else if (slug) x.where('slug', 'ilike',`%${slug}%`)
+        else if (slug) x.where('slug',`${slug}`)
       })
       .first(
         'questions.id',
