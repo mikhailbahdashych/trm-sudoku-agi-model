@@ -2,19 +2,14 @@ const knex = require('../knex/knex')
 const tableName = 'questions'
 
 module.exports = {
-  incrementViewCounter: async ({ id, slug }, { transaction } = { transaction: null }) => {
-    const result = knex(tableName)
-      .modify((x) => {
-        if (id) x.where('questions.id', id)
-        else if (slug) x.where('slug', 'ilike',`%${slug}%`)
-      })
-      .increment('views', 1)
-    return transaction ? result.transacting(transaction) : result
-  },
   getTags: async ({ tags }, { transaction } = { transaction: null }) => {
     const result = knex('tags')
       .whereIn('tag', tags)
       .select('tag', 'quantity')
+    return transaction ? result.transacting(transaction) : result
+  },
+  createTags: async (tags, { transaction } = { transaction: null }) => {
+    const result = knex('tags').insert(tags)
     return transaction ? result.transacting(transaction) : result
   },
   updateQuantityOfQuestionsTags: async ({ tags }, { transaction } = { transaction: null }) => {
@@ -23,6 +18,15 @@ module.exports = {
       .update({
         quantity: knex.raw('quantity + 1')
       })
+    return transaction ? result.transacting(transaction) : result
+  },
+  incrementViewCounter: async ({ id, slug }, { transaction } = { transaction: null }) => {
+    const result = knex(tableName)
+      .modify((x) => {
+        if (id) x.where('questions.id', id)
+        else if (slug) x.where('slug', 'ilike',`%${slug}%`)
+      })
+      .increment('views', 1)
     return transaction ? result.transacting(transaction) : result
   },
   getQuestion: async ({ id, slug }, { transaction } = { transaction: null }) => {

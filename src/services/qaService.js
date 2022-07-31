@@ -71,9 +71,16 @@ module.exports = {
       .replace(/[\s_-]+/g, '-')
       .replace(/^-+|-+$/g, '');
 
+    const newTags = []
     const questionTags = await questionRepository.getTags({
       tags: slug.split('-')
     }, { transaction })
+
+    slug.split('-').forEach(tag => {
+      if (!(tag in questionTags)) newTags.push({ tag })
+    })
+
+    if (newTags.length) await questionRepository.createTags(newTags, { transaction })
 
     await questionRepository.updateQuantityOfQuestionsTags({
       tags: questionTags
