@@ -13,7 +13,6 @@ exports.signIn = async (req, res, next) => {
     await transaction.commit()
     return res.status(200).json(result)
   } catch (e) {
-    console.log(e)
     await transaction.rollback()
     next(e)
   }
