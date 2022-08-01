@@ -24,7 +24,6 @@ exports.getSimilarQuestions = async (req, res, next) => {
   const transaction = await knex.transaction()
   try {
     const { keywords } = req.query
-    console.log(keywords.split('-').sort().join(','))
 
     const similarQuestions = await questionService.getSimilarQuestions({
       keywords: keywords.split('-').sort().join(',')
