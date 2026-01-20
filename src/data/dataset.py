@@ -27,8 +27,8 @@ class SudokuDataset(Dataset):
         """Initialize the dataset.
 
         Args:
-            split: "train" or "test"
-            n_samples: Number of base samples to use (None = all)
+            split: "train" or "test" (or "validation" for some datasets)
+            n_samples: Number of base samples to use (None = all, but be careful!)
             augmentations_per_sample: Number of augmented versions per epoch
             seed: Random seed for reproducibility
             dataset_name: HuggingFace dataset identifier
@@ -37,27 +37,49 @@ class SudokuDataset(Dataset):
         self.augmentations_per_sample = augmentations_per_sample
         self.augmentor = SudokuAugmentor(seed=seed)
 
-        # Load dataset from HuggingFace
-        print(f"Loading {dataset_name} ({split} split)...")
-        dataset = load_dataset(dataset_name, split=split)
+        # Map common split names
+        hf_split = "validation" if split == "test" else split
 
-        # Parse puzzles and solutions
-        self.puzzles = []
-        self.solutions = []
+        # Load only the samples we need using HuggingFace slicing
+        # This avoids loading the entire dataset into memory
+        if n_samples is not None:
+            # Use slice notation to load only first n_samples
+            # We'll shuffle later with a fixed seed for reproducibility
+            slice_str = f"{hf_split}[:{n_samples * 2}]"  # Load 2x to allow for shuffling
+            print(f"Loading {dataset_name} ({slice_str})...")
+        else:
+            slice_str = hf_split
+            print(f"Loading {dataset_name} ({hf_split} split)...")
 
-        for item in dataset:
+        try:
+            dataset = load_dataset(dataset_name, split=slice_str)
+        except ValueError:
+            # Some datasets don't support slicing, fall back to full load
+            print(f"Slice loading failed, loading full {hf_split} split...")
+            dataset = load_dataset(dataset_name, split=hf_split)
+
+        # Convert to numpy arrays efficiently
+        print("Parsing puzzles...")
+        puzzles = []
+        solutions = []
+
+        # Limit iteration if n_samples specified
+        max_items = n_samples * 2 if n_samples else len(dataset)
+        for i, item in enumerate(dataset):
+            if i >= max_items:
+                break
             puzzle = self._parse_puzzle_string(item["puzzle"])
             solution = self._parse_puzzle_string(item["solution"])
-            self.puzzles.append(puzzle)
-            self.solutions.append(solution)
+            puzzles.append(puzzle)
+            solutions.append(solution)
 
-        self.puzzles = np.array(self.puzzles)
-        self.solutions = np.array(self.solutions)
+        self.puzzles = np.array(puzzles)
+        self.solutions = np.array(solutions)
 
-        # Subsample if requested
+        # Shuffle and subsample with fixed seed
         if n_samples is not None and n_samples < len(self.puzzles):
             rng = np.random.default_rng(seed)
-            indices = rng.choice(len(self.puzzles), n_samples, replace=False)
+            indices = rng.permutation(len(self.puzzles))[:n_samples]
             self.puzzles = self.puzzles[indices]
             self.solutions = self.solutions[indices]
 
@@ -93,8 +115,8 @@ class SudokuDataset(Dataset):
         base_idx = idx % len(self.puzzles)
         aug_idx = idx // len(self.puzzles)
 
-        puzzle = self.puzzles[base_idx]
-        solution = self.solutions[base_idx]
+        puzzle = self.puzzles[base_idx].copy()
+        solution = self.solutions[base_idx].copy()
 
         # Apply augmentation (different seed per augmentation index)
         if self.augmentations_per_sample > 1:
@@ -108,7 +130,7 @@ class SudokuDataset(Dataset):
 
     def get_raw(self, idx: int) -> Tuple[np.ndarray, np.ndarray]:
         """Get raw puzzle-solution pair without augmentation."""
-        return self.puzzles[idx], self.solutions[idx]
+        return self.puzzles[idx].copy(), self.solutions[idx].copy()
 
 
 class InfiniteSudokuDataset(Dataset):
@@ -136,8 +158,8 @@ class InfiniteSudokuDataset(Dataset):
         return len(self.puzzles)
 
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
-        puzzle = self.puzzles[idx]
-        solution = self.solutions[idx]
+        puzzle = self.puzzles[idx].copy()
+        solution = self.solutions[idx].copy()
 
         # Different augmentation each epoch
         self.augmentor.set_seed(self.epoch * len(self.puzzles) + idx)
@@ -151,6 +173,7 @@ class InfiniteSudokuDataset(Dataset):
 
 def create_dataloaders(
     train_samples: int = 1000,
+    test_samples: int = 1000,
     augmentations_per_sample: int = 200,
     batch_size: int = 512,
     num_workers: int = 4,
@@ -161,6 +184,7 @@ def create_dataloaders(
 
     Args:
         train_samples: Number of base training samples
+        test_samples: Number of test samples (default 1000 to avoid memory issues)
         augmentations_per_sample: Augmentations per sample per epoch
         batch_size: Batch size for training
         num_workers: Number of data loading workers
@@ -180,9 +204,9 @@ def create_dataloaders(
 
     test_dataset = SudokuDataset(
         split="test",
-        n_samples=None,  # Use all test samples
+        n_samples=test_samples,  # Limit test samples too
         augmentations_per_sample=1,  # No augmentation for test
-        seed=seed,
+        seed=seed + 1,  # Different seed for test
         dataset_name=dataset_name,
     )
 

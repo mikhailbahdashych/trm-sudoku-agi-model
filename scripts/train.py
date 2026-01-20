@@ -87,6 +87,7 @@ def main():
     print("\nLoading data...")
     train_loader, val_loader = create_dataloaders(
         train_samples=train_config.train_samples,
+        test_samples=config["data"].get("test_samples", 1000),  # Limit test set
         augmentations_per_sample=train_config.augmentations_per_sample,
         batch_size=train_config.batch_size,
         num_workers=config["data"]["num_workers"],
