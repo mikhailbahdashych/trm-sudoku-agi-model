@@ -1,0 +1,62 @@
+# TRM for Sudoku-Extreme Configuration
+# Based on "Less is More: Recursive Reasoning with Tiny Networks"
+
+# Model Architecture
+model:
+  hidden_dim: 512          # Hidden dimension (paper: 512)
+  n_latent: 6              # Latent recursions per deep step (paper: 6)
+  T_deep: 3                # Deep recursion loops (paper: 3)
+  use_act: true            # Adaptive Computation Time
+  mlp_ratio: 2.666667      # 8/3 for SwiGLU
+
+# Training Configuration
+training:
+  # Epochs and samples
+  epochs: 10000            # Paper: 60000, reduced for 2-4h budget
+  train_samples: 1000      # Same as paper (small-sample learning)
+  augmentations_per_sample: 200  # Paper: 1000, reduced for speed
+
+  # Optimization
+  batch_size: 512          # Paper: 768, reduced for VRAM
+  learning_rate: 3e-4      # Paper: 1e-4, increased for faster convergence
+  weight_decay: 1.0        # Same as paper
+  warmup_steps: 1000       # Linear warmup
+  max_grad_norm: 1.0       # Gradient clipping
+
+  # EMA
+  ema_decay: 0.999         # Same as paper
+  ema_warmup_steps: 100
+
+  # Mixed precision
+  use_amp: true
+  amp_dtype: bfloat16      # BF16 for RTX 5090/A100
+
+# Data
+data:
+  dataset_name: "Ritvik19/Sudoku-Dataset"
+  num_workers: 4
+  seed: 42
+
+# Logging and Checkpointing
+logging:
+  log_interval: 100        # Steps between logging
+  eval_interval: 1000      # Steps between evaluation
+  save_interval: 2000      # Steps between checkpoints
+  output_dir: outputs
+
+# Evaluation
+evaluation:
+  test_samples: null       # null = all test samples
+  llm_comparison_samples: 5
+
+# LLM Comparison (Ollama)
+llm:
+  model: "llama3.2"        # or "mistral", "qwen2.5"
+  ollama_url: "http://localhost:11434"
+  strategies:
+    - direct
+    - cot
+    - fewshot
+
+# Device
+device: cuda               # cuda or cpu
