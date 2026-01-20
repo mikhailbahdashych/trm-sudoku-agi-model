@@ -20,7 +20,3 @@ dependencies = [
 trm-train = "scripts.train:main"
 trm-evaluate = "scripts.evaluate:main"
 trm-compare-llm = "scripts.compare_llm:main"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
