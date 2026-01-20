@@ -10,7 +10,7 @@ from dataclasses import dataclass, asdict
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from torch.cuda.amp import GradScaler, autocast
+from torch.amp import GradScaler, autocast
 from tqdm import tqdm
 
 from ..model.trm import TRM
@@ -92,7 +92,7 @@ class TRMTrainer:
         )
 
         # Mixed precision
-        self.scaler = GradScaler() if self.config.use_amp else None
+        self.scaler = GradScaler("cuda") if self.config.use_amp else None
         self.amp_dtype = getattr(torch, self.config.amp_dtype, torch.float32)
 
         # Training state
@@ -127,7 +127,7 @@ class TRMTrainer:
         self.optimizer.zero_grad()
 
         if self.config.use_amp:
-            with autocast(device_type="cuda", dtype=self.amp_dtype):
+            with autocast("cuda", dtype=self.amp_dtype):
                 loss, logits, info = self.model.forward_with_supervision(puzzles, solutions)
 
             self.scaler.scale(loss).backward()
@@ -180,7 +180,7 @@ class TRMTrainer:
                 solutions = batch["solution"].to(self.device)
 
                 if self.config.use_amp:
-                    with autocast(device_type="cuda", dtype=self.amp_dtype):
+                    with autocast("cuda", dtype=self.amp_dtype):
                         loss, logits, _ = self.model.forward_with_supervision(puzzles, solutions)
                 else:
                     loss, logits, _ = self.model.forward_with_supervision(puzzles, solutions)
