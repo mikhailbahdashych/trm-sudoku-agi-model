@@ -12,7 +12,7 @@ model:
 # Training Configuration
 training:
   # Epochs and samples
-  epochs: 10000            # Paper: 60000, reduced for 2-4h budget
+  epochs: 500              # Paper: 60000, reduced for 2-4h budget (~4h with 30s/epoch)
   train_samples: 1000      # Same as paper (small-sample learning)
   augmentations_per_sample: 200  # Paper: 1000, reduced for speed
 
