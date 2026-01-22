@@ -103,6 +103,8 @@ class EarlyStopping:
 
     def status(self) -> str:
         """Return status string for logging."""
+        if self.best_loss is None:
+            return f"EarlyStopping: {self.counter}/{self.patience} (best_loss=N/A)"
         return f"EarlyStopping: {self.counter}/{self.patience} (best_loss={self.best_loss:.4f})"
 
 
