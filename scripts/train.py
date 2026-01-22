@@ -53,6 +53,10 @@ def main():
         weight_decay=config["training"]["weight_decay"],
         warmup_steps=config["training"]["warmup_steps"],
         max_grad_norm=config["training"]["max_grad_norm"],
+        # Early stopping
+        early_stopping=config["training"].get("early_stopping", True),
+        early_stopping_patience=config["training"].get("early_stopping_patience", 15),
+        early_stopping_min_delta=config["training"].get("early_stopping_min_delta", 0.001),
         # EMA
         ema_decay=config["training"]["ema_decay"],
         ema_warmup_steps=config["training"]["ema_warmup_steps"],
@@ -79,8 +83,12 @@ def main():
     print(f"Epochs: {train_config.epochs}")
     print(f"Batch size: {train_config.batch_size}")
     print(f"Learning rate: {train_config.learning_rate}")
+    print(f"Weight decay: {train_config.weight_decay}")
     print(f"Training samples: {train_config.train_samples}")
     print(f"Augmentations per sample: {train_config.augmentations_per_sample}")
+    if train_config.early_stopping:
+        print(f"Early stopping: patience={train_config.early_stopping_patience}, "
+              f"min_delta={train_config.early_stopping_min_delta}")
     print("=" * 60)
 
     # Create dataloaders
@@ -125,6 +133,9 @@ def main():
     print("\n" + "=" * 60)
     print("Training Complete!")
     print("=" * 60)
+    if results.get("stopped_early"):
+        print(f"Early stopping triggered at epoch {results['final_epoch']}")
+    print(f"Best validation loss: {results['best_val_loss']:.4f}")
     print(f"Best validation accuracy: {results['best_val_acc']:.2%}")
     print(f"Total time: {results['total_time_minutes']:.1f} minutes")
     print(f"Checkpoints saved to: {train_config.output_dir}")

@@ -1,4 +1,4 @@
-"""Training loop for TRM with deep supervision and mixed precision."""
+"""Training loop for TRM with deep supervision, mixed precision, and early stopping."""
 
 import os
 import time
@@ -27,37 +27,87 @@ class TrainingConfig:
     use_act: bool = True
 
     # Training
-    epochs: int = 10000
-    batch_size: int = 512
-    learning_rate: float = 3e-4
+    epochs: int = 200
+    batch_size: int = 8192
+    learning_rate: float = 0.001
     weight_decay: float = 1.0
-    warmup_steps: int = 1000
+    warmup_steps: int = 200
     max_grad_norm: float = 1.0
+
+    # Early stopping
+    early_stopping: bool = True
+    early_stopping_patience: int = 15
+    early_stopping_min_delta: float = 0.001
 
     # EMA
     ema_decay: float = 0.999
-    ema_warmup_steps: int = 100
+    ema_warmup_steps: int = 50
 
     # Mixed precision
     use_amp: bool = True
-    amp_dtype: str = "bfloat16"
+    amp_dtype: str = "float16"
 
     # Data
     train_samples: int = 1000
     augmentations_per_sample: int = 200
 
     # Logging and checkpointing
-    log_interval: int = 100
-    eval_interval: int = 1000
-    save_interval: int = 2000
+    log_interval: int = 24
+    eval_interval: int = 72
+    save_interval: int = 240
     output_dir: str = "outputs"
 
     # Device
     device: str = "cuda"
 
 
+class EarlyStopping:
+    """Early stopping to stop training when validation loss doesn't improve."""
+
+    def __init__(self, patience: int = 10, min_delta: float = 0.001):
+        """
+        Args:
+            patience: Number of evaluations to wait for improvement
+            min_delta: Minimum change to qualify as an improvement
+        """
+        self.patience = patience
+        self.min_delta = min_delta
+        self.counter = 0
+        self.best_loss = None
+        self.should_stop = False
+
+    def __call__(self, val_loss: float) -> bool:
+        """Check if training should stop.
+
+        Args:
+            val_loss: Current validation loss
+
+        Returns:
+            True if training should stop
+        """
+        if self.best_loss is None:
+            self.best_loss = val_loss
+            return False
+
+        if val_loss < self.best_loss - self.min_delta:
+            # Improvement found
+            self.best_loss = val_loss
+            self.counter = 0
+        else:
+            # No improvement
+            self.counter += 1
+            if self.counter >= self.patience:
+                self.should_stop = True
+
+        return self.should_stop
+
+    def status(self) -> str:
+        """Return status string for logging."""
+        return f"EarlyStopping: {self.counter}/{self.patience} (best_loss={self.best_loss:.4f})"
+
+
 class TRMTrainer:
-    """Trainer for TRM model with deep supervision."""
+    """Trainer for TRM model with deep supervision and early stopping."""
 
     def __init__(
         self,
@@ -95,10 +145,19 @@ class TRMTrainer:
         self.scaler = GradScaler("cuda") if self.config.use_amp else None
         self.amp_dtype = getattr(torch, self.config.amp_dtype, torch.float32)
 
+        # Early stopping
+        self.early_stopping = None
+        if self.config.early_stopping:
+            self.early_stopping = EarlyStopping(
+                patience=self.config.early_stopping_patience,
+                min_delta=self.config.early_stopping_min_delta,
+            )
+
         # Training state
         self.global_step = 0
         self.epoch = 0
         self.best_val_acc = 0.0
+        self.best_val_loss = float('inf')
         self.history = {"train_loss": [], "val_loss": [], "val_acc": [], "lr": []}
 
         # Output directory
@@ -200,13 +259,16 @@ class TRMTrainer:
         }
 
     def train(self) -> Dict[str, Any]:
-        """Main training loop."""
+        """Main training loop with early stopping."""
         print(f"Starting training on {self.device}")
         print(f"Model parameters: {self.model.count_parameters():,}")
         print(f"Training samples: {len(self.train_loader.dataset):,}")
         print(f"Batch size: {self.config.batch_size}")
         print(f"Total epochs: {self.config.epochs}")
         print(f"Steps per epoch: {len(self.train_loader)}")
+        if self.early_stopping:
+            print(f"Early stopping: patience={self.config.early_stopping_patience}, "
+                  f"min_delta={self.config.early_stopping_min_delta}")
 
         # Save config
         config_path = self.output_dir / "config.json"
@@ -216,6 +278,7 @@ class TRMTrainer:
         start_time = time.time()
         running_loss = 0.0
         running_acc = 0.0
+        stopped_early = False
 
         for epoch in range(self.config.epochs):
             self.epoch = epoch
@@ -247,19 +310,38 @@ class TRMTrainer:
                     if val_metrics:
                         self.history["val_loss"].append(val_metrics["val_loss"])
                         self.history["val_acc"].append(val_metrics["val_puzzle_acc"])
+
+                        # Early stopping status
+                        es_status = ""
+                        if self.early_stopping:
+                            es_status = f" | {self.early_stopping.status()}"
+
                         print(f"\nStep {self.global_step}: "
                               f"val_loss={val_metrics['val_loss']:.4f}, "
                               f"val_cell_acc={val_metrics['val_cell_acc']:.2%}, "
-                              f"val_puzzle_acc={val_metrics['val_puzzle_acc']:.2%}")
+                              f"val_puzzle_acc={val_metrics['val_puzzle_acc']:.2%}{es_status}")
 
-                        # Save best model
-                        if val_metrics["val_puzzle_acc"] > self.best_val_acc:
+                        # Save best model (by val_loss for better generalization)
+                        if val_metrics["val_loss"] < self.best_val_loss:
+                            self.best_val_loss = val_metrics["val_loss"]
                             self.best_val_acc = val_metrics["val_puzzle_acc"]
                             self.save_checkpoint("best.pt")
+                            print(f"  New best model saved! (val_loss={self.best_val_loss:.4f})")
+
+                        # Check early stopping
+                        if self.early_stopping and self.early_stopping(val_metrics["val_loss"]):
+                            print(f"\nEarly stopping triggered at epoch {epoch+1}, step {self.global_step}")
+                            print(f"Best val_loss: {self.best_val_loss:.4f}, Best val_acc: {self.best_val_acc:.2%}")
+                            stopped_early = True
+                            break
 
                 # Checkpointing
                 if self.global_step % self.config.save_interval == 0:
                     self.save_checkpoint(f"step_{self.global_step}.pt")
+
+            # Check if we should stop (early stopping triggered inside batch loop)
+            if stopped_early:
+                break
 
             # End of epoch logging
             avg_epoch_loss = epoch_loss / epoch_steps
@@ -278,11 +360,17 @@ class TRMTrainer:
 
         total_time = time.time() - start_time
         print(f"\nTraining complete in {total_time/60:.1f} minutes")
+        if stopped_early:
+            print(f"Training stopped early at epoch {self.epoch + 1}")
+        print(f"Best validation loss: {self.best_val_loss:.4f}")
         print(f"Best validation puzzle accuracy: {self.best_val_acc:.2%}")
 
         return {
             "final_metrics": final_metrics,
             "best_val_acc": self.best_val_acc,
+            "best_val_loss": self.best_val_loss,
+            "stopped_early": stopped_early,
+            "final_epoch": self.epoch + 1,
             "total_time_minutes": total_time / 60,
         }
 
@@ -297,6 +385,7 @@ class TRMTrainer:
             "global_step": self.global_step,
             "epoch": self.epoch,
             "best_val_acc": self.best_val_acc,
+            "best_val_loss": self.best_val_loss,
             "config": asdict(self.config),
         }
         torch.save(checkpoint, path)
@@ -312,4 +401,5 @@ class TRMTrainer:
         self.global_step = checkpoint["global_step"]
         self.epoch = checkpoint["epoch"]
         self.best_val_acc = checkpoint["best_val_acc"]
+        self.best_val_loss = checkpoint.get("best_val_loss", float('inf'))
         print(f"Loaded checkpoint from {path}")
