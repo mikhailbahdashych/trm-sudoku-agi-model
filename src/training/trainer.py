@@ -355,10 +355,11 @@ class TRMTrainer:
         final_metrics = self.evaluate()
         self.save_checkpoint("final.pt")
 
-        # Save training history
+        # Save training history with time tracking
+        self.history["training_time_seconds"] = total_time
         history_path = self.output_dir / "history.json"
         with open(history_path, "w") as f:
-            json.dump(self.history, f)
+            json.dump(self.history, f, indent=2)
 
         total_time = time.time() - start_time
         print(f"\nTraining complete in {total_time/60:.1f} minutes")

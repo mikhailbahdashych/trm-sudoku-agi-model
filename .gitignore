@@ -3,3 +3,5 @@ __pycache__
 CLAUDE.md
 .claude/
 TASK.md
+uv.lock
+outputs/*
