@@ -9,6 +9,7 @@ Usage:
     python main.py evaluate CHECKPOINT [--n-samples N]
     python main.py compare CHECKPOINT [--n-puzzles N] [--llm-model MODEL]
     python main.py visualize [--history PATH] [--eval PATH] [--output-dir DIR]
+    python main.py visualize-comparison [--comparison PATH] [--output-dir DIR]
     python main.py info
 
 Examples:
@@ -23,6 +24,9 @@ Examples:
 
     # Visualize training results
     python main.py visualize --history outputs/history.json --eval outputs/eval_results.json
+
+    # Visualize TRM vs LLM comparison
+    python main.py visualize-comparison --comparison outputs/llm_comparison.json
 """
 
 import sys
@@ -62,11 +66,12 @@ def print_info():
     print("  scripts/visualize.py  - Visualization script")
     print()
     print("Commands:")
-    print("  python main.py train     - Train the model")
-    print("  python main.py evaluate  - Evaluate trained model")
-    print("  python main.py compare   - Compare with LLM")
-    print("  python main.py visualize - Visualize training results")
-    print("  python main.py info      - Show this info")
+    print("  python main.py train              - Train the model")
+    print("  python main.py evaluate           - Evaluate trained model")
+    print("  python main.py compare            - Compare with LLM")
+    print("  python main.py visualize          - Visualize training results")
+    print("  python main.py visualize-comparison - Visualize TRM vs LLM comparison")
+    print("  python main.py info               - Show this info")
     print("=" * 60)
 
 
@@ -74,7 +79,7 @@ def main():
     if len(sys.argv) < 2:
         print_info()
         print("\nUsage: python main.py <command> [options]")
-        print("Commands: train, evaluate, compare, visualize, info")
+        print("Commands: train, evaluate, compare, visualize, visualize-comparison, info")
         sys.exit(0)
 
     command = sys.argv[1].lower()
@@ -106,9 +111,15 @@ def main():
         from scripts.visualize import main as visualize_main
         visualize_main()
 
+    elif command == "visualize-comparison":
+        # Pass remaining args to visualize comparison script
+        sys.argv = [sys.argv[0]] + sys.argv[2:]
+        from scripts.visualize_comparison import main as visualize_comparison_main
+        visualize_comparison_main()
+
     else:
         print(f"Unknown command: {command}")
-        print("Available commands: train, evaluate, compare, visualize, info")
+        print("Available commands: train, evaluate, compare, visualize, visualize-comparison, info")
         sys.exit(1)
 
 
