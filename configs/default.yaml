@@ -15,10 +15,10 @@ training:
   train_samples: 5000
   augmentations_per_sample: 1000
 
-  batch_size: 8192
-  learning_rate: 0.0003
+  batch_size: 20480
+  learning_rate: 0.0005
   weight_decay: 1.0
-  warmup_steps: 1000
+  warmup_steps: 400
   max_grad_norm: 1.0
 
   early_stopping: true
@@ -26,7 +26,7 @@ training:
   early_stopping_min_delta: 0.0003
 
   ema_decay: 0.999
-  ema_warmup_steps: 100
+  ema_warmup_steps: 40
 
   use_amp: true
   amp_dtype: float16
@@ -40,9 +40,9 @@ data:
 
 # Logging and Checkpointing
 logging:
-  log_interval: 610
-  eval_interval: 1220
-  save_interval: 3050
+  log_interval: 244
+  eval_interval: 488
+  save_interval: 1220
   output_dir: outputs
 
 # Evaluation

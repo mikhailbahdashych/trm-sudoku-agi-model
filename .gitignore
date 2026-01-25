@@ -4,4 +4,4 @@ CLAUDE.md
 .claude/
 TASK.md
 uv.lock
-outputs/*
+outputs/*.pt
