@@ -38,7 +38,7 @@ class OllamaClient:
         model: str,
         prompt: str,
         temperature: float = 0.0,
-        max_tokens: int = 2000,
+        max_tokens: int = -1,
     ) -> str:
         """Generate completion from Ollama model.
 
@@ -46,7 +46,7 @@ class OllamaClient:
             model: Model name (e.g., "llama3.2", "mistral")
             prompt: Input prompt
             temperature: Sampling temperature
-            max_tokens: Maximum tokens to generate
+            max_tokens: Maximum tokens to generate (-1 for unlimited)
 
         Returns:
             Generated text
@@ -62,7 +62,7 @@ class OllamaClient:
             },
         }
 
-        response = requests.post(url, json=payload, timeout=120)
+        response = requests.post(url, json=payload, timeout=600)
         response.raise_for_status()
         return response.json()["response"]
 
